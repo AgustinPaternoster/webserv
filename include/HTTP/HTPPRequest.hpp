@@ -1,28 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   HTPPRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/23 21:07:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/10/23 21:14:59 by nikitadorof      ###   ########.fr       */
+/*   Created: 2025/10/23 20:15:11 by nikitadorof       #+#    #+#             */
+/*   Updated: 2025/10/23 20:40:51 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//first headers
+#ifndef HTTPREQUEST_HPP
+# define HTTPREQUEST_HPP
 
-#include "../include/HTTP/HTTPHeaders.hpp"
-#include <iostream>
-
-int main(void)
+class HttpRequest
 {
-    HttpHeaders header;
+	public:
 
-    header.set_http("Content-Type", "application/json");
-    header.set_http("content-lenght", "123");
-    header.set_http("HOST", "localhost");
 
-    std::cout << header.get_http("content-type") << std::endl;
-    return (0);
-}
+};
+
+#endif
