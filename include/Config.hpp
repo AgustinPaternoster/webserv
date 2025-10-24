@@ -1,5 +1,5 @@
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
+#ifndef _CONFIG_HPP_
+#define _CONFIG_HPP_
 #include "Common.hpp"
 
 class Config
