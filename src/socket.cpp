@@ -6,7 +6,7 @@
 /*   By: yrodrigu <yrodrigu@student.42barcelo>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/10/24 15:32:34 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/10/27 13:11:25 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,13 +96,15 @@ void	Socket::print_error() {
 	write(2, strerror(errno), strlen(strerror(errno)));
 	write(2, "\n", 1);
 }
-/*
+
+int	g_signal = true;
+
 void    signal_handler(int signum) {
 
     (void)signum;
     g_signal = false;
 }
-*/
+
 int	Socket::webserver_init() {
 
     Socket  socket;
@@ -121,9 +123,9 @@ int	Socket::webserver_init() {
 
     std::cout << "Server listening... on PORT: 8080 " <<  std::endl;
 
-//    std::signal(SIGINT, signal_handler);
+	std::signal(SIGINT, signal_handler);
 
-    while (1) {
+    while (g_signal) {
 
         int client_fd = socket.accepting();
         if (client_fd == -1) {
@@ -131,14 +133,14 @@ int	Socket::webserver_init() {
             if (errno == EAGAIN)
                 continue ;
         }
-        int send_status = send(client_fd, get_http(), HTTP_LEN, 0);
+        char  buff[1024];
 
-        /*char  buff[1024];
-
-        int recv_status = recv(client_fd, buff, strlen(buff), 0);
+        int recv_status = recv(client_fd, buff, sizeof(buff) - 1, 0);
         (void)recv_status;
         std::cout << buff << std::endl;
-*/
+        
+		int send_status = send(client_fd, get_http(), HTTP_LEN, 0);
+
         if (send_status == -1) {
             socket.print_error();
         }

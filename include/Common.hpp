@@ -15,7 +15,6 @@
 
 #define ARG_ERROR_MSG "exactly one argument is required — the configuration file."
 
-//volatile int g_signal = true;
 
 /*
 typedef enum methods
