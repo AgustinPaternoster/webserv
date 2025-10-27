@@ -5,13 +5,16 @@
 class Config
 {
     public:
-        Config(std::string file);
+        Config(char *path);
         Config(const Config& other);
         ~Config(void);
-    private:
-        std::vector<t_server> servers;
 
-        
+        Config& operator=(const Config& other);
+
+    private:
+        std::vector<t_server> _servers;
+        std::string _configFile;
+  
 };
 
 #endif

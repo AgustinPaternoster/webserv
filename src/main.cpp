@@ -1,13 +1,15 @@
 #include "Common.hpp"
+#include "Config.hpp"
 
 int main(int arc, char** argv)
 {
     try
     {
-		(void)argv;
+		//(void)argv;
         if (arc < 2 || arc > 3)
             throw std::invalid_argument(ARG_ERROR_MSG);
-        Socket::webserver_init();
+        Config conFile(argv[1]);
+        //Socket::webserver_init();
     }
     catch(const std::exception& e)
     {

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <exception>
+#include <fstream>
 #include <vector>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -14,19 +15,18 @@
 #include <Socket.hpp>
 
 #define ARG_ERROR_MSG "exactly one argument is required — the configuration file."
+#define ERROR_FILE_NOT_OPEN "Error: the specified file could not be opened."
 
 //volatile int g_signal = true;
 
-/*
-typedef enum methods
+
+enum methods
 {
    GET = 0,
    POST = 1,
    DELETE = 2,
-	////STRUCT COMMENTED SINCE IS SHOWING AN ERROR IN TERMINAL
-	// AND NOT NECESSARY FOR THE MOMENT
 };
-*/
+
 
 
 // estructura location //
