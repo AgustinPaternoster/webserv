@@ -10,7 +10,6 @@ class Config
         ~Config(void);
     private:
         std::vector<t_server> servers;
-
         
 };
 

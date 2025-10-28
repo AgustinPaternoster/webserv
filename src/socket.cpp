@@ -6,7 +6,7 @@
 /*   By: yrodrigu <yrodrigu@student.42barcelo>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/10/28 11:04:21 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/10/28 12:51:38 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,16 +140,16 @@ int	Socket::webserver_init() {
     while (g_signal) {
 
 		int	ready = poll(poll_fds.data(), poll_fds.size(), -1);
-
+		
 		if (ready == -1) {
 		
 			if (g_signal == false)
 			{
-				std::cerr << "\nSignal called: " << strerror(errno) << std::endl;
+				std::cerr << "\nPOLL ERROR: " << strerror(errno) << std::endl;
 				break ;
 			}
 		}
-		
+		(void)ready;		
 		std::vector<struct pollfd> current_fds = poll_fds;
 
 		for (size_t i = 0; i < current_fds.size(); i++) {
