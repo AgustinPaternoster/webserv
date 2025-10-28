@@ -9,6 +9,7 @@ Config::Config(char *path)
     std::istreambuf_iterator<char> end;
     _configFile = std::string(init,end);
     std::cout << _configFile;
+
 }
 
 Config::Config(const Config& other)
@@ -28,3 +29,8 @@ Config& Config::operator=(const Config& other)
     return(*this);
 }
 
+void Config::_parseFile(std::string file)
+{
+    std::string serverTmp;
+    while(c)
+}

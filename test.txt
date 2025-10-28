@@ -1,0 +1,9 @@
+server{
+    aaaaa;
+    ffffff;
+    tttttt;
+}
+server{
+    iiii;
+    qqqqq;
+}

@@ -14,7 +14,7 @@ class Config
     private:
         std::vector<t_server> _servers;
         std::string _configFile;
-  
+        void _parseFile(std::string file);
 };
 
 #endif
