@@ -6,7 +6,7 @@
 /*   By: yrodrigu <yrodrigu@student.42barcelo>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/10/29 17:28:29 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/10/29 19:13:32 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "Socket.hpp"
 #include "Config.hpp"
 
-Socket::Socket(): socket_fd(-1) {
+Socket::Socket(): socket_fd(-1), server_info(NULL) {
 	
 	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
@@ -23,11 +23,21 @@ Socket::Socket(): socket_fd(-1) {
 	client_addr_size = sizeof(client_addr);
 }
 
-Socket::Socket(const Socket &obj) { (void)obj; };
+Socket::Socket(const Socket &obj) {
+
+	*this = obj;
+};
 
 Socket &Socket::operator=(const Socket &obj) {
 	
-	(void)obj;	
+	if (this != &obj) {
+        socket_fd = obj.socket_fd;
+        port = obj.port;
+        hints = obj.hints;
+        client_addr = obj.client_addr;
+        client_addr_size = obj.client_addr_size;
+        server_info = NULL;
+    }
 	return (*this);
 };
 
@@ -46,7 +56,7 @@ Socket::~Socket() {
 
 int	Socket::set_addrinfo() {
 
-	int status = getaddrinfo(NULL, "8080", &hints, &server_info);
+	int status = getaddrinfo(NULL, port.c_str(), &hints, &server_info);
 	return (status);
 }
 
@@ -114,6 +124,86 @@ void    signal_handler(int signum) {
 
 int	Socket::webserver_init() {
 
+	std::vector<Socket *>	sockets;
+	t_server	server;
+	t_server	server2;
+	t_server	server3;
+	Config		config;
+	std::stringstream ss;
+
+	server.port = 8080;
+	server2.port = 8070;
+	server3.port = 8060;
+	config.servers.push_back(server);
+	config.servers.push_back(server2);
+	config.servers.push_back(server3);
+	
+
+	for (size_t i = 0; i < config.servers.size(); i++) {
+	
+		Socket	*socket = new Socket();
+
+		ss << config.servers[i].port;
+		std::string str_port = ss.str();
+
+		socket->port = str_port;
+
+    	int status = socket->set_addrinfo();
+		if (status != 0) {
+        	std::cout << gai_strerror(status) << std::endl;
+        	delete socket;
+			return (1);
+    	}
+		if (socket->create_socket() == -1 || socket->binding() == -1 || socket->listening() == -1)
+    	{
+        	socket->print_error();
+			delete socket;
+        	return (1);
+    	}
+		std::cout << "Socket in PORT: " << socket->getport() << std::endl;
+		std::cout << "Socket fd: " << socket->getsocket_fd() << std::endl;
+			sockets.push_back(socket);
+			ss.str("");
+			ss.clear();
+	}
+		
+		std::signal(SIGINT, signal_handler);
+		
+		while (g_signal) {
+		
+		for (size_t i = 0; i < sockets.size(); i++) {
+			
+				int client_fd = sockets[i]->accepting();
+				if (client_fd == -1) {
+					
+					continue ;
+				}
+				else {
+					std::cout << "Client connected to port ";
+					std::cout << sockets[i]->getport() << std::endl;
+					char	buffer[4096];
+
+					int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+					if (bytes > 0)
+					{
+						buffer[bytes] = '\0';
+						std::cout << buffer;
+						send(client_fd, get_http(), HTTP_LEN, 0);
+					}
+					close(client_fd);
+				}
+		}
+		}
+		 for (size_t i = 0; i < sockets.size(); i++) {
+        delete sockets[i];
+    }
+
+	return (0);
+}
+
+/*
+int	Socket::webserver_init() {
+
     Socket  socket;
 	t_server	server;
 	Config		config;	
@@ -155,7 +245,6 @@ int	Socket::webserver_init() {
 				break ;
 			}
 		}
-		(void)ready;		
 		std::vector<struct pollfd> current_fds = poll_fds;
 
 		for (size_t i = 0; i < current_fds.size(); i++) {
@@ -212,3 +301,4 @@ int	Socket::webserver_init() {
 	}
 	return (0);
 }
+*/
