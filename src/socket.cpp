@@ -6,12 +6,13 @@
 /*   By: yrodrigu <yrodrigu@student.42barcelo>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/10/28 12:51:38 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/10/29 17:28:29 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "Socket.hpp"
+#include "Config.hpp"
 
 Socket::Socket(): socket_fd(-1) {
 	
@@ -114,6 +115,11 @@ void    signal_handler(int signum) {
 int	Socket::webserver_init() {
 
     Socket  socket;
+	t_server	server;
+	Config		config;	
+	
+	server.port = 8080;
+	config.servers.push_back(server);
 
     int status = socket.set_addrinfo();
 	if (status != 0) {

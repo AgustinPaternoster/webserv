@@ -5,11 +5,11 @@
 class Config
 {
     public:
-        Config(std::string file);
-        Config(const Config& other);
-        ~Config(void);
-    private:
-        std::vector<t_server> servers;
+		Config() {};
+	   	//Config(std::string file);
+        //Config(const Config& other);
+        ~Config(void) {};
+		std::vector<t_server> servers;
         
 };
 

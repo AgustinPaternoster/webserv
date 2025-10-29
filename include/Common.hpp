@@ -2,6 +2,8 @@
 #define _COMMON_HPP_
 
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <exception>
 #include <poll.h>
 #include <vector>
