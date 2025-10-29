@@ -25,23 +25,32 @@ int main(void)
 
     int level;
     int i = 0;
+    int pos = 0;
     while(i < text.size())
     {
-        std::size_t found = text.find(serch); 
-        if (std::string::npos == found)
+        std::size_t start = text.find(serch, i); 
+        if (std::string::npos == start)
         {
             std::cout << " no servers";
             break;
         }
-        for(int i = found; i < text.size(); i++)
+        pos = start+6;
+        for(;pos < text.size(); pos++)
         {
-            if(text[i] == '{')
+            if(text[pos] == '{')
                 level++;
-            if(text[i] == '}')
+            if(text[pos] == '}')
             {
-
+                level--;
+                if (level == 0)
+                {
+                    int len = pos - (start + 6);
+                    std::cout << text.substr(start + 6 , len ) << std::endl;
+                    break;
+                }
             }    
         }
+        i = pos;
     }
     return (0);
     

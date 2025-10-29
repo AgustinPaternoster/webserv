@@ -1,9 +1,6 @@
 server{
-    aaaaa;
-    ffffff;
-    tttttt;
+    aa;
 }
 server{
     iiii;
-    qqqqq;
 }

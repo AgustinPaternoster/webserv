@@ -5,6 +5,7 @@
 #include <exception>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
@@ -14,9 +15,10 @@
 #include <csignal>
 #include <Socket.hpp>
 
+// Errores
 #define ARG_ERROR_MSG "exactly one argument is required — the configuration file."
-#define ERROR_FILE_NOT_OPEN "Error: the specified file could not be opened."
-
+#define ERROR_FILE_NOT_OPEN "the specified file could not be opened."
+#define CONFIG_NO_SERVER_ERROR "Configuration file must define at least one server."
 //volatile int g_signal = true;
 
 

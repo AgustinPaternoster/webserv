@@ -12,9 +12,12 @@ class Config
         Config& operator=(const Config& other);
 
     private:
-        std::vector<t_server> _servers;
-        std::string _configFile;
+        std::vector<t_server>   _servers;
+        std::string             _configFile;
+        void _openFile(char* path);
         void _parseFile(std::string file);
+        void _parserServerConfig(std::string server);
+        static const std::map<int,std::string> validDirectives;
 };
 
 #endif
