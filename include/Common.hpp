@@ -2,6 +2,7 @@
 #define _COMMON_HPP_
 
 #include <iostream>
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <exception>
