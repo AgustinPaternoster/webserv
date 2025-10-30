@@ -1,25 +1,31 @@
 #include "Config.hpp"
 
-const std::map<int,std::string> validDirecvalidDirectives =
+std::map<int, std::string> createValidDirectives(void)
 {
-    {0, "listen"},
-    {1, "root"},
-    {2, "index"},
-    {3, "client_max_body_size"},
-    {4, "error_page"},
-    {5, "location"},
-    {6, "allow_methods"},
-    {7, "autoindex"},
-    {8, "upload_store"},
-    {9, "cgi_extension"},
-    {10, "cgi_path"},
-    {11, "return"}
-};
+    std::map<int, std::string> m;
+    m[0]  = "listen";
+    m[1]  = "root";
+    m[2]  = "index";
+    m[3]  = "client_max_body_size";
+    m[4]  = "error_page";
+    m[5]  = "location";
+    m[6]  = "allow_methods";
+    m[7]  = "autoindex";
+    m[8]  = "upload_store";
+    m[9]  = "cgi_extension";
+    m[10] = "cgi_path";
+    m[11] = "return";
+    return (m);
+}
+
+
+const std::map<int,std::string> Config::validDirectives = createValidDirectives();
+
 
 Config::Config(char *path)
 {
     _openFile(path);
-
+    _parseFile();
 
 }
 
@@ -50,18 +56,17 @@ void Config::_openFile(char* path)
     _configFile = std::string(init,end);
 }
 
-void Config::_parseFile(std::string path)
+void Config::_parseFile(void)
 {
     int level;
-    int i = 0;
-    int pos = 0;
-    std::size_t start;
-
-    while (i < _configFile.size())
+    size_t i = 0;
+    size_t pos = 0;
+    std::size_t start = _configFile.find("server", i);
+    if (std::string::npos == start)
+        throw std::invalid_argument(CONFIG_NO_SERVER_ERROR);
+;
+    while (std::string::npos != start)
     {
-        start = _configFile.find("server", i);
-        if (std::string::npos == start)
-            throw std::invalid_argument(CONFIG_NO_SERVER_ERROR);
         pos = start + 6;
         for (;pos < _configFile.size(); pos++)
         {
@@ -72,17 +77,54 @@ void Config::_parseFile(std::string path)
                 level--;
                 if(level == 0)
                 {
-                    /// funcion parser server;
+                    _parserServerConfig(_configFile.substr(start + 6, pos - (start + 6)));
                     break;
                 }
             }
         }
-        i = pos;
+        start = _configFile.find("server", pos);
     }
-  
 }
 
 void Config::_parserServerConfig(std::string server)
 {
+    (void)server;
+    // std::vector<std::pair<std::string,std::string>> directives;
+    // std::string tmp;
+    // std::string directive;
+    // size_t i = 0;
+    // size_t pos;
+    // while(i < server.size())
+    // {
+    //     while(!isalpha(server[i]))
+    //         i++;
+    //     directive = server.substr(i, server.find(32,i) - i);
+    //     if (validDirectives.at(5) == directive)
+    //     {   
+    //         std::cout << directive;
+    //     else
+    //         std::cout << directive;
+    //     i++;
+    // }
+}
+
+std::string Config::_extracDirective(std::string& src, size_t &pos, size_t start)
+{
+    int level = 0;
     
+    for (; pos < src.size(); pos++)
+    {
+        if(src[pos] == '{')
+            level++;
+        if(src[pos] == '}')
+        {
+            level--;
+            if(level == 0)
+            {
+                int len = pos - (start + 6);
+                return(src.substr(start + 6, len));
+            }
+        }
+    }
+    return ("");
 }

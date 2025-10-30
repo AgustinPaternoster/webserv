@@ -10,14 +10,16 @@ class Config
         ~Config(void);
 
         Config& operator=(const Config& other);
+        static const std::map<int,std::string> validDirectives;
 
     private:
         std::vector<t_server>   _servers;
         std::string             _configFile;
         void _openFile(char* path);
-        void _parseFile(std::string file);
+        void _parseFile(void);
         void _parserServerConfig(std::string server);
-        static const std::map<int,std::string> validDirectives;
+        std::string _extracDirective(std::string& src , size_t &pos, size_t start);
+
 };
 
 #endif

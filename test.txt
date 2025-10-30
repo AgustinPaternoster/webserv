@@ -1,6 +1,21 @@
-server{
-    aa;
+server {
+
+    location {}
+    
+    listen  80;
+    root /var/www/html;
+    client_max_body_size 10M;
+    error_page 404 /errors/404.html;
+    index index.html;
 }
-server{
-    iiii;
-}
+
+server {
+
+    listen  80;
+    root /var/www/html;
+    client_max_body_size 10M;
+    error_page 404 /errors/404.html;
+    index index.html;
+
+
+

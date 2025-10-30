@@ -6,6 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <ctype.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
