@@ -6,7 +6,7 @@
 /*   By: yrodrigu <yrodrigu@student.42barcelo>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/10/29 19:51:36 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/10/31 13:47:58 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,6 @@ void    signal_handler(int signum) {
 int	Socket::webserver_init() {
 
 	std::vector<Socket *>	sockets;
-	std::vector<struct pollfd> poll_fds;
 	t_server	server;
 	t_server	server2;
 	t_server	server3;
@@ -167,10 +166,13 @@ int	Socket::webserver_init() {
 			ss.str("");
 			ss.clear();
 	}
-			for (size_t i = 0; i < sockets.size(); i++) {
+	
+	std::vector<struct pollfd> poll_fds;
+		
+	for (size_t i = 0; i < sockets.size(); i++) {
 		
 			struct	pollfd socket_fd;
-			socket_fd.fd = atoi(sockets[i]->getport().c_str());
+			socket_fd.fd = sockets[i]->getsocket_fd();
 			socket_fd.events = POLLIN;
 			socket_fd.revents = 0;
 			poll_fds.push_back(socket_fd);
@@ -179,8 +181,52 @@ int	Socket::webserver_init() {
 		std::signal(SIGINT, signal_handler);
 		
 		while (g_signal) {
+			 
+			std::cout << "🕐 Waiting for connections..." << std::endl;
 			
 			int ready = poll(poll_fds.data(), poll_fds.size(), -1);
+		 	
+			std::cout << "🔔 poll() returned, ready: " << ready << std::endl;
+			
+			if (ready == -1) {
+       			// if (errno == EINTR) continue;
+				 std::cerr << "❌ poll error: " << strerror(errno) << std::endl;
+        		break;
+    		}
+			
+			
+			for (size_t i = 0; i < poll_fds.size(); i++) {
+			
+				if (poll_fds[i].revents & POLLIN) { 
+				
+					int client_fd = sockets[i]->accepting();
+					if (client_fd == -1) {
+					if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                    std::cout << "➰ No pending connections (non-blocking)" << std::endl;
+                } else {
+                    std::cout << "❌ Accept error: " << strerror(errno) << std::endl;
+                }
+						continue ;
+					}
+					std::cout << "Client Connected... to port: " << sockets[i]->getport();
+					std::cout << std::endl;	
+					char buffer[4096];	
+					int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+					if (bytes > 0) {
+					
+						buffer[bytes] = '\0';
+						std::cout  << buffer;
+
+						int bytes_sent = send(client_fd, get_http(), HTTP_LEN, 0);
+						std::cout << "📤 Sent " << bytes_sent << " bytes" << std::endl;
+						close(client_fd);
+
+						poll_fds[i].revents = 0;
+					}
+				}
+
+
+			}
 		}
 		
 		for (size_t i = 0; i < sockets.size(); i++) {
