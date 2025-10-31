@@ -1,6 +1,10 @@
 server {
 
-    location {}
+    location /images/ {
+        root ./www/default;
+        allow_methods GET;
+        autoindex off;
+    }
     
     listen  80;
     root /var/www/html;
@@ -16,6 +20,4 @@ server {
     client_max_body_size 10M;
     error_page 404 /errors/404.html;
     index index.html;
-
-
-
+}

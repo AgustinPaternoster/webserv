@@ -20,6 +20,7 @@
 #define ARG_ERROR_MSG "exactly one argument is required — the configuration file."
 #define ERROR_FILE_NOT_OPEN "the specified file could not be opened."
 #define CONFIG_NO_SERVER_ERROR "Configuration file must define at least one server."
+#define SERVER_CONFIG_ERROR "There is a failure in the server setup."
 //volatile int g_signal = true;
 
 
@@ -44,7 +45,7 @@ typedef struct s_location
 /// estructura servers //
  typedef struct s_server
  {
-   int port;
+   std::string port;
    std::string root;
    std::string error_page;
    std::vector <t_location> locations;

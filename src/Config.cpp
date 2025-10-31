@@ -15,6 +15,7 @@ std::map<int, std::string> createValidDirectives(void)
     m[9]  = "cgi_extension";
     m[10] = "cgi_path";
     m[11] = "return";
+    m[12] = "server";
     return (m);
 }
 
@@ -58,54 +59,55 @@ void Config::_openFile(char* path)
 
 void Config::_parseFile(void)
 {
-    int level;
-    size_t i = 0;
     size_t pos = 0;
-    std::size_t start = _configFile.find("server", i);
+    std::size_t start = _configFile.find(validDirectives.at(12), pos);
     if (std::string::npos == start)
         throw std::invalid_argument(CONFIG_NO_SERVER_ERROR);
-;
     while (std::string::npos != start)
     {
         pos = start + 6;
-        for (;pos < _configFile.size(); pos++)
-        {
-            if(_configFile[pos] == '{')
-                level++;
-            if(_configFile[pos] == '}')
-            {
-                level--;
-                if(level == 0)
-                {
-                    _parserServerConfig(_configFile.substr(start + 6, pos - (start + 6)));
-                    break;
-                }
-            }
-        }
-        start = _configFile.find("server", pos);
+        _parserServerConfig(_extracDirective(_configFile, pos, start + validDirectives.at(12).size() ));
+        start = _configFile.find(validDirectives.at(12), pos);
     }
 }
 
 void Config::_parserServerConfig(std::string server)
 {
-    (void)server;
+    std::string directive;
+    size_t pos = 0;
+    size_t end;
+    t_server serverTmp;
+    if (server.empty())
+        throw std::invalid_argument(SERVER_CONFIG_ERROR);
     // std::vector<std::pair<std::string,std::string>> directives;
-    // std::string tmp;
-    // std::string directive;
     // size_t i = 0;
-    // size_t pos;
-    // while(i < server.size())
-    // {
-    //     while(!isalpha(server[i]))
-    //         i++;
-    //     directive = server.substr(i, server.find(32,i) - i);
-    //     if (validDirectives.at(5) == directive)
-    //     {   
-    //         std::cout << directive;
-    //     else
-    //         std::cout << directive;
-    //     i++;
-    // }
+    while(pos < server.size())
+    {
+        while(!isalpha(server[pos]) && pos < server.size())
+            pos++;
+        if (pos >= server.size())
+            break;
+        end = server.find(32,pos);
+        directive = server.substr(pos, end - pos);
+        if (directive == validDirectives.at(5))  
+        {
+            std::cout << _extracDirective(server, pos, pos + validDirectives.at(5).size()) << std::endl;
+        }
+        else if (directive == validDirectives.at(0))
+        {
+            pos = end;
+            while(!isalpha(server[pos]))
+                pos++;
+            end = server.find(';', pos);
+            serverTmp.port = server.substr(pos, end - pos);
+            pos = end;
+        }
+        else
+        {
+            pos = server.find(';', pos);
+        }            
+        pos++;
+    }
 }
 
 std::string Config::_extracDirective(std::string& src, size_t &pos, size_t start)
@@ -121,8 +123,8 @@ std::string Config::_extracDirective(std::string& src, size_t &pos, size_t start
             level--;
             if(level == 0)
             {
-                int len = pos - (start + 6);
-                return(src.substr(start + 6, len));
+                int len = pos - (start);
+                return(src.substr(start, len));
             }
         }
     }
