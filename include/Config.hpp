@@ -5,6 +5,7 @@
 class Config
 {
     public:
+        Config(void);
         Config(char *path);
         Config(const Config& other);
         ~Config(void);
@@ -12,12 +13,12 @@ class Config
         Config& operator=(const Config& other);
         static const std::map<int,std::string> validDirectives;
         std::vector<t_server> getServers(void)const;
-        void _printPorts(void);
+        void printPorts(void);
         
     private:
         std::vector<t_server>   _servers;
         std::string             _configFile;
-        void _openFile(char* path);
+        void _openFile(const char* path);
         void _parseFile(void);
         void _parserServerConfig(std::string server);
         std::string _extracDirective(std::string& src , size_t &pos, size_t start);

@@ -17,12 +17,13 @@
 #include <Socket.hpp>
 
 // Errores
-#define ARG_ERROR_MSG "exactly one argument is required — the configuration file."
+#define ARG_ERROR_MSG "Provide either one argument with the configuration file path, or none to use the default configuration."
 #define ERROR_FILE_NOT_OPEN "the specified file could not be opened."
 #define CONFIG_NO_SERVER_ERROR "Configuration file must define at least one server."
 #define SERVER_CONFIG_ERROR "There is a failure in the server setup."
 //volatile int g_signal = true;
 
+#define  DEFAULTCONFIG "./default_config"
 
 enum methods
 {

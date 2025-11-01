@@ -3,12 +3,23 @@
 
 int main(int arc, char** argv)
 {
+    Config conFile;
+
     try
     {
+        switch (arc)
+        {
+            case 1:
+                break;
+            case 2:
+                conFile = Config(argv[1]);
+                break;
+            default:
+                throw std::invalid_argument(ARG_ERROR_MSG);
+                break;
+        }
 
-        if (arc < 2 || arc > 3)
-            throw std::invalid_argument(ARG_ERROR_MSG);
-        Config conFile(argv[1]);
+        conFile.printPorts();
         //Socket::webserver_init();
     }
     catch(const std::exception& e)

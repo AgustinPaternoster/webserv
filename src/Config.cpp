@@ -23,6 +23,12 @@ std::map<int, std::string> createValidDirectives(void)
 const std::map<int,std::string> Config::validDirectives = createValidDirectives();
 
 
+Config::Config(void)
+{
+    _openFile(DEFAULTCONFIG);
+    _parseFile();
+}
+
 Config::Config(char *path)
 {
     _openFile(path);
@@ -47,7 +53,7 @@ Config& Config::operator=(const Config& other)
     return(*this);
 }
 
-void Config::_openFile(char* path)
+void Config::_openFile(const char* path)
 {
     std::ifstream file(path);
     if(!file.is_open())
@@ -89,7 +95,7 @@ void Config::_parserServerConfig(std::string server)
         directive = server.substr(pos, end - pos);
         if (directive == validDirectives.at(5))  
         {
-            std::cout << _extracDirective(server, pos, pos + validDirectives.at(5).size()) << std::endl;
+            _extracDirective(server, pos, pos + validDirectives.at(5).size());
         }
         else if (directive == validDirectives.at(0))
         {
@@ -142,7 +148,7 @@ std::vector<t_server> Config::getServers(void)const
     return(_servers);
 }
 
-void Config::_printPorts(void)
+void Config::printPorts(void)
 {
     for(size_t i = 0; i < _servers.size(); i++)
             std::cout << _servers[i].port << std::endl;
