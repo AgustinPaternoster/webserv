@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/01 13:29:11 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/11/01 13:44:56 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,21 +125,15 @@ void    signal_handler(int signum) {
 int	Socket::webserver_init(Config &config) {
 
 	std::vector<Socket *>	sockets;
-	
 	std::vector<t_server>	servers = config.getServers();
-
-	std::stringstream ss;
 
 	for (size_t i = 0; i < servers.size(); i++) {
 	
 		Socket	*socket = new Socket();
 
-		ss << servers[i].port;
-		std::string str_port = ss.str();
-
-		socket->port = str_port;
-
-    	int status = socket->set_addrinfo();
+		socket->port = servers[i].port;
+		int status = socket->set_addrinfo();
+		
 		if (status != 0) {
         	std::cout << gai_strerror(status) << std::endl;
         	delete socket;
@@ -154,8 +148,6 @@ int	Socket::webserver_init(Config &config) {
 		std::cout << "Socket in PORT: " << socket->getport() << std::endl;
 		std::cout << "Socket fd: " << socket->getsocket_fd() << std::endl;
 			sockets.push_back(socket);
-			ss.str("");
-			ss.clear();
 	}
 	
 	std::vector<struct pollfd> poll_fds;

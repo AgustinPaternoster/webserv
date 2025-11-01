@@ -19,7 +19,6 @@ int main(int arc, char** argv)
                 break;
         }
 
-        conFile.printPorts();
         Socket::webserver_init(conFile);
     }
     catch(const std::exception& e)
