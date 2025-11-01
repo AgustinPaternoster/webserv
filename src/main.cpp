@@ -20,7 +20,7 @@ int main(int arc, char** argv)
         }
 
         conFile.printPorts();
-        //Socket::webserver_init();
+        Socket::webserver_init();
     }
     catch(const std::exception& e)
     {
