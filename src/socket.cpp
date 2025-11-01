@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrodrigu <yrodrigu@student.42barcelo>      +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/01 12:40:22 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/01 13:29:11 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "Socket.hpp"
-#include "Config.hpp"
+
 
 Socket::Socket(): socket_fd(-1), server_info(NULL) {
 	
@@ -122,28 +122,19 @@ void    signal_handler(int signum) {
     g_signal = false;
 }
 
-int	Socket::webserver_init() {
+int	Socket::webserver_init(Config &config) {
 
 	std::vector<Socket *>	sockets;
-	t_server	server;
-	t_server	server2;
-	t_server	server3;
-	Config		config;
+	
+	std::vector<t_server>	servers = config.getServers();
+
 	std::stringstream ss;
 
-	server.port = 8080;
-	server2.port = 8070;
-	server3.port = 8060;
-	config.servers.push_back(server);
-	config.servers.push_back(server2);
-	config.servers.push_back(server3);
-	
-
-	for (size_t i = 0; i < config.servers.size(); i++) {
+	for (size_t i = 0; i < servers.size(); i++) {
 	
 		Socket	*socket = new Socket();
 
-		ss << config.servers[i].port;
+		ss << servers[i].port;
 		std::string str_port = ss.str();
 
 		socket->port = str_port;

@@ -20,3 +20,49 @@ server {
     }
 
 }
+
+server {
+
+    listen  8090;
+    root /var/www/html;
+    client_max_body_size 10M;
+    error_page 404 /errors/404.html;
+    index index.html;
+
+    location /images/ {
+        root ./www/default;
+        allow_methods GET;
+        autoindex off;
+    }
+
+    location /upload/ {
+        root ./www/uploads;
+        allow_methods GET POST;
+        upload_store ./www/uploads;
+        autoindex on;
+    }
+
+}
+
+server {
+
+    listen  8070;
+    root /var/www/html;
+    client_max_body_size 10M;
+    error_page 404 /errors/404.html;
+    index index.html;
+
+    location /images/ {
+        root ./www/default;
+        allow_methods GET;
+        autoindex off;
+    }
+
+    location /upload/ {
+        root ./www/uploads;
+        allow_methods GET POST;
+        upload_store ./www/uploads;
+        autoindex on;
+    }
+
+}

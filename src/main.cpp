@@ -1,5 +1,5 @@
-#include "Common.hpp"
 #include "Config.hpp"
+#include "Socket.hpp"
 
 int main(int arc, char** argv)
 {
@@ -20,7 +20,7 @@ int main(int arc, char** argv)
         }
 
         conFile.printPorts();
-        Socket::webserver_init();
+        Socket::webserver_init(conFile);
     }
     catch(const std::exception& e)
     {
