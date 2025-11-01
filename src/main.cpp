@@ -1,12 +1,25 @@
 #include "Common.hpp"
+#include "Config.hpp"
 
 int main(int arc, char** argv)
 {
+    Config conFile;
+
     try
     {
-		(void)argv;
-        if (arc < 2 || arc > 3)
-            throw std::invalid_argument(ARG_ERROR_MSG);
+        switch (arc)
+        {
+            case 1:
+                break;
+            case 2:
+                conFile = Config(argv[1]);
+                break;
+            default:
+                throw std::invalid_argument(ARG_ERROR_MSG);
+                break;
+        }
+
+        conFile.printPorts();
         Socket::webserver_init();
     }
     catch(const std::exception& e)

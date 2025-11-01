@@ -6,8 +6,11 @@
 #include <sstream>
 #include <string>
 #include <exception>
+#include <fstream>
 #include <poll.h>
 #include <vector>
+#include <map>
+#include <ctype.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
@@ -19,17 +22,17 @@
 
 #define ARG_ERROR_MSG "exactly one argument is required — the configuration file."
 
+//volatile int g_signal = true;
 
-/*
-typedef enum methods
+#define  DEFAULTCONFIG "./default_config"
+
+enum methods
 {
    GET = 0,
    POST = 1,
    DELETE = 2,
-	////STRUCT COMMENTED SINCE IS SHOWING AN ERROR IN TERMINAL
-	// AND NOT NECESSARY FOR THE MOMENT
 };
-*/
+
 
 
 // estructura location //
@@ -44,7 +47,7 @@ typedef struct s_location
 /// estructura servers //
  typedef struct s_server
  {
-   int port;
+   std::string port;
    std::string root;
    std::string error_page;
    std::vector <t_location> locations;
