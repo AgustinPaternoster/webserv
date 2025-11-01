@@ -11,7 +11,9 @@ class Config
 
         Config& operator=(const Config& other);
         static const std::map<int,std::string> validDirectives;
-
+        std::vector<t_server> getServers(void)const;
+        void _printPorts(void);
+        
     private:
         std::vector<t_server>   _servers;
         std::string             _configFile;
@@ -19,7 +21,7 @@ class Config
         void _parseFile(void);
         void _parserServerConfig(std::string server);
         std::string _extracDirective(std::string& src , size_t &pos, size_t start);
-
+        std::string _trimText(std::string src);
 };
 
 #endif

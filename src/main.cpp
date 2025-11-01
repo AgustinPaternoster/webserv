@@ -5,7 +5,7 @@ int main(int arc, char** argv)
 {
     try
     {
-		//(void)argv;
+
         if (arc < 2 || arc > 3)
             throw std::invalid_argument(ARG_ERROR_MSG);
         Config conFile(argv[1]);

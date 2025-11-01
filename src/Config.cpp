@@ -79,8 +79,6 @@ void Config::_parserServerConfig(std::string server)
     t_server serverTmp;
     if (server.empty())
         throw std::invalid_argument(SERVER_CONFIG_ERROR);
-    // std::vector<std::pair<std::string,std::string>> directives;
-    // size_t i = 0;
     while(pos < server.size())
     {
         while(!isalpha(server[pos]) && pos < server.size())
@@ -96,10 +94,8 @@ void Config::_parserServerConfig(std::string server)
         else if (directive == validDirectives.at(0))
         {
             pos = end;
-            while(!isalpha(server[pos]))
-                pos++;
             end = server.find(';', pos);
-            serverTmp.port = server.substr(pos, end - pos);
+            serverTmp.port =_trimText(server.substr(pos, end - pos));
             pos = end;
         }
         else
@@ -108,6 +104,7 @@ void Config::_parserServerConfig(std::string server)
         }            
         pos++;
     }
+    _servers.push_back(serverTmp);
 }
 
 std::string Config::_extracDirective(std::string& src, size_t &pos, size_t start)
@@ -129,4 +126,24 @@ std::string Config::_extracDirective(std::string& src, size_t &pos, size_t start
         }
     }
     return ("");
+}
+
+std::string Config::_trimText(std::string src)
+{
+    while(src[0] == 32)
+        src.erase(src.begin());
+    while(src[src.size() - 1] == 32)
+        src.erase(src.size() - 1);
+    return (src);
+}
+
+std::vector<t_server> Config::getServers(void)const
+{
+    return(_servers);
+}
+
+void Config::_printPorts(void)
+{
+    for(size_t i = 0; i < _servers.size(); i++)
+            std::cout << _servers[i].port << std::endl;
 }
