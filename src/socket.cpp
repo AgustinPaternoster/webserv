@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/03 11:46:09 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/03 12:16:59 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,14 @@ bool	is_listening_socket(int fd, const std::vector<Socket *>& sockets) {
     return (false);
 }
 
+
+void	close_pollfd(std::vector<struct pollfd> &poll_fds, size_t &i) {
+	
+	close(poll_fds[i].fd);
+	poll_fds.erase(poll_fds.begin() + i);
+	i--;
+}
+
 int	Socket::webserver_init(Config &config) {
 
 	std::vector<Socket *>	sockets;
@@ -199,50 +207,34 @@ int	Socket::webserver_init(Config &config) {
 				if (is_listening_socket(poll_fds[i].fd, sockets)) {
 						
 						int client_fd = sockets[i]->accepting();
-						std::cout << "New CLient fd is created: " << client_fd << std::endl;
+						std::cout << "\e[0;92mNew CLient fd is created: " << client_fd << "\e[0m" << std::endl;
+						
 						struct pollfd new_polls;
 	
 						new_polls.fd = client_fd;
 						new_polls.events = POLLIN;
 						new_polls.revents = 0;
-	
 						poll_fds.push_back(new_polls);
-		
 				}
 				else {
-						
-						std::cout << "client able to send data " << poll_fds[i].fd << std::endl;
+						std::cout << "\e[0;92mclient able to send data " << poll_fds[i].fd << "\e[0m"  << std::endl;
 					
 						char	buffer[4096];
-						
 						int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
-						
 						if (bytes > 0) {
 						
 							buffer[bytes] = '\0';
 							std::cout << buffer;
+							
 							int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0);
-							if (sent_bytes > 0) {
-								close(poll_fds[i].fd);
-								poll_fds.erase(poll_fds.begin() + i);
-								i--;
-							}
+							if (sent_bytes > 0)
+								close_pollfd(poll_fds, i);
 							else
 								std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
 						}
-						if (bytes == 0) {
-							
-							close(poll_fds[i].fd);
-							poll_fds.erase(poll_fds.begin() + i);
-							i--;
-						}
-						if (bytes == -1) {
+						if (bytes == 0 || bytes == -1)
+							close_pollfd(poll_fds, i);
 
-							close(poll_fds[i].fd);
-							poll_fds.erase(poll_fds.begin() + i);
-							i--;
-							std::cerr << "Error in Recv(): " << strerror(errno) << std::endl;
-						}
 				}
 				
 				}
