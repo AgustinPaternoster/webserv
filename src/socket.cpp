@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/01 13:44:56 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/11/03 11:46:09 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,15 @@ void    signal_handler(int signum) {
     g_signal = false;
 }
 
+bool	is_listening_socket(int fd, const std::vector<Socket *>& sockets) {
+    for (size_t j = 0; j < sockets.size(); ++j) {
+        if (fd == sockets[j]->getsocket_fd()) {
+            return (true);
+        }
+    }
+    return (false);
+}
+
 int	Socket::webserver_init(Config &config) {
 
 	std::vector<Socket *>	sockets;
@@ -164,159 +173,84 @@ int	Socket::webserver_init(Config &config) {
 		std::signal(SIGINT, signal_handler);
 		
 		while (g_signal) {
-			 
+			
 			std::cout << "🕐 Waiting for connections..." << std::endl;
 			
-			int ready = poll(poll_fds.data(), poll_fds.size(), -1);
-		 	
-			std::cout << "🔔 poll() returned, ready: " << ready << std::endl;
+			int events = poll(poll_fds.data(), poll_fds.size(), -1);
 			
-			if (ready == -1) {
-       			// if (errno == EINTR) continue;
-				 std::cerr << "❌ poll error: " << strerror(errno) << std::endl;
-        		break;
-    		}
+			if (events == -1) {
 			
-			
-			for (size_t i = 0; i < poll_fds.size(); i++) {
-			
-				if (poll_fds[i].revents & POLLIN) { 
-				
-					int client_fd = sockets[i]->accepting();
-					if (client_fd == -1) {
-					if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                    std::cout << "➰ No pending connections (non-blocking)" << std::endl;
-                } else {
-                    std::cout << "❌ Accept error: " << strerror(errno) << std::endl;
-                }
-						continue ;
-					}
-					std::cout << "Client Connected... to port: " << sockets[i]->getport();
-					std::cout << std::endl;	
-					char buffer[4096];	
-					int bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-					if (bytes > 0) {
-					
-						buffer[bytes] = '\0';
-						std::cout  << buffer;
-
-						int bytes_sent = send(client_fd, get_http(), HTTP_LEN, 0);
-						std::cout << "📤 Sent " << bytes_sent << " bytes" << std::endl;
-						close(client_fd);
-
-						poll_fds[i].revents = 0;
-					}
+				if (errno == EINTR && g_signal == false) {
+					std::cerr << "\nSignal INTERRUPTION CALLED\n";
+					break ;
 				}
+				else if (errno != EINTR) {
+					std::cerr << "Poll critical error: " << strerror(errno) << std::endl;
+					break ;
+				}
+				else
+					continue ;
+			}
 
+			for (size_t i = 0; i < poll_fds.size(); i++) {
+				
+				if (poll_fds[i].revents & POLLIN) {
+				
+				if (is_listening_socket(poll_fds[i].fd, sockets)) {
+						
+						int client_fd = sockets[i]->accepting();
+						std::cout << "New CLient fd is created: " << client_fd << std::endl;
+						struct pollfd new_polls;
+	
+						new_polls.fd = client_fd;
+						new_polls.events = POLLIN;
+						new_polls.revents = 0;
+	
+						poll_fds.push_back(new_polls);
+		
+				}
+				else {
+						
+						std::cout << "client able to send data " << poll_fds[i].fd << std::endl;
+					
+						char	buffer[4096];
+						
+						int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
+						
+						if (bytes > 0) {
+						
+							buffer[bytes] = '\0';
+							std::cout << buffer;
+							int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0);
+							if (sent_bytes > 0) {
+								close(poll_fds[i].fd);
+								poll_fds.erase(poll_fds.begin() + i);
+								i--;
+							}
+							else
+								std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
+						}
+						if (bytes == 0) {
+							
+							close(poll_fds[i].fd);
+							poll_fds.erase(poll_fds.begin() + i);
+							i--;
+						}
+						if (bytes == -1) {
 
+							close(poll_fds[i].fd);
+							poll_fds.erase(poll_fds.begin() + i);
+							i--;
+							std::cerr << "Error in Recv(): " << strerror(errno) << std::endl;
+						}
+				}
+				
+				}
 			}
 		}
-		
+
 		for (size_t i = 0; i < sockets.size(); i++) {
 			delete sockets[i];
 		}
-
 	return (0);
 }
-
-/*
-int	Socket::webserver_init() {
-
-    Socket  socket;
-	t_server	server;
-	Config		config;	
-	
-	server.port = 8080;
-	config.servers.push_back(server);
-
-    int status = socket.set_addrinfo();
-	if (status != 0) {
-        std::cout << gai_strerror(status) << std::endl;
-        return (1);
-    }
-    if (socket.create_socket() == -1 || socket.binding() == -1 || socket.listening() == -1)
-    {
-        socket.print_error();
-        return (1);
-    }
-
-    std::cout << "Server listening... on PORT: 8080 " <<  std::endl;
-	std::signal(SIGINT, signal_handler);
-
-	std::vector<struct pollfd> poll_fds;
-	struct pollfd server_pfd;
-
-	server_pfd.fd = socket.getsocket_fd();
-	server_pfd.events = POLLIN;
-	server_pfd.revents = 0;
-	poll_fds.push_back(server_pfd);
-
-    while (g_signal) {
-
-		int	ready = poll(poll_fds.data(), poll_fds.size(), -1);
-		
-		if (ready == -1) {
-		
-			if (g_signal == false)
-			{
-				std::cerr << "\nPOLL ERROR: " << strerror(errno) << std::endl;
-				break ;
-			}
-		}
-		std::vector<struct pollfd> current_fds = poll_fds;
-
-		for (size_t i = 0; i < current_fds.size(); i++) {
-			if (current_fds[i].revents & POLLIN) {
-				if (current_fds[i].fd == socket.getsocket_fd()) {
-				
-					int client_fd = socket.accepting();
-					struct pollfd client_pfd;
-
-					client_pfd.fd = client_fd;
-					client_pfd.events = POLLIN;
-					client_pfd.revents = 0;
-					poll_fds.push_back(client_pfd);
-				} else {
-				
-					int client_fd = current_fds[i].fd;
-
-					char	buffer[4096];
-
-					int recv_status = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-
-					if (recv_status > 0) {
-					
-						buffer[recv_status] = '\0';
-						std::cout << "Received from client " << client_fd << ":\n" << buffer;
-
-						send(client_fd, get_http(), HTTP_LEN, 0);
-						close(client_fd);
-
-						for (size_t j = 0; j < poll_fds.size(); j++) {
-						
-							if (poll_fds[j].fd == client_fd) {
-							
-								poll_fds.erase(poll_fds.begin() + j);
-								break ;
-							}
-						}
-					}
-					else if (recv_status == 0) {
-						
-							std::cout << "Client " << client_fd  << " disconnected" << std::endl;
-							close(client_fd);
-						
-							for (size_t j = 0; j < poll_fds.size(); j++) {
-                            	if (poll_fds[j].fd == client_fd) {
-                                	poll_fds.erase(poll_fds.begin() + j);
-								break;
-                            }
-						}
-					}
-				}
-			}
-	}
-	}
-	return (0);
-}
-*/
