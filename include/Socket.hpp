@@ -6,13 +6,16 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:17:53 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/01 13:28:52 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/11/04 16:13:45 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "Config.hpp"
+
+extern int g_signal;
+
 class	Socket {
 
 	private:
@@ -26,8 +29,6 @@ class	Socket {
 		Socket	&operator=(const Socket &obj);
 	public:
 		Socket();
-//		Socket(const Socket &obj);
-//		Socket	&operator=(const Socket &obj);
 		~Socket();
 		int		set_addrinfo();
 		int		create_socket();
@@ -39,7 +40,24 @@ class	Socket {
 		
 			return (port);
 		};
+		void	set_port(std::string def_port) {
+			port = def_port;
+		};
 		void	clean_server_info();
 		void	print_error();
 		static int	webserver_init(Config &config);
 };
+
+bool	is_listening_socket(int fd,
+		const std::vector<Socket *>& sockets);
+int		socket_creation(std::vector<Socket *> &sockets,
+		std::vector<t_server> &servers);
+void	close_pollfd(std::vector<struct pollfd> &poll_fds, size_t &i);
+void	add_sockets_poll(std::vector<Socket *> &sockets,
+		std::vector<struct pollfd> &poll_fds);
+void	connect_to_clients(std::vector<struct pollfd> &poll_fds,
+		std::vector<Socket *> &sockets,
+		std::map<int, std::string> &client_requests);
+int		poll_events_ready(std::vector<struct pollfd> &poll_fds);
+int		process_requests(std::vector<struct pollfd> &poll_fds,
+		std::map<int, std::string> &client_requests, size_t &i);
