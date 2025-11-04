@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/04 15:50:28 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/04 15:53:59 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,8 @@ int	Socket::getsocket_fd() const {
 	return (socket_fd);
 }
 
+int g_signal = true;
+
 void    signal_handler(int signum) {
 
     (void)signum;
@@ -142,7 +144,7 @@ int	Socket::webserver_init(Config &config) {
 			continue;
 		connect_to_clients(poll_fds, sockets, client_requests);
 	}
-	
+
 	for (size_t i = 0; i < sockets.size(); i++) {
 		delete sockets[i];
 	}

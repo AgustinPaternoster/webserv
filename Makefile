@@ -3,7 +3,7 @@ CC = c++
 CFLAGS = -Wall -Werror -Wextra -std=c++98 -MMD -MP -g
 
 SRC_PATH = ./src/
-SRC_FILES = main.cpp socket.cpp Config.cpp socket_utils.cpp
+SRC_FILES = main.cpp socket.cpp Config.cpp socket_utils.cpp client_requests.cpp
 SRCS = $(addprefix $(SRC_PATH), $(SRC_FILES))
 
 OBJ_PATH = ./objects/
