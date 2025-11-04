@@ -6,13 +6,11 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/04 14:49:16 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/04 15:50:28 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Response.hpp"
 #include "Socket.hpp"
-
 
 Socket::Socket(): socket_fd(-1), server_info(NULL) {
 	
@@ -114,55 +112,10 @@ int	Socket::getsocket_fd() const {
 	return (socket_fd);
 }
 
-int	g_signal = true;
-
 void    signal_handler(int signum) {
 
     (void)signum;
     g_signal = false;
-}
-
-bool	is_listening_socket(int fd, const std::vector<Socket *>& sockets) {
-    for (size_t j = 0; j < sockets.size(); ++j) {
-        if (fd == sockets[j]->getsocket_fd()) {
-            return (true);
-        }
-    }
-    return (false);
-}
-
-int	socket_creation(std::vector<Socket *> &sockets, std::vector<t_server> &servers) {
-
-	for (size_t i = 0; i < servers.size(); i++) {
-	
-		Socket	*socket = new Socket();
-
-		socket->set_port(servers[i].port);
-		int status = socket->set_addrinfo();
-		
-		if (status != 0) {
-        	std::cout << gai_strerror(status) << std::endl;
-        	delete socket;
-			return (1);
-    	}
-		if (socket->create_socket() == -1 || socket->binding() == -1 || socket->listening() == -1)
-    	{
-        	socket->print_error();
-			delete socket;
-        	return (1);
-    	}
-		std::cout << "Socket in PORT: " << socket->getport() << std::endl;
-		std::cout << "Socket fd: " << socket->getsocket_fd() << std::endl;
-			sockets.push_back(socket);
-	}
-	return (0);
-}
-
-void	close_pollfd(std::vector<struct pollfd> &poll_fds, size_t &i) {
-	
-	close(poll_fds[i].fd);
-	poll_fds.erase(poll_fds.begin() + i);
-	i--;
 }
 
 int	Socket::webserver_init(Config &config) {
@@ -170,123 +123,29 @@ int	Socket::webserver_init(Config &config) {
 	std::vector<Socket *>	sockets;
 	std::vector<t_server>	servers = config.getServers();
 	std::map<int, std::string>	client_requests;
+	std::vector<struct pollfd> poll_fds;
 
-/*	for (size_t i = 0; i < servers.size(); i++) {
-	
-		Socket	*socket = new Socket();
-
-		socket->port = servers[i].port;
-		int status = socket->set_addrinfo();
-		
-		if (status != 0) {
-        	std::cout << gai_strerror(status) << std::endl;
-        	delete socket;
-			return (1);
-    	}
-		if (socket->create_socket() == -1 || socket->binding() == -1 || socket->listening() == -1)
-    	{
-        	socket->print_error();
-			delete socket;
-        	return (1);
-    	}
-		std::cout << "Socket in PORT: " << socket->getport() << std::endl;
-		std::cout << "Socket fd: " << socket->getsocket_fd() << std::endl;
-			sockets.push_back(socket);
-	}
-*/
 	if (socket_creation(sockets, servers))
 		return (1);
-
-	std::vector<struct pollfd> poll_fds;
-		
-	for (size_t i = 0; i < sockets.size(); i++) {
-		
-			struct	pollfd socket_fd;
-			socket_fd.fd = sockets[i]->getsocket_fd();
-			socket_fd.events = POLLIN;
-			socket_fd.revents = 0;
-			poll_fds.push_back(socket_fd);
-		}
-
-		std::signal(SIGINT, signal_handler);
-		
-		while (g_signal) {
-			
-			std::cout << "🕐 Waiting for connections..." << std::endl;
-			
-			int events = poll(poll_fds.data(), poll_fds.size(), -1);
-			
-			if (events == -1) {
-			
-				if (errno == EINTR && g_signal == false) {
-					std::cerr << "\nSignal INTERRUPTION CALLED\n";
-					break ;
-				}
-				else if (errno != EINTR) {
-					std::cerr << "Poll critical error: " << strerror(errno) << std::endl;
-					break ;
-				}
-				else
-					continue ;
-			}
-
-			for (size_t i = 0; i < poll_fds.size(); i++) {
-				
-				if (poll_fds[i].revents & POLLIN) {
-				
-				if (is_listening_socket(poll_fds[i].fd, sockets)) {
-						
-						int client_fd = sockets[i]->accepting();
-						std::cout << "\e[0;92mNew CLient fd is created: " << client_fd << "\e[0m" << std::endl;
-						
-						struct pollfd new_polls;
+	add_sockets_poll(sockets, poll_fds);
+	std::signal(SIGINT, signal_handler);
 	
-						new_polls.fd = client_fd;
-						new_polls.events = POLLIN;
-						new_polls.revents = 0;
-						poll_fds.push_back(new_polls);
-				}
-				else {
-						std::cout << "\e[0;92mclient able to send data " << poll_fds[i].fd << "\e[0m"  << std::endl;
-					
-						char	buffer[4096];
-						int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
+	while (g_signal) {
+		
+		std::cout << "🕐 Waiting for connections..." << std::endl;
+		
+		int event_ready = poll_events_ready(poll_fds);
+		
+		if(event_ready == 1)
+			break ;
+		if(event_ready == 2)
+			continue;
+		connect_to_clients(poll_fds, sockets, client_requests);
+	}
+	
+	for (size_t i = 0; i < sockets.size(); i++) {
+		delete sockets[i];
+	}
 
-						if (bytes <= 0) {
-							if (bytes < 0)
-								std::cerr << "Error: recv() funtion\n";
-							if (bytes == 0)
-								std::cout << "Client closed connectin gracefully.\n";
-							close_pollfd(poll_fds, i);
-							continue ;
-						}
-						
-						client_requests[poll_fds[i].fd].append(buffer, bytes);
-
-						std::string	&request_str = client_requests[poll_fds[i].fd];
-						size_t end_pos = request_str.find("\r\n\r\n");
-						
-						if (end_pos != std::string::npos) {
-							std::cout << request_str;
-							std::cout << "---------------------------\n";
-					
-
-						int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0);
-						if (sent_bytes > 0)
-							close_pollfd(poll_fds, i);
-						else
-							std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
-						request_str = "";
-						request_str.clear();
-						}
-				}
-				
-				}
-			}
-		}
-
-		for (size_t i = 0; i < sockets.size(); i++) {
-			delete sockets[i];
-		}
 	return (0);
 }
