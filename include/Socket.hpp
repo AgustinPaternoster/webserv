@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:17:53 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/01 13:28:52 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/11/04 14:47:29 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@ class	Socket {
 		Socket	&operator=(const Socket &obj);
 	public:
 		Socket();
-//		Socket(const Socket &obj);
-//		Socket	&operator=(const Socket &obj);
 		~Socket();
 		int		set_addrinfo();
 		int		create_socket();
@@ -38,6 +36,9 @@ class	Socket {
 		std::string	getport() const {
 		
 			return (port);
+		};
+		void	set_port(std::string def_port) {
+			port = def_port;
 		};
 		void	clean_server_info();
 		void	print_error();

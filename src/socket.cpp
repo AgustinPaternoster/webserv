@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/03 12:16:59 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/04 14:49:16 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,32 @@ bool	is_listening_socket(int fd, const std::vector<Socket *>& sockets) {
     return (false);
 }
 
+int	socket_creation(std::vector<Socket *> &sockets, std::vector<t_server> &servers) {
+
+	for (size_t i = 0; i < servers.size(); i++) {
+	
+		Socket	*socket = new Socket();
+
+		socket->set_port(servers[i].port);
+		int status = socket->set_addrinfo();
+		
+		if (status != 0) {
+        	std::cout << gai_strerror(status) << std::endl;
+        	delete socket;
+			return (1);
+    	}
+		if (socket->create_socket() == -1 || socket->binding() == -1 || socket->listening() == -1)
+    	{
+        	socket->print_error();
+			delete socket;
+        	return (1);
+    	}
+		std::cout << "Socket in PORT: " << socket->getport() << std::endl;
+		std::cout << "Socket fd: " << socket->getsocket_fd() << std::endl;
+			sockets.push_back(socket);
+	}
+	return (0);
+}
 
 void	close_pollfd(std::vector<struct pollfd> &poll_fds, size_t &i) {
 	
@@ -143,8 +169,9 @@ int	Socket::webserver_init(Config &config) {
 
 	std::vector<Socket *>	sockets;
 	std::vector<t_server>	servers = config.getServers();
+	std::map<int, std::string>	client_requests;
 
-	for (size_t i = 0; i < servers.size(); i++) {
+/*	for (size_t i = 0; i < servers.size(); i++) {
 	
 		Socket	*socket = new Socket();
 
@@ -166,7 +193,10 @@ int	Socket::webserver_init(Config &config) {
 		std::cout << "Socket fd: " << socket->getsocket_fd() << std::endl;
 			sockets.push_back(socket);
 	}
-	
+*/
+	if (socket_creation(sockets, servers))
+		return (1);
+
 	std::vector<struct pollfd> poll_fds;
 		
 	for (size_t i = 0; i < sockets.size(); i++) {
@@ -221,20 +251,34 @@ int	Socket::webserver_init(Config &config) {
 					
 						char	buffer[4096];
 						int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
-						if (bytes > 0) {
-						
-							buffer[bytes] = '\0';
-							std::cout << buffer;
-							
-							int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0);
-							if (sent_bytes > 0)
-								close_pollfd(poll_fds, i);
-							else
-								std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
-						}
-						if (bytes == 0 || bytes == -1)
-							close_pollfd(poll_fds, i);
 
+						if (bytes <= 0) {
+							if (bytes < 0)
+								std::cerr << "Error: recv() funtion\n";
+							if (bytes == 0)
+								std::cout << "Client closed connectin gracefully.\n";
+							close_pollfd(poll_fds, i);
+							continue ;
+						}
+						
+						client_requests[poll_fds[i].fd].append(buffer, bytes);
+
+						std::string	&request_str = client_requests[poll_fds[i].fd];
+						size_t end_pos = request_str.find("\r\n\r\n");
+						
+						if (end_pos != std::string::npos) {
+							std::cout << request_str;
+							std::cout << "---------------------------\n";
+					
+
+						int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0);
+						if (sent_bytes > 0)
+							close_pollfd(poll_fds, i);
+						else
+							std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
+						request_str = "";
+						request_str.clear();
+						}
 				}
 				
 				}
