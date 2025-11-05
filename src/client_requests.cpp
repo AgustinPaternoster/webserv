@@ -6,13 +6,14 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/05 13:07:14 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/05 19:36:33 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 #include "Response.hpp"
 #include "HTTPRequestParser.hpp"
+#include "ResponseBuilder.hpp"
 
 int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i, Config &config) {
@@ -34,13 +35,48 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	std::string	&request_str = client_requests[poll_fds[i].fd];
 	size_t end_pos = request_str.find("\r\n\r\n");
 	
-	if (end_pos != std::string::npos) {
-		
-		std::cout << request_str;
-		std::cout << "---------------------------\n";
+	if (end_pos != std::string::npos) 
+	{//Desde aqui
 		RequestParser	parser;
 		parser.feedData(request_str);
-		int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0); //retornar
+		if (!parser.isComplete())
+		{
+			std::cerr << "Error: Failed to parse request" << std::endl;
+			return (1);
+		}
+		const HttpRequest& par = parser.getRequest();
+
+		ResponseBuilder	rb;
+		//Esto tengo que optmizarlo, para mas casos -> Se puede probar como http://127.0.0.1:8080/ o http://127.0.0.1:8080/er
+		if (par.getMethod() == "GET")
+		{
+			if (par.getUri() == "/")
+				rb.setBodyFile("www/index.html"); //aqui va la direccion de conf
+			else if (par.getUri() == "/api/users")
+				rb.setContent("application/json")
+				.setBody("[{\"id\":1,\"name\":\"Ana\"},{\"id\":2,\"name\":\"Carlos\"}]");
+			else
+				rb.setStatus(404)
+				.setBodyFile("www/error.html");
+		}
+		else if (par.getMethod() == "POST") { //ex bash: curl -X POST http://127.0.0.1:8080/upload/test.txt -d "Hola desde C++ webserv"
+			rb.setStatus(201)
+			.setContent("application/json")
+			.setBody("{\"message\":\"User created\"}");
+		}
+		else if (par.getMethod() == "DELETE") {
+			rb.setStatus(200)
+			.setContent("application/json")
+			.setBody("{\"message\":\"User deleted\"}");
+		}
+		else {
+			rb.setStatus(405)
+			.setBody("Method Not Allowed")
+			.setContent("text/plain");
+		}
+		HttpResponse response_fn = rb.build();
+		std::string response_str = response_fn.toString();
+		int sent_bytes = send(poll_fds[i].fd, response_str.c_str(), response_str.size(), 0); //hasta aqui
 		if (sent_bytes > 0)
 			close_pollfd(poll_fds, i);
 		else
