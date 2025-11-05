@@ -24,6 +24,10 @@ class Config
         void _parserServerConfig(std::string server);
         std::string _extracDirective(std::string& src , size_t &pos, size_t start);
         std::string _trimText(std::string src);
-};
+        void _fillServerStruct(size_t& pos, t_server& serverTmp, std::string direcserver, int directive);
+        int _getKeyfromValue(std::string directive);
+        std::pair<std::string,std::string> _extracErrorPage(size_t& pos, size_t& end, std::string server);
+
+    };
 
 #endif

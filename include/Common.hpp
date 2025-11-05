@@ -50,7 +50,9 @@ typedef struct s_location
  {
    std::string port;
    std::string root;
-   std::string error_page;
+   std::string index;
+   std::map<std::string,std::string> error_page;
+   std::string client_max_body_size;
    std::vector <t_location> locations;
  }t_server;
 
