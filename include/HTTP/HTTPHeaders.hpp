@@ -6,7 +6,7 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 20:16:22 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/10/23 20:50:21 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/04 11:53:04 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 /**
  * @class HttpHeaders
- * @brief Gestiona headers HTTP con comparación case-insensitive
+ * Gestiona headers HTTP con comparación case-insensitive
  */
 
 class HttpHeaders

@@ -6,7 +6,7 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 20:30:48 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/10/23 21:20:03 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/04 18:23:48 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ std::string	HttpHeaders::toString() const
 	std::map<std::string, std::string>::const_iterator it;
 	
 	for (it = _header.begin(); it != _header.end(); ++it)
-		os << it->first << ": " << it->second << std::endl;
+		os << it->first << ": " << it->second << "\r\n";
 	return os.str();
 }
 
