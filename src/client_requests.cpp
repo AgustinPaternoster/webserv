@@ -6,7 +6,7 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/05 12:28:24 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/05 13:07:14 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 #include "HTTPRequestParser.hpp"
 
 int	process_request(std::vector<struct pollfd> &poll_fds,
-		std::map<int, std::string> &client_requests, size_t &i) {
+		std::map<int, std::string> &client_requests, size_t &i, Config &config) {
 	
+	(void)config;
+
 	char	buffer[4096];
 	int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
@@ -49,7 +51,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 }
 
 void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket *> &sockets,
-		std::map<int, std::string> &client_requests) {
+		std::map<int, std::string> &client_requests, Config &config) {
 	
 	for (size_t i = 0; i < poll_fds.size(); i++) {
 		
@@ -68,7 +70,7 @@ void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket
 			else {
 				
 				std::cout << "\e[0;92mclient able to send data " << poll_fds[i].fd << "\e[0m"  << std::endl;
-				int process_status = process_request(poll_fds, client_requests, i);
+				int process_status = process_request(poll_fds, client_requests, i, config);
 				if (process_status)
 					continue ;
 			}
