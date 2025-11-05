@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:17:53 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/04 16:13:45 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/05 13:06:02 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	add_sockets_poll(std::vector<Socket *> &sockets,
 		std::vector<struct pollfd> &poll_fds);
 void	connect_to_clients(std::vector<struct pollfd> &poll_fds,
 		std::vector<Socket *> &sockets,
-		std::map<int, std::string> &client_requests);
+		std::map<int, std::string> &client_requests, Config &config);
 int		poll_events_ready(std::vector<struct pollfd> &poll_fds);
 int		process_requests(std::vector<struct pollfd> &poll_fds,
-		std::map<int, std::string> &client_requests, size_t &i);
+		std::map<int, std::string> &client_requests, size_t &i, Config &config);

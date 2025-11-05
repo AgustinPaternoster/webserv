@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/04 15:53:59 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/05 13:04:53 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ int	Socket::webserver_init(Config &config) {
 			break ;
 		if(event_ready == 2)
 			continue;
-		connect_to_clients(poll_fds, sockets, client_requests);
+		connect_to_clients(poll_fds, sockets, client_requests, config);
 	}
 
 	for (size_t i = 0; i < sockets.size(); i++) {
