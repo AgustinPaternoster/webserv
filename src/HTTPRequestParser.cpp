@@ -6,7 +6,7 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 16:17:27 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/05 12:33:29 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/05 12:54:05 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ RequestParser::~RequestParser() {}
 
 void	RequestParser::feedData(const std::string& data)
 {
-	std::cout << "THIS IS THE REQUEST" << std::endl;
-	std::cout << data;
 	_buffer += data;
 	parseBuffer();
 }
@@ -274,7 +272,9 @@ bool	RequestParser::parseHeader(const std::string& line)
 	{
 		try
 		{
-			_contentLen = std::stoull(value); //Investigar
+			char *end_ptr = NULL;
+
+			_contentLen = std::strtoull(value.c_str(), &end_ptr, 10); //Investigar
 		}
 		catch (...)
 		{

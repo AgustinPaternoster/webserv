@@ -6,7 +6,7 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 16:19:20 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/04 18:18:39 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/05 12:43:49 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@
 # include <string>
 # include <cctype>
 # include <sstream>
+# include <vector>
+# include <string>
+# include <cstdlib>
 # include "HTTPRequest.hpp"
 
 class RequestParser
