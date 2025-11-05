@@ -6,11 +6,11 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:02:17 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/04 12:23:08 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/05 12:26:57 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/HTTP/HTTPRequest.hpp"
+#include "HTTPRequest.hpp"
 
 HttpRequest::HttpRequest() : _version("HTTP/1.1")
 {

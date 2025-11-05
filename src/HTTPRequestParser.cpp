@@ -6,11 +6,11 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 16:17:27 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/04 19:11:59 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/05 12:33:29 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/HTTP/HTTPRequestParser.hpp"
+#include "HTTPRequestParser.hpp"
 
 //utils
 std::string trim(const std::string &str)
@@ -36,6 +36,8 @@ RequestParser::~RequestParser() {}
 
 void	RequestParser::feedData(const std::string& data)
 {
+	std::cout << "THIS IS THE REQUEST" << std::endl;
+	std::cout << data;
 	_buffer += data;
 	parseBuffer();
 }

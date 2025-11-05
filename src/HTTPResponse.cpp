@@ -6,11 +6,11 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/04 13:32:49 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/05 12:26:57 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/HTTP/HTTPResponse.hpp"
+#include "HTTPResponse.hpp"
 
 HttpResponse::HttpResponse() : _version("HTTP/1.1"), _statusCode(200), _reason("OK")
 {

@@ -6,11 +6,11 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 20:30:48 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/04 18:23:48 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/05 12:26:59 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/HTTP/HTTPHeaders.hpp"
+#include "HTTPHeaders.hpp"
 
 //Private
 std::string HttpHeaders::toLower(const std::string& str) const

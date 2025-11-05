@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   client_requests.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yrodrigu <yrodrigu@student.42barcelo>      +#+  +:+       +#+        */
+/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/04 16:54:50 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/05 12:28:24 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 #include "Response.hpp"
+#include "HTTPRequestParser.hpp"
 
 int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i) {
@@ -35,8 +36,9 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 		
 		std::cout << request_str;
 		std::cout << "---------------------------\n";
-	//HERE it comes SNEYDER PART	
-		int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0);
+		RequestParser	parser;
+		parser.feedData(request_str);
+		int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0); //retornar
 		if (sent_bytes > 0)
 			close_pollfd(poll_fds, i);
 		else

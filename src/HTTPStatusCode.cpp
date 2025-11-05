@@ -6,11 +6,11 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 13:57:26 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/04 14:24:09 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/05 12:24:58 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/HTTP/HTTPStatusCode.hpp"
+#include "HTTPStatusCode.hpp"
 
 std::map<int, std::string> HttpStatusCode::initReason()
 {
