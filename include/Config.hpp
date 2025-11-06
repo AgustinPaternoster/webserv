@@ -22,7 +22,7 @@ class Config
         void _openFile(const char* path);
         void _parseFile(void);
         void _parserServerConfig(std::string server);
-        std::string _extracDirective(std::string& src , size_t &pos, size_t start);
+        std::string _extracDirective(std::string& src , size_t &pos);
         std::string _trimText(std::string src);
         void _fillServerStruct(size_t& pos, t_server& serverTmp, std::string direcserver, int directive);
         int _getKeyfromValue(std::string directive);

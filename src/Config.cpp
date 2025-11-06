@@ -71,8 +71,8 @@ void Config::_parseFile(void)
         throw std::invalid_argument(CONFIG_NO_SERVER_ERROR);
     while (std::string::npos != start)
     {
-        pos = start + 6;
-        _parserServerConfig(_extracDirective(_configFile, pos, start + validDirectives.at(12).size() ));
+        pos = start + validDirectives.at(13).size();
+        _parserServerConfig(_extracDirective(_configFile, pos));
         start = _configFile.find(validDirectives.at(13), pos);
     }
 }
@@ -95,19 +95,15 @@ void Config::_parserServerConfig(std::string server)
         directive = server.substr(pos, end - pos);
         pos = end;
         _fillServerStruct(pos,serverTmp,server,_getKeyfromValue(directive));
-
-        // if (directive == validDirectives.at(5))  
-        // {
-        //     _extracDirective(server, pos, pos + validDirectives.at(5).size());
-        // }
         pos++;
     }
     _servers.push_back(serverTmp);
 }
 
-std::string Config::_extracDirective(std::string& src, size_t &pos, size_t start)
+std::string Config::_extracDirective(std::string& src, size_t &pos)
 {
     int level = 0;
+    size_t start = pos;
     
     for (; pos < src.size(); pos++)
     {
@@ -148,7 +144,7 @@ void Config::printPorts(void)
 
  void Config::_fillServerStruct(size_t& pos, t_server& serverTmp, std::string server, int directive)
  {
-    size_t end;
+    size_t end = 0;
 
     switch (directive)
     {
@@ -172,29 +168,8 @@ void Config::printPorts(void)
         serverTmp.error_page.insert(_extracErrorPage(pos, end, server));
         break;
     case 6:
-        _extracDirective(server, pos, end);
+        std::cout << _extracDirective(server, pos) << std::endl;
         end = pos;
-        break;
-    case 7:
-        //allow methods
-        break;
-    case 8:
-        /* code */
-        break;
-    case 9:
-        /* code */
-        break;
-    case 10:
-        /* code */
-        break;
-    case 11:
-        /* code */
-        break;
-    case 12:
-        /* code */
-        break;
-    case 13:
-        /* code */
         break;
     default:
         break;
