@@ -199,3 +199,52 @@ void Config::printPorts(void)
     errorPage.second = _trimText(server.substr(pos, end - pos));
     return (errorPage);
  }
+
+ t_location Config::_parseLocationConfig(std::string location)
+ {
+    std::string directive;
+    size_t pos = 0;
+    size_t end;
+    t_location locationTmp;
+    while(location[pos] == 32)
+        pos++;
+    end = location.find("{");
+    locationTmp.path = _trimText(location.substr(pos, end - pos));
+    pos = end;
+    while(pos < location.size())
+    {
+        while(!isalpha(location[pos]))
+        {
+            if (pos >= location.size())
+                break;
+            pos++;
+        }
+        end = location.find(32, pos);
+        directive = location.substr(pos, end - pos);
+        pos = end;
+
+    }
+ }
+
+void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string location, int directive)
+{
+    size_t end = 0;
+    switch (directive)
+    {
+    case 2:
+        /* code */
+        break;
+    case 7:
+        /* code */
+        break;
+    case 8:
+        /* code */
+        break;
+    case 9:
+        /* code */
+        break;
+    default:
+        break;
+    }    
+
+} 
