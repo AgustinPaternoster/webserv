@@ -34,13 +34,18 @@ enum methods
    GET = 0,
    POST = 1,
    DELETE = 2,
+   PUT = 3,
+   PATCH = 4
 };
 
 // estructura location //
 typedef struct s_location
 {
    std::string path;
+   std::string root;
    std::vector <int> methods;
+   std::string autoindex;
+   std::string upload_store;
 }t_location;
 
 

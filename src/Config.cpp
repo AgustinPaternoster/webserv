@@ -145,6 +145,7 @@ void Config::printPorts(void)
  void Config::_fillServerStruct(size_t& pos, t_server& serverTmp, std::string server, int directive)
  {
     size_t end = 0;
+    t_location tmp;
 
     switch (directive)
     {
@@ -168,7 +169,8 @@ void Config::printPorts(void)
         serverTmp.error_page.insert(_extracErrorPage(pos, end, server));
         break;
     case 6:
-        std::cout << _extracDirective(server, pos) << std::endl;
+        tmp = _parseLocationConfig(_extracDirective(server, pos));
+        serverTmp.locations.push_back(tmp);
         end = pos;
         break;
     default:
@@ -213,17 +215,18 @@ void Config::printPorts(void)
     pos = end;
     while(pos < location.size())
     {
-        while(!isalpha(location[pos]))
-        {
-            if (pos >= location.size())
-                break;
+        while(!isalpha(location[pos]) && pos < location.size())
             pos++;
-        }
+        if (pos >= location.size())
+                break;
         end = location.find(32, pos);
+        // if(std::string::npos != end)
+        //     break;
         directive = location.substr(pos, end - pos);
         pos = end;
-
+        _fillLocationStruct(pos, locationTmp, location, _getKeyfromValue(directive));
     }
+    return (locationTmp);
  }
 
 void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string location, int directive)
@@ -232,19 +235,62 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
     switch (directive)
     {
     case 2:
-        /* code */
+        end = location.find(';', pos);
+        locTmp.root = _trimText(location.substr(pos, end - pos));
         break;
     case 7:
-        /* code */
+        end = location.find(';', pos);
+        _extracMethods(_trimText(location.substr(pos, end - pos)), locTmp.methods);
         break;
     case 8:
-        /* code */
+        end = location.find(';', pos);
+        locTmp.autoindex = _trimText(location.substr(pos, end - pos));
         break;
     case 9:
-        /* code */
+        end = location.find(';', pos);
+        locTmp.upload_store = _trimText(location.substr(pos, end - pos));
         break;
     default:
         break;
-    }    
+    }
+    pos = end;    
 
 } 
+
+void Config::_extracMethods(std::string src, std::vector<int>& a_methods)
+{
+    std::vector<int> tmp;
+    size_t pos = 0;
+    size_t end = 0;
+    std::string method;
+    std::map<std::string, methods> m;
+    m["GET"] = GET;
+    m["POST"] = POST;
+    m["DELETE"] = DELETE;
+    m["PUT"] = PUT;
+    m["PATCH"] = PUT;
+
+    for (int i = 0; i < src.size(); i++)
+    {
+        if(isalpha(src[i]))
+            method += src[i];
+        if(src[i] == 32 && !method.empty())
+        {
+            for(std::map<std::string, methods>::iterator it = m.begin(); it != m.end(); it++)
+            {
+                if((*it).first == method)
+                {   a_methods.push_back((*it).second);
+                    method.clear();
+                }   
+            }
+        }
+    }
+    if(!method.empty())
+    {
+        for(std::map<std::string, methods>::iterator it = m.begin(); it != m.end(); it++)
+        {
+            if((*it).first == method)
+               a_methods.push_back((*it).second);
+        }
+    }
+}

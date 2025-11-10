@@ -29,6 +29,7 @@ class Config
         int _getKeyfromValue(std::string directive);
         std::pair<std::string,std::string> _extracErrorPage(size_t& pos, size_t& end, std::string server);
         t_location _parseLocationConfig(std::string location);
+        void _extracMethods(std::string src, std::vector<int>& methods);
     };
 
 #endif

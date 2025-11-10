@@ -9,7 +9,8 @@ server {
 
     location /images/ {
         root ./www/default;
-        allow_methods GET;
+        upload_store ./www/uploads;
+        allow_methods GET  POST  ;
         autoindex off;
     }
 
@@ -17,9 +18,7 @@ server {
         root ./www/uploads;
         allow_methods GET POST;
         upload_store ./www/uploads;
-        autoindex on;
-    }
-
+        autoindex on;}
 }
 
 server {
