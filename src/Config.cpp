@@ -268,7 +268,7 @@ void Config::_extracMethods(std::string src, std::vector<int>& a_methods)
     m["POST"] = POST;
     m["DELETE"] = DELETE;
     m["PUT"] = PUT;
-    m["PATCH"] = PUT;
+    m["PATCH"] = PATCH;
 
     for (int i = 0; i < src.size(); i++)
     {
