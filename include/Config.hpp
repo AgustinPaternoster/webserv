@@ -22,8 +22,14 @@ class Config
         void _openFile(const char* path);
         void _parseFile(void);
         void _parserServerConfig(std::string server);
-        std::string _extracDirective(std::string& src , size_t &pos, size_t start);
+        std::string _extracDirective(std::string& src , size_t &pos);
         std::string _trimText(std::string src);
-};
+        void _fillServerStruct(size_t& pos, t_server& serverTmp, std::string server, int directive);
+        void _fillLocationStruct(size_t& pos, t_location& locTmp, std::string location, int directive);
+        int _getKeyfromValue(std::string directive);
+        std::pair<std::string,std::string> _extracErrorPage(size_t& pos, size_t& end, std::string server);
+        t_location _parseLocationConfig(std::string location);
+        void _extracMethods(std::string src, std::vector<int>& methods);
+    };
 
 #endif

@@ -3,19 +3,19 @@
 std::map<int, std::string> createValidDirectives(void)
 {
     std::map<int, std::string> m;
-    m[0]  = "listen";
-    m[1]  = "root";
-    m[2]  = "index";
-    m[3]  = "client_max_body_size";
-    m[4]  = "error_page";
-    m[5]  = "location";
-    m[6]  = "allow_methods";
-    m[7]  = "autoindex";
-    m[8]  = "upload_store";
-    m[9]  = "cgi_extension";
-    m[10] = "cgi_path";
-    m[11] = "return";
-    m[12] = "server";
+    m[1]  = "listen";
+    m[2]  = "root";
+    m[3]  = "index";
+    m[4]  = "client_max_body_size";
+    m[5]  = "error_page";
+    m[6]  = "location";
+    m[7]  = "allow_methods";
+    m[8]  = "autoindex";
+    m[9]  = "upload_store";
+    m[10]  = "cgi_extension";
+    m[11] = "cgi_path";
+    m[12] = "return";
+    m[13] = "server";
     return (m);
 }
 
@@ -66,14 +66,14 @@ void Config::_openFile(const char* path)
 void Config::_parseFile(void)
 {
     size_t pos = 0;
-    std::size_t start = _configFile.find(validDirectives.at(12), pos);
+    std::size_t start = _configFile.find(validDirectives.at(13), pos);
     if (std::string::npos == start)
         throw std::invalid_argument(CONFIG_NO_SERVER_ERROR);
     while (std::string::npos != start)
     {
-        pos = start + 6;
-        _parserServerConfig(_extracDirective(_configFile, pos, start + validDirectives.at(12).size() ));
-        start = _configFile.find(validDirectives.at(12), pos);
+        pos = start + validDirectives.at(13).size();
+        _parserServerConfig(_extracDirective(_configFile, pos));
+        start = _configFile.find(validDirectives.at(13), pos);
     }
 }
 
@@ -93,29 +93,17 @@ void Config::_parserServerConfig(std::string server)
             break;
         end = server.find(32,pos);
         directive = server.substr(pos, end - pos);
-        if (directive == validDirectives.at(5))  
-        {
-            _extracDirective(server, pos, pos + validDirectives.at(5).size());
-        }
-        else if (directive == validDirectives.at(0))
-        {
-            pos = end;
-            end = server.find(';', pos);
-            serverTmp.port =_trimText(server.substr(pos, end - pos));
-            pos = end;
-        }
-        else
-        {
-            pos = server.find(';', pos);
-        }            
+        pos = end;
+        _fillServerStruct(pos,serverTmp,server,_getKeyfromValue(directive));
         pos++;
     }
     _servers.push_back(serverTmp);
 }
 
-std::string Config::_extracDirective(std::string& src, size_t &pos, size_t start)
+std::string Config::_extracDirective(std::string& src, size_t &pos)
 {
     int level = 0;
+    size_t start = pos;
     
     for (; pos < src.size(); pos++)
     {
@@ -152,4 +140,155 @@ void Config::printPorts(void)
 {
     for(size_t i = 0; i < _servers.size(); i++)
             std::cout << _servers[i].port << std::endl;
+}
+
+ void Config::_fillServerStruct(size_t& pos, t_server& serverTmp, std::string server, int directive)
+ {
+    size_t end = 0;
+    t_location tmp;
+
+    switch (directive)
+    {
+    case 1:
+        end = server.find(';', pos);
+        serverTmp.port =_trimText(server.substr(pos, end - pos));
+        break;
+    case 2:
+        end = server.find(';', pos);    
+        serverTmp.root = _trimText(server.substr(pos, end - pos));
+        break;
+    case 3:
+        end = server.find(';', pos);
+        serverTmp.index = _trimText(server.substr(pos, end - pos));
+        break;
+    case 4:
+        end = server.find(';', pos);
+        serverTmp.client_max_body_size = _trimText(server.substr(pos, end - pos));
+        break;
+    case 5:
+        serverTmp.error_page.insert(_extracErrorPage(pos, end, server));
+        break;
+    case 6:
+        tmp = _parseLocationConfig(_extracDirective(server, pos));
+        serverTmp.locations.push_back(tmp);
+        end = pos;
+        break;
+    default:
+        break;
+    }
+    pos = end;
+ }
+
+ int Config::_getKeyfromValue(std::string directive)
+ {
+    for (std::map<int, std::string>::const_iterator it = validDirectives.begin(); it != validDirectives.end(); it++ )
+    {
+        if((*it).second == directive)
+            return ((*it).first);
+    }
+    return(0);
+ }
+
+ std::pair<std::string,std::string> Config::_extracErrorPage(size_t& pos, size_t& end, std::string server)
+ {
+    std::pair<std::string, std::string> errorPage;
+    while(server[pos] == 32)
+        pos++;
+    end  = server.find(32,pos);
+    errorPage.first = _trimText(server.substr(pos, end - pos));
+    pos = end;
+    end = server.find(';', pos);
+    errorPage.second = _trimText(server.substr(pos, end - pos));
+    return (errorPage);
+ }
+
+ t_location Config::_parseLocationConfig(std::string location)
+ {
+    std::string directive;
+    size_t pos = 0;
+    size_t end;
+    t_location locationTmp;
+    while(location[pos] == 32)
+        pos++;
+    end = location.find("{");
+    locationTmp.path = _trimText(location.substr(pos, end - pos));
+    pos = end;
+    while(pos < location.size())
+    {
+        while(!isalpha(location[pos]) && pos < location.size())
+            pos++;
+        if (pos >= location.size())
+                break;
+        end = location.find(32, pos);
+        // if(std::string::npos != end)
+        //     break;
+        directive = location.substr(pos, end - pos);
+        pos = end;
+        _fillLocationStruct(pos, locationTmp, location, _getKeyfromValue(directive));
+    }
+    return (locationTmp);
+ }
+
+void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string location, int directive)
+{
+    size_t end = 0;
+    switch (directive)
+    {
+    case 2:
+        end = location.find(';', pos);
+        locTmp.root = _trimText(location.substr(pos, end - pos));
+        break;
+    case 7:
+        end = location.find(';', pos);
+        _extracMethods(_trimText(location.substr(pos, end - pos)), locTmp.methods);
+        break;
+    case 8:
+        end = location.find(';', pos);
+        locTmp.autoindex = _trimText(location.substr(pos, end - pos));
+        break;
+    case 9:
+        end = location.find(';', pos);
+        locTmp.upload_store = _trimText(location.substr(pos, end - pos));
+        break;
+    default:
+        break;
+    }
+    pos = end;    
+
+} 
+
+void Config::_extracMethods(std::string src, std::vector<int>& a_methods)
+{
+    std::vector<int> tmp;
+    std::string method;
+    std::map<std::string, methods> m;
+    m["GET"] = GET;
+    m["POST"] = POST;
+    m["DELETE"] = DELETE;
+    m["PUT"] = PUT;
+    m["PATCH"] = PATCH;
+
+    for (size_t i = 0; i < src.size(); i++)
+    {
+        if(isalpha(src[i]))
+            method += src[i];
+        if(src[i] == 32 && !method.empty())
+        {
+            for(std::map<std::string, methods>::iterator it = m.begin(); it != m.end(); it++)
+            {
+                if((*it).first == method)
+                {   a_methods.push_back((*it).second);
+                    method.clear();
+                }   
+            }
+        }
+    }
+    if(!method.empty())
+    {
+        for(std::map<std::string, methods>::iterator it = m.begin(); it != m.end(); it++)
+        {
+            if((*it).first == method)
+               a_methods.push_back((*it).second);
+        }
+    }
 }
