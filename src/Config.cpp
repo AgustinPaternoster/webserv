@@ -260,8 +260,6 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
 void Config::_extracMethods(std::string src, std::vector<int>& a_methods)
 {
     std::vector<int> tmp;
-    size_t pos = 0;
-    size_t end = 0;
     std::string method;
     std::map<std::string, methods> m;
     m["GET"] = GET;
@@ -270,7 +268,7 @@ void Config::_extracMethods(std::string src, std::vector<int>& a_methods)
     m["PUT"] = PUT;
     m["PATCH"] = PATCH;
 
-    for (int i = 0; i < src.size(); i++)
+    for (size_t i = 0; i < src.size(); i++)
     {
         if(isalpha(src[i]))
             method += src[i];
