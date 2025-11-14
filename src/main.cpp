@@ -10,6 +10,7 @@ int main(int arc, char** argv)
         switch (arc)
         {
             case 1:
+                conFile = Config(DEFAULTCONFIG);
                 break;
             case 2:
                 conFile = Config(argv[1]);

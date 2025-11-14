@@ -1,6 +1,7 @@
 NAME = webserv
 CC = c++
-CFLAGS = -Wall -Werror -Wextra -std=c++98 -MMD -MP -g
+#CFLAGS = -Wall -Werror -Wextra -std=c++98 -MMD -MP -g
+CFLAGS = -std=c++98 -MMD -MP -g
 SRC_PATH = ./src/
 SRC_FILES = main.cpp socket.cpp Config.cpp socket_utils.cpp client_requests.cpp HTTPHeaders.cpp HTTPRequest.cpp HTTPRequestParser.cpp\
 				HTTPResponse.cpp HTTPStatusCode.cpp
