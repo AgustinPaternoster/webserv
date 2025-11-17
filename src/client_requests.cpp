@@ -3,21 +3,84 @@
 /*                                                        :::      ::::::::   */
 /*   client_requests.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/05 13:07:14 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/11/17 14:00:23 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 #include "Response.hpp"
 #include "HTTPRequestParser.hpp"
+#include "ResponseBuilder.hpp"
+#include "HttpUtils.hpp"
+
+std::string handle_client_request(std::string request_str, Config &config) {
+		
+	//handle_request(std::string &request_str, config);
+		RequestParser	parser;
+		parser.feedData(request_str);
+		if (!parser.isComplete())
+			std::cerr << "Error: Failed to parse request" << std::endl; //reponse bar parser
+		const HttpRequest& par = parser.getRequest();
+		
+		size_t num = get_port_www(config, par);
+		std::cout << request_str ;
+		const std::vector<t_server> & servers = config.getServers();
+		const t_server &server = servers[num];
+		//Simplificar
+		//dede aqui		
+		ResponseBuilder	rb;
+		if (par.getMethod() == "GET")
+		{
+			if (par.getUri() == "/")
+			{
+				std::string full_path = server.root;
+				if (!full_path.empty())
+					full_path += '/';
+				full_path += server.index;
+				rb.setBodyFile(full_path);
+			}
+			else if (par.getUri() == "/api/users")
+				rb.setContent("application/json")
+				.setBody("[{\"id\":1,\"name\":\"Ana\"},{\"id\":2,\"name\":\"Carlos\"}]");
+			else
+			{
+				std::string full_path = server.root;
+				if (!full_path.empty())
+					full_path += '/';
+				std::string path_error = get_error_page(server.error_page, "404");
+				full_path += path_error;
+				rb.setStatus(404)
+				.setBodyFile(full_path);
+			}
+		}
+		else if (par.getMethod() == "POST") { //ex bash: curl -X POST http://127.0.0.1:8080/upload/test.txt -d "Hola desde C++ webserv"
+			rb.setStatus(201)
+			.setContent("application/json")
+			.setBody("{\"message\":\"User created\"}");
+		}
+		else if (par.getMethod() == "DELETE") {
+			rb.setStatus(200)
+			.setContent("application/json")
+			.setBody("{\"message\":\"User deleted\"}");
+		}
+		else {
+			rb.setStatus(405)
+			.setBody("Method Not Allowed")
+			.setContent("text/plain");
+		}  //Hasta aqui el enrutador 
+		HttpResponse response_fn = rb.build();
+		std::string response_str = response_fn.toString();
+		//std::cout << response_str << std::endl;
+	return (response_str);
+}
+
 
 int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i, Config &config) {
 	
-	(void)config;
 
 	char	buffer[4096];
 	int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
@@ -34,13 +97,11 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	std::string	&request_str = client_requests[poll_fds[i].fd];
 	size_t end_pos = request_str.find("\r\n\r\n");
 	
-	if (end_pos != std::string::npos) {
+	if (end_pos != std::string::npos) 
+	{
+		std::string response_str = handle_client_request(request_str, config);
 		
-		std::cout << request_str;
-		std::cout << "---------------------------\n";
-		RequestParser	parser;
-		parser.feedData(request_str);
-		int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0); //retornar
+		int sent_bytes = send(poll_fds[i].fd, response_str.c_str(), response_str.size(), 0); //hasta aqui
 		if (sent_bytes > 0)
 			close_pollfd(poll_fds, i);
 		else

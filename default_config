@@ -3,7 +3,7 @@ server {
     listen  8080;
     error_page 404 /errors/404.html;
     error_page 405 /errors/405.html;
-    root /var/www/html;
+    root www/html;
     client_max_body_size 10M;
     index index.html;
 
@@ -25,10 +25,10 @@ server {
 server {
 
     listen  8090;
-    root /var/www/html;
+    root ./www/html;
     client_max_body_size 10M;
     error_page 404 /errors/404.html;
-    index index.html;
+    index index2.html;
 
     location /images/ {
         root ./www/default;
@@ -48,10 +48,16 @@ server {
 server {
 
     listen  8070;
-    root /var/www/html;
+    root ./www/html;
     client_max_body_size 10M;
     error_page 404 /errors/404.html;
-    index index.html;
+    index index3.html;
+
+    location / {
+        root ./www/html;
+        allow_methods GET;
+        autoindex off;
+    }
 
     location /images/ {
         root ./www/default;

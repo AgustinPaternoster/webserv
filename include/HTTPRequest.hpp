@@ -6,7 +6,7 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 20:15:11 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/05 11:55:17 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/11 15:08:21 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ class HttpRequest
 			void	setVersion(const std::string& version);
 			void	setHeaders(const HttpHeaders& headers);
 			void	setBody(const std::string& body);
+			std::string	getPort() const;
 
 			//Utils
 			void	clear();
