@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client_requests.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/11 15:34:38 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/17 14:00:23 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,43 +16,28 @@
 #include "ResponseBuilder.hpp"
 #include "HttpUtils.hpp"
 
-int	process_request(std::vector<struct pollfd> &poll_fds,
-		std::map<int, std::string> &client_requests, size_t &i, Config &config) {
-	
-
-	char	buffer[4096];
-	int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
-	if (bytes <= 0) {
-		if (bytes < 0)
-			std::cerr << "Error: recv() funtion\n";
-		if (bytes == 0)
-			std::cout << "Client closed connectin gracefully.\n";
-		close_pollfd(poll_fds, i);
-		return (1);
-	}
-	
-	client_requests[poll_fds[i].fd].append(buffer, bytes);
-	std::string	&request_str = client_requests[poll_fds[i].fd];
-	size_t end_pos = request_str.find("\r\n\r\n");
-	if (end_pos != std::string::npos) 
-	{
+std::string handle_client_request(std::string request_str, Config &config) {
+		
+	//handle_request(std::string &request_str, config);
 		RequestParser	parser;
 		parser.feedData(request_str);
 		if (!parser.isComplete())
-			std::cerr << "Error: Failed to parse request" << std::endl;
+			std::cerr << "Error: Failed to parse request" << std::endl; //reponse bar parser
 		const HttpRequest& par = parser.getRequest();
-
-		ResponseBuilder	rb;
+		
 		size_t num = get_port_www(config, par);
+		std::cout << request_str ;
 		const std::vector<t_server> & servers = config.getServers();
 		const t_server &server = servers[num];
-				
+		//Simplificar
+		//dede aqui		
+		ResponseBuilder	rb;
 		if (par.getMethod() == "GET")
 		{
 			if (par.getUri() == "/")
 			{
 				std::string full_path = server.root;
-				if (!full_path.empty() && full_path.back() != '/')
+				if (!full_path.empty())
 					full_path += '/';
 				full_path += server.index;
 				rb.setBodyFile(full_path);
@@ -63,7 +48,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			else
 			{
 				std::string full_path = server.root;
-				if (!full_path.empty() && full_path.back() != '/')
+				if (!full_path.empty())
 					full_path += '/';
 				std::string path_error = get_error_page(server.error_page, "404");
 				full_path += path_error;
@@ -85,9 +70,37 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			rb.setStatus(405)
 			.setBody("Method Not Allowed")
 			.setContent("text/plain");
-		}
+		}  //Hasta aqui el enrutador 
 		HttpResponse response_fn = rb.build();
 		std::string response_str = response_fn.toString();
+		//std::cout << response_str << std::endl;
+	return (response_str);
+}
+
+
+int	process_request(std::vector<struct pollfd> &poll_fds,
+		std::map<int, std::string> &client_requests, size_t &i, Config &config) {
+	
+
+	char	buffer[4096];
+	int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
+	if (bytes <= 0) {
+		if (bytes < 0)
+			std::cerr << "Error: recv() funtion\n";
+		if (bytes == 0)
+			std::cout << "Client closed connectin gracefully.\n";
+		close_pollfd(poll_fds, i);
+		return (1);
+	}
+	
+	client_requests[poll_fds[i].fd].append(buffer, bytes);
+	std::string	&request_str = client_requests[poll_fds[i].fd];
+	size_t end_pos = request_str.find("\r\n\r\n");
+	
+	if (end_pos != std::string::npos) 
+	{
+		std::string response_str = handle_client_request(request_str, config);
+		
 		int sent_bytes = send(poll_fds[i].fd, response_str.c_str(), response_str.size(), 0); //hasta aqui
 		if (sent_bytes > 0)
 			close_pollfd(poll_fds, i);
