@@ -6,7 +6,7 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:02:17 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/05 12:26:57 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/11 15:08:13 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,4 +125,25 @@ std::string  HttpRequest::toString() const
 	if (!_body.empty())
 		oss << _body;
 	return oss.str();
+}
+
+std::string	HttpRequest::getPort() const
+{
+	const std::string& headers = _headers.toString();
+	std::istringstream	iss(headers);
+	std::string			line;
+
+	while (std::getline(iss, line))
+	{
+		std::string lower_line = line;
+		for (size_t i = 0; i < lower_line.size(); ++i)
+			lower_line[i] = std::tolower(lower_line[i]);
+		if (lower_line.find("host:") == 0)
+		{
+			std::string host = line.substr(5);
+			return host;
+		}
+	}
+	std::cout << "bad response" << std::endl;
+	return "80";
 }
