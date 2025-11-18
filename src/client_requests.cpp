@@ -16,7 +16,7 @@
 #include "ResponseBuilder.hpp"
 #include "HttpUtils.hpp"
 
-std::string handle_client_request(std::string request_str, Config &config) {
+std::string handle_client_request(std::string request_str, Config &config, std::string port) {
 		
 	//handle_request(std::string &request_str, config);
 		RequestParser	parser;
@@ -24,6 +24,7 @@ std::string handle_client_request(std::string request_str, Config &config) {
 		if (!parser.isComplete())
 			std::cerr << "Error: Failed to parse request" << std::endl; //reponse bar parser
 		const HttpRequest& par = parser.getRequest();
+		
 		
 		size_t num = get_port_www(config, par);
 		std::cout << request_str ;
@@ -81,7 +82,7 @@ std::string handle_client_request(std::string request_str, Config &config) {
 int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i, Config &config) {
 	
-
+	
 	char	buffer[4096];
 	int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
@@ -99,7 +100,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	
 	if (end_pos != std::string::npos) 
 	{
-		std::string response_str = handle_client_request(request_str, config);
+		std::string response_str = handle_client_request(request_str, config, getServerPort(poll_fds[i].fd));
 		
 		int sent_bytes = send(poll_fds[i].fd, response_str.c_str(), response_str.size(), 0); //hasta aqui
 		if (sent_bytes > 0)

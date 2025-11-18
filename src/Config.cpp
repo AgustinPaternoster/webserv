@@ -1,4 +1,5 @@
 #include "Config.hpp"
+#include "HttpUtils.hpp"
 
 std::map<int, std::string> createValidDirectives(void)
 {
@@ -295,6 +296,33 @@ std::pair<std::string, std::string> Config::_ExtracExten(std::string src)
     std::pair<std::string , std::string> tmp;
     tmp.first = _trimText(src.substr(0, src.find(32)));
     tmp.second = _trimText(src.substr(src.find(32)));
+    return (tmp);
+
+}
+
+t_server Config::_filterServer(std::string port)
+{
+    for (int i = 0; i < _servers.size(); i++)
+    {
+        if (_servers[i].port == port)
+            return(_servers[i]);
+    }
+    return (t_server());
+}
+
+t_server  Config::locationRouter(std::string port , std::string uri)
+{
+    t_server tmp = _filterServer(port);
+    std::string location;
+    
+    for (size_t i = 0; i < tmp.locations.size(); i++)
+    {
+        if(tmp.locations[i].path == location)
+            continue;
+        tmp.locations.erase(tmp.locations.begin() + i);
+    }
+    
+    // si no encuentra locationg
     return (tmp);
 
 }

@@ -15,7 +15,9 @@ class Config
         static const std::map<int,std::string> validDirectives;
         std::vector<t_server> getServers(void)const;
         void printPorts(void);
-        
+        t_server locationRouter(std::string port, std::string url);
+
+
     private:
         std::vector<t_server>   _servers;
         std::string             _configFile;
@@ -31,6 +33,7 @@ class Config
         t_location _parseLocationConfig(std::string location);
         void _extracMethods(std::string src, std::vector<int>& methods);
         std::pair<std::string, std::string> _ExtracExten(std::string src);
+        t_server _filterServer(std::string port);
     };
 
 #endif

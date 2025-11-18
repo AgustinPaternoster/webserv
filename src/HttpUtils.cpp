@@ -62,3 +62,14 @@ std::string get_error_page(const std::map<std::string,std::string>& error_pages,
     }
     return "";
 }
+
+std::string getServerPort(int client_fd)
+{
+    std::stringstream ss;
+    sockaddr_in srv;
+    socklen_t srv_len = sizeof(srv);
+    getsockname(client_fd, (sockaddr*)&srv, &srv_len);
+    int server_port = ntohs(srv.sin_port);
+    ss << server_port;
+    return(ss.str());
+}
