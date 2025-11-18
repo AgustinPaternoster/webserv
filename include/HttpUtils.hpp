@@ -6,7 +6,7 @@
 /*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 11:42:37 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/11 15:32:39 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/17 15:00:54 by nikitadorof      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
