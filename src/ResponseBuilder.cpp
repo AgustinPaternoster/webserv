@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseBuilder.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 13:07:05 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/05 18:52:04 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/18 13:16:36 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,10 +129,11 @@ HttpResponse	ResponseBuilder::build()
 	return _response;
 }
 
+/*
 void	ResponseBuilder::reset()
 {
 	_response.clear();
 	_response.setVersion("HTTP/1.1");
 	_response.setStatusCode(200);
 	_response.getHeaders().set_http("Server", "Webserv/1.0");
-}
+}*/

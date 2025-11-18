@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client_requests.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/18 11:22:26 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/18 12:17:22 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,22 +18,9 @@
 
 std::string handle_client_request(std::string request_str, Config &config)
 {
-	RequestParser	parser;
 	ResponseBuilder	rb;
+	HttpRequest par = HttpRequest::fromString(request_str);
 
-	parser.feedData(request_str);
-	if (!parser.isComplete())
-		rb.setStatus(405); //responder con la response error
-
-	const HttpRequest& par = parser.getRequest();
-	
-	//esto se elimina
-	size_t num = get_port_www(config, par);
-	std::cout << request_str;
-	const std::vector<t_server> & servers = config.getServers();
-	const t_server &server = servers[num];
-
-	//valid_method
 	if (isvalidmethod(par, config))
 		rb.setStatus(405);
 

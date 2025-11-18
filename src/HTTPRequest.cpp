@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:02:17 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/11 15:08:13 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/18 12:17:14 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPRequest.hpp"
+#include "HTTPRequestParser.hpp"
 
 HttpRequest::HttpRequest() : _version("HTTP/1.1")
 {
@@ -18,6 +19,20 @@ HttpRequest::HttpRequest() : _version("HTTP/1.1")
 
 HttpRequest::~HttpRequest()
 {
+}
+
+ HttpRequest HttpRequest::fromString(const std::string& request) 
+{
+	RequestParser par;
+
+	par.feedData(request);
+	if (!par.isComplete())
+	{
+		//rb.setStatus(495); //setea el error
+		//setear error
+		return ;
+	}
+	return par.getRequest();
 }
 
 //Getters

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseBuilder.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 12:56:38 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/05 18:51:55 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/18 13:19:14 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
