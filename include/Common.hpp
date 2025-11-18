@@ -38,6 +38,13 @@ enum methods
    PATCH = 4
 };
 
+enum actions
+{
+   STATIC = 0,
+   CGI = 1,
+   UPLOAD = 2
+};
+
 // estructura location //
 typedef struct s_location
 {
@@ -47,6 +54,7 @@ typedef struct s_location
    std::string autoindex;
    std::string upload_store;
    std::pair<std::string, std::string> cgi_extension;
+   int actions;
 }t_location;
 
 

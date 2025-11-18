@@ -204,6 +204,7 @@ void Config::printPorts(void)
     size_t pos = 0;
     size_t end;
     t_location locationTmp;
+    locationTmp.actions = STATIC;
     while(location[pos] == 32)
         pos++;
     end = location.find("{");
@@ -242,10 +243,12 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
         break;
     case 9:
         end = location.find(';', pos);
+        locTmp.actions = UPLOAD;
         locTmp.upload_store = _trimText(location.substr(pos, end - pos));
         break;
     case 10:
         end = end = location.find(';', pos);
+        locTmp.actions = CGI;
         locTmp.cgi_extension =  _ExtracExten(_trimText(location.substr(pos, end - pos)));
     default:
         break;
