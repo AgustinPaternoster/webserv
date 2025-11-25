@@ -15,10 +15,10 @@
 #include "HTTPRequestParser.hpp"
 #include "ResponseBuilder.hpp"
 #include "HttpUtils.hpp"
-
+/*
 std::string handle_client_request(std::string request_str, Config &config)
 {
-	ResponseBuilder	rb;
+	HttpResponse	rb;
 	HttpRequest par = HttpRequest::fromString(request_str);
 
 	if (isvalidmethod(par, config))
@@ -41,7 +41,7 @@ std::string handle_client_request(std::string request_str, Config &config)
 		rb.setStatus(501); // not implemented
 	HttpResponse response_fn = rb.build();
 	return (response_fn.toString());
-}
+}*/
 
 
 int	process_request(std::vector<struct pollfd> &poll_fds,

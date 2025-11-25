@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/18 13:21:05 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/25 12:39:57 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,9 +191,9 @@ HttpResponse& HttpResponse::setBodyFile(const std::string& file)
 	{
 		_statusCode = 404;
 		_reason = HttpStatusCode::getReason(404);
-		this->getHeaders().set_http("Server", "Webserv/1.0");
-		this->setBody("File not found");
-		this->setContent("text/plain");
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("File not found");
+		setContent("text/plain");
 	}
 	return *this;
 }
@@ -225,28 +225,114 @@ void	HttpResponse::printResponse()
 }
 
 
-void	HttpResponse::execute(HttpRequest par, Config &config)
+std::string	HttpResponse::execute(HttpRequest par, Config &config)
 {
-	if (isvalidmethod(par, config))
+	if (!isvalidmethod(par, config))
 	{
 		_statusCode = 405;
 		_reason = HttpStatusCode::getReason(405);
 		this->getHeaders().set_http("Server", "Webserv/1.0");
 		this->setBody("File not found");
-		this->setContent("text/plain");
+		this->setContent("/textplain");
 	}
-	if (isGCI(par, config)) //only flag
-	switch (expression)
+	if (isGCI(par, config))
+			execute(); //only flag
+	switch (loc.status) //location status code
 	{
-	case constant expression:
-		/* code */
-		break;
-	
+	case GET:
+		return handle_get(par, config);
+	case POST:
+		return handle_post(par, config);
+	case DELETE:
+		return handle_delete(par, config);
 	default:
 		_statusCode = 501;
 		_reason = HttpStatusCode::getReason(501);
-		this->getHeaders().set_http("Server", "Webserv/1.0");
-		this->setBody("File not found");
-		this->setContent("text/plain");;
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Method not implemented");
+		setContent("text/plain");
+		return 
+	}
+}
+
+std::string	HttpResponse::handle_get(HttpRequest par, Config &config)
+{
+	if (isfile(uri))
+		return file;
+	if (!isdirectory())
+	{
+		_statusCode = 301;
+		_reason = HttpStatusCode::getReason(301);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Method not implemented");
+		setContent("text/plain");
+	}
+	if (haveIndex())
+		return index;
+	if (!isautoIndex())
+	{
+		_statusCode = 403;
+		_reason = HttpStatusCode::getReason(403);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Method not implemented");
+		setContent("text/plain");
+	}
+	else
+	{
+		return autoindex of directory;
+	}
+}
+
+std::string	HttpResponse::handle_post(HttpRequest par, Config &config)
+{
+	if (isdirectory() && has_perm())
+	{
+		return upload_file;
+	}
+	else
+	{
+		_statusCode = 403;
+		_reason = HttpStatusCode::getReason(403);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Method not implemented");
+		setContent("text/plain");
+	}
+}
+
+std::string HttpReponse::handle_delete(HttpRequest par, Config &config)
+{
+	if (isfile(uri))
+		return file_delete(uri);
+	if (!isdirectory() && ismidpath())
+	{
+		_statusCode = 409;
+		_reason = HttpStatusCode::getReason(409);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Method not implemented");
+		setContent("text/plain");
+	}
+	if (!has_perm())
+	{
+		_statusCode = 403;
+		_reason = HttpStatusCode::getReason(403);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Method not implemented");
+		setContent("text/plain");
+	}
+	if (is_delete())
+	{
+		_statuscode = 204;
+		_reason = HttpStatusCode::getReason(204);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Method not implemented"); //delete succs
+		setContent("text/plain");
+	}
+	else
+	{
+		_statuscode = 500;
+		_reason = HttpStatusCode::getReason(500);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Method not implemented"); //delete succs
+		setContent("text/plain");
 	}
 }

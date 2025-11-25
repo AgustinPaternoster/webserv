@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:24:59 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/18 13:19:12 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/25 12:39:54 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ class HttpResponse
 			std::string	_reason; //ok, Not Found
 			HttpHeaders	_headers;
 			std::string	_body;
-
 			void		upd_headers();
 			std::string	getDateHttp() const;
 			std::string readFile(const std::string& file) const;
@@ -73,7 +72,11 @@ class HttpResponse
 			HttpResponse	build();
 			HttpResponse&	setContent(const std::string& type);
 			HttpResponse&	setBodyFile(const std::string& file);
-			void			execute();
+			std::string		execute();
+			std::string		handle_get(HttpRequest par, Config &config);
+			std::string		handle_post(HttpRequest par, Config &config);
+			std::string		handle_delete(HttpRequest par, Config &config);
+
 };
 
 #endif
