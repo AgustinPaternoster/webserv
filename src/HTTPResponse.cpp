@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/25 12:39:57 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/25 20:03:38 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,21 @@
 
 /*Private*/
 
-void	HttpReponse::upd_headers()
+void	HttpResponse::upd_headers()
 {
 	//Update time
-	this->getHeaders().set_htpp("Date", getDateHttp())
+	getHeaders().set_http("Date", getDateHttp());
 
 	//Update Content-legnth
 	if (!this->getBody().empty())
 	{
 		std::ostringstream oss;
-		oss << _response.getBody().length();
+		oss << getBody().length();
 		this->getHeaders().set_http("Content-Length", oss.str());
 	}
 }
 
-std::string	HttpReponse::getDateHTTP() const
+std::string	HttpResponse::getDateHttp() const
 {
 	time_t now = time(0);
 	struct tm* ptm = gmtime(&now); //covert hour
@@ -43,7 +43,7 @@ std::string	HttpReponse::getDateHTTP() const
 		return "";
 }
 
-std::string	HttpReponse::readFile(const std::string& fileP) const
+std::string	HttpResponse::readFile(const std::string& fileP) const
 {
 	std::ifstream file(fileP.c_str(), std::ios::binary);
 	if (!file.is_open())
@@ -186,6 +186,7 @@ HttpResponse& HttpResponse::setBodyFile(const std::string& file)
 		else
 			setContent("application/octet-stream");
 		this->setBody(content);
+		return *this;
 	}
 	else
 	{
@@ -194,8 +195,8 @@ HttpResponse& HttpResponse::setBodyFile(const std::string& file)
 		getHeaders().set_http("Server", "Webserv/1.0");
 		setBody("File not found");
 		setContent("text/plain");
+		return *this;
 	}
-	return *this;
 }
 
 void	HttpResponse::printResponse()
@@ -225,22 +226,38 @@ void	HttpResponse::printResponse()
 }
 
 
-std::string	HttpResponse::execute(HttpRequest par, Config &config)
+std::string	HttpResponse::execute_response(HttpRequest par, Config &config)
 {
-	if (!isvalidmethod(par, config))
+	size_t num = get_port_www(config, par);
+	const std::vector<t_server> & servers = config.getServers();
+	const t_server &server = servers[num];
+	if (!isvalidmethod(par, server))
 	{
 		_statusCode = 405;
 		_reason = HttpStatusCode::getReason(405);
 		this->getHeaders().set_http("Server", "Webserv/1.0");
 		this->setBody("File not found");
-		this->setContent("/textplain");
+		this->setContent("/text/plain");
+
+		return build().toString();
 	}
-	if (isGCI(par, config))
-			execute(); //only flag
-	switch (loc.status) //location status code
+	if (par.getMethod() == "GET")
+		return handle_get(par, server, 1);
+	else
+	{
+		_statusCode = 501;
+		_reason = HttpStatusCode::getReason(501);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Method not implemented");
+		setContent("text/plain");
+		return build().toString();
+	}
+	/*if (isCGI())
+			execute(par, config); //only flag*/
+	/*switch (par.getMethod()) //location status code
 	{
 	case GET:
-		return handle_get(par, config);
+		return handle_get(par, server);
 	case POST:
 		return handle_post(par, config);
 	case DELETE:
@@ -251,39 +268,79 @@ std::string	HttpResponse::execute(HttpRequest par, Config &config)
 		getHeaders().set_http("Server", "Webserv/1.0");
 		setBody("Method not implemented");
 		setContent("text/plain");
-		return 
-	}
+		return ;
+	}*/
 }
 
-std::string	HttpResponse::handle_get(HttpRequest par, Config &config)
+std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 {
-	if (isfile(uri))
-		return file;
-	if (!isdirectory())
+	std::string uri = par.getUri();
+	std::string root;
+
+	if (flag && !server.locations[0].root.empty())
+	{
+		root = server.locations[0].root;
+		uri = uri.substr(server.locations[0].path.size() - 1);
+	}
+	else
+		root = server.root;
+	std::string path = root + uri;
+	std::cout << path << std::endl;
+	if (isFile(path))
+	{
+		_statusCode = 200;
+		_reason = HttpStatusCode::getReason(200);
+		getHeaders().set_http("Server", "Webserver/1.0");
+		setBodyFile(path);
+		return build().toString();
+	}
+	if (!isDir(path))
+	{
+		_statusCode = 404;
+		_reason = HttpStatusCode::getReason(404);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Not found");
+		setContent("text/plain");
+		return build().toString();
+	}
+	if (path[path.size() - 1] != '/') //red
 	{
 		_statusCode = 301;
 		_reason = HttpStatusCode::getReason(301);
+		getHeaders().set_http("Location", path + "/");
 		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
+		setBody("Moved Permanently");
 		setContent("text/plain");
+		return build().toString();
 	}
-	if (haveIndex())
-		return index;
-	if (!isautoIndex())
+	if (haveIndex(path))
+	{
+		std::string indexFile = getIndexFile(path);
+		_statusCode = 200;
+		_reason = HttpStatusCode::getReason(200);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBodyFile(indexFile);
+		return build().toString();
+	}
+	if (server.locations[0].autoindex == "off")
 	{
 		_statusCode = 403;
 		_reason = HttpStatusCode::getReason(403);
 		getHeaders().set_http("Server", "Webserv/1.0");
 		setBody("Method not implemented");
 		setContent("text/plain");
+		return build().toString();
 	}
-	else
-	{
-		return autoindex of directory;
-	}
+	std::string listen = autoIndexDir(path);
+	_statusCode = 200;
+	_reason = HttpStatusCode::getReason(200);
+	getHeaders().set_http("Server", "Webserv/1.0");
+	setBody(listen);
+	setContent("text/html");
+	return build().toString();
 }
 
-std::string	HttpResponse::handle_post(HttpRequest par, Config &config)
+/*std::string	HttpResponse::handle_post(HttpRequest par, Config &config)
 {
 	if (isdirectory() && has_perm())
 	{
@@ -318,14 +375,16 @@ std::string HttpReponse::handle_delete(HttpRequest par, Config &config)
 		getHeaders().set_http("Server", "Webserv/1.0");
 		setBody("Method not implemented");
 		setContent("text/plain");
+		return toString()
 	}
 	if (is_delete())
 	{
 		_statuscode = 204;
 		_reason = HttpStatusCode::getReason(204);
 		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented"); //delete succs
+		setBody("Method implemented"); //delete succs
 		setContent("text/plain");
+		return toString()
 	}
 	else
 	{
@@ -334,5 +393,82 @@ std::string HttpReponse::handle_delete(HttpRequest par, Config &config)
 		getHeaders().set_http("Server", "Webserv/1.0");
 		setBody("Method not implemented"); //delete succs
 		setContent("text/plain");
+		return toString();
 	}
+}*/
+
+
+//Aux
+bool			HttpResponse::isvalidmethod(HttpRequest par, t_server server)
+{
+	std::string input = par.getMethod();
+	int nbr_input = stringToMethod(input);
+	if (nbr_input == -1)
+		return false;
+	const std::vector <int> &allo = server.locations[0].methods;
+	std::vector <int>::const_iterator it = std::find(allo.begin(), allo.end(), nbr_input);
+	return it != allo.end();
+}
+
+
+bool	HttpResponse::isFile(const std::string &path)
+{
+	struct stat st;
+
+	if (stat(path.c_str(), &st) == -1)
+		return false;
+	return S_ISREG(st.st_mode);
+}
+
+bool	HttpResponse::isDir(const std::string &path)
+{
+	struct stat st;
+
+	if (stat(path.c_str(), &st) == -1)
+		return false;
+	return S_ISDIR(st.st_mode);
+}
+
+bool	HttpResponse::haveIndex(const std::string &path)
+{
+	std::string indexPath = path + "index.html";
+	return isFile(indexPath);
+}
+
+std::string	HttpResponse::getIndexFile(const std::string &path)
+{
+	std::string indexPath = path + "index.html";
+	return indexPath;
+}
+
+std::string HttpResponse::autoIndexDir(const std::string &path)
+{
+	DIR *dir;
+	struct dirent *entry;
+
+	dir = opendir(path.c_str());
+	if (!dir)
+		return "<html><body><h1>Error opening directory</h1></body></html>";
+	
+	std::string html;
+	html += "<html><head><title>Index of ";
+    html += path;
+    html += "</title></head><body>";
+    html += "<h1>Index of " + path + "</h1><ul>";
+
+	while  ((entry = readdir(dir)) != NULL)
+	{
+		std::string name = entry->d_name;
+
+		if (name == "." || name == "..")
+			continue;
+		html += "<li><a href=\"";
+        html += name;
+		html += "\">";
+        html += name;
+        html += "</a></li>";
+	}
+	html += "</ul></body></html>";
+	closedir(dir);
+	return html;
 }

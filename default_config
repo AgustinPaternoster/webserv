@@ -8,7 +8,7 @@ server {
     index index.html;
 
     location /images/ {
-        root ./www/default;
+        root www/images;
         upload_store ./www/uploads;
         allow_methods GET  POST  ;
         autoindex off;
@@ -20,10 +20,6 @@ server {
         upload_store ./www/uploads;
         autoindex on;}
         
-    location gci-test{
-        root .gci/deafult;
-        gci-test .py python3;
-    }
 }
 
 server {

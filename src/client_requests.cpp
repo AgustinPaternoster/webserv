@@ -6,43 +6,15 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/18 12:17:22 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/25 19:23:18 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 #include "Response.hpp"
 #include "HTTPRequestParser.hpp"
-#include "ResponseBuilder.hpp"
+#include "HTTPResponse.hpp"
 #include "HttpUtils.hpp"
-/*
-std::string handle_client_request(std::string request_str, Config &config)
-{
-	HttpResponse	rb;
-	HttpRequest par = HttpRequest::fromString(request_str);
-
-	if (isvalidmethod(par, config))
-		rb.setStatus(405);
-
-	// GCI
-	if (isGCI(par, config))
-		return executegci(par, config); // ToDO
-	
-	//
-
-	//Simplificar		
-	if (par.getMethod() == "GET")
-		rb.handle_get(par, );
-	else if (par.getMethod() == "POST")
-		rb.handle_post();
-	else if (par.getMethod() == "DELETE")
-		rb.handle_delete();
-	else
-		rb.setStatus(501); // not implemented
-	HttpResponse response_fn = rb.build();
-	return (response_fn.toString());
-}*/
-
 
 int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i, Config &config) 
@@ -66,9 +38,15 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	
 	if (end_pos != std::string::npos) 
 	{
-		std::string response_str = handle_client_request(request_str, config);
-		
-		int sent_bytes = send(poll_fds[i].fd, response_str.c_str(), response_str.size(), 0); //hasta aqui
+		(void)config;
+		HttpRequest par = HttpRequest::fromString(request_str);
+		//std::cout << par.toString();
+		HttpResponse response;
+
+		std::string res_response = response.execute_response(par, config);
+
+		int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0); //hasta aqui
+		//int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0); //hasta aqui
 		if  (sent_bytes > 0)
 			close_pollfd(poll_fds, i);
 		else

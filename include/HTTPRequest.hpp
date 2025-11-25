@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 20:15:11 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/18 13:03:21 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/25 19:08:16 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ class HttpRequest
 			void	clear();
 			void	print_http() const;
 			std::string	toString() const;
-			HttpRequest fromString(const std::string& request);
+			static HttpRequest fromString(const std::string& request);
 };
 
 #endif

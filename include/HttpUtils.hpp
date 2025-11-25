@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpUtils.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 11:42:37 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/17 15:00:54 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/25 18:41:29 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,9 @@
 #include <vector>
 #include "Config.hpp"
 #include "HTTPRequestParser.hpp"
-#include "ResponseBuilder.hpp"
 
 size_t  get_port_www(Config &config, const HttpRequest& par);
 std::string get_error_page(const std::map<std::string,std::string>& error_pages, const std::string& code);
-
+int stringToMethod(const std::string &s);
 
 #endif
