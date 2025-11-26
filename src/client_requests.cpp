@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client_requests.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/25 19:23:18 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/26 13:04:09 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,13 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	
 	if (end_pos != std::string::npos) 
 	{
-		(void)config;
+		//(void)config;
 		HttpRequest par = HttpRequest::fromString(request_str);
 		//std::cout << par.toString();
 		HttpResponse response;
-
-		std::string res_response = response.execute_response(par, config);
+		
+		
+		std::string res_response = response.execute_response(par, config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri()));
 
 		int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0); //hasta aqui
 		//int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0); //hasta aqui
