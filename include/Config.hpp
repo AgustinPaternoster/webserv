@@ -7,7 +7,7 @@ class Config
 {
     public:
         Config(void);
-        Config(char *path);
+        Config(const char *path);
         Config(const Config& other);
         ~Config(void);
 
@@ -30,6 +30,7 @@ class Config
         std::pair<std::string,std::string> _extracErrorPage(size_t& pos, size_t& end, std::string server);
         t_location _parseLocationConfig(std::string location);
         void _extracMethods(std::string src, std::vector<int>& methods);
+        std::pair<std::string, std::string> _ExtracExten(std::string src);
     };
 
 #endif

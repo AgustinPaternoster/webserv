@@ -13,9 +13,8 @@ std::map<int, std::string> createValidDirectives(void)
     m[8]  = "autoindex";
     m[9]  = "upload_store";
     m[10]  = "cgi_extension";
-    m[11] = "cgi_path";
-    m[12] = "return";
-    m[13] = "server";
+    m[11] = "return";
+    m[12] = "server";
     return (m);
 }
 
@@ -23,13 +22,9 @@ std::map<int, std::string> createValidDirectives(void)
 const std::map<int,std::string> Config::validDirectives = createValidDirectives();
 
 
-Config::Config(void)
-{
-    _openFile(DEFAULTCONFIG);
-    _parseFile();
-}
+Config::Config(void){}
 
-Config::Config(char *path)
+Config::Config(const char *path)
 {
     _openFile(path);
     _parseFile();
@@ -66,14 +61,14 @@ void Config::_openFile(const char* path)
 void Config::_parseFile(void)
 {
     size_t pos = 0;
-    std::size_t start = _configFile.find(validDirectives.at(13), pos);
+    std::size_t start = _configFile.find(validDirectives.at(12), pos);
     if (std::string::npos == start)
         throw std::invalid_argument(CONFIG_NO_SERVER_ERROR);
     while (std::string::npos != start)
     {
-        pos = start + validDirectives.at(13).size();
+        pos = start + validDirectives.at(12).size();
         _parserServerConfig(_extracDirective(_configFile, pos));
-        start = _configFile.find(validDirectives.at(13), pos);
+        start = _configFile.find(validDirectives.at(12), pos);
     }
 }
 
@@ -220,8 +215,6 @@ void Config::printPorts(void)
         if (pos >= location.size())
                 break;
         end = location.find(32, pos);
-        // if(std::string::npos != end)
-        //     break;
         directive = location.substr(pos, end - pos);
         pos = end;
         _fillLocationStruct(pos, locationTmp, location, _getKeyfromValue(directive));
@@ -250,6 +243,9 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
         end = location.find(';', pos);
         locTmp.upload_store = _trimText(location.substr(pos, end - pos));
         break;
+    case 10:
+        end = end = location.find(';', pos);
+        locTmp.cgi_extension =  _ExtracExten(_trimText(location.substr(pos, end - pos)));
     default:
         break;
     }
@@ -291,4 +287,14 @@ void Config::_extracMethods(std::string src, std::vector<int>& a_methods)
                a_methods.push_back((*it).second);
         }
     }
+}
+
+std::pair<std::string, std::string> Config::_ExtracExten(std::string src)
+{
+
+    std::pair<std::string , std::string> tmp;
+    tmp.first = _trimText(src.substr(0, src.find(32)));
+    tmp.second = _trimText(src.substr(src.find(32)));
+    return (tmp);
+
 }

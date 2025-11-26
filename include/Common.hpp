@@ -46,6 +46,7 @@ typedef struct s_location
    std::vector <int> methods;
    std::string autoindex;
    std::string upload_store;
+   std::pair<std::string, std::string> cgi_extension;
 }t_location;
 
 
