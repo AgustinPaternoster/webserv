@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:24:59 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/04 16:39:03 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/25 19:33:51 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,16 @@
 # include <string>
 # include <sstream>
 # include <iostream>
+# include <ctime> //time_t, time, gmtime, tm
+# include <fstream>
+# include <dirent.h> //dir
+# include <sys/stat.h>
+# include <sys/types.h>
 # include "HTTPHeaders.hpp"
+# include "HTTPRequest.hpp"
+# include "HTTPStatusCode.hpp"
+# include "Socket.hpp"
+# include "HttpUtils.hpp"
 
 /**
  * @class HttpResponse
@@ -31,6 +40,9 @@ class HttpResponse
 			std::string	_reason; //ok, Not Found
 			HttpHeaders	_headers;
 			std::string	_body;
+			void		upd_headers();
+			std::string	getDateHttp() const;
+			std::string readFile(const std::string& file) const;
 
 	public:
 			HttpResponse();
@@ -51,6 +63,7 @@ class HttpResponse
 			void	setStatusCode(int code);
 			void	setReason(const std::string& phrase);
 			void	setHeaders(const HttpHeaders& headers);
+			void	setHeader(const std::string& name, const std::string& value);
 			void	setBody(const std::string& vody);
 
 			//Utils
@@ -58,6 +71,22 @@ class HttpResponse
 			void		clear();
 			void		printResponse();
 
+			//Algorithm
+			HttpResponse	build();
+			HttpResponse&	setContent(const std::string& type);
+			HttpResponse&	setBodyFile(const std::string& file);
+			std::string		execute_response(HttpRequest par, Config &config);
+			std::string		handle_get(HttpRequest par, t_server server, int flag);
+			std::string		handle_post(HttpRequest par, Config &config);
+			std::string		handle_delete(HttpRequest par, Config &config);
+
+			//aux
+			bool			isvalidmethod(HttpRequest par, t_server server);
+			bool			isFile(const std::string &path);
+			bool			isDir(const std::string &path);
+			bool			haveIndex(const std::string &path);
+			std::string		getIndexFile(const std::string &path);
+			std::string		autoIndexDir(const std::string &path);
 };
 
 #endif
