@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/25 20:03:38 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/26 11:59:58 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,7 +242,7 @@ std::string	HttpResponse::execute_response(HttpRequest par, Config &config)
 		return build().toString();
 	}
 	if (par.getMethod() == "GET")
-		return handle_get(par, server, 1);
+		return handle_get(par, server, 0);
 	else
 	{
 		_statusCode = 501;
@@ -285,7 +285,6 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 	else
 		root = server.root;
 	std::string path = root + uri;
-	std::cout << path << std::endl;
 	if (isFile(path))
 	{
 		_statusCode = 200;
@@ -340,11 +339,22 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 	return build().toString();
 }
 
-/*std::string	HttpResponse::handle_post(HttpRequest par, Config &config)
+/*std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag)
 {
-	if (isdirectory() && has_perm())
+	std::string uri = par.getUri();
+	std::string root;
+
+	if (flag && !server.locations[0].root.empty())
 	{
-		return upload_file;
+		root = server.locations[0].root;
+		uri = uri.substr(server.locations[0].path.size() - 1);
+	}
+	else
+		root = server.root;
+	std::string path = root + uri;
+	if (isDir(path) && hasPerm(path))
+	{
+		if (par.)
 	}
 	else
 	{
