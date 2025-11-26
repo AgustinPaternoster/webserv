@@ -35,20 +35,22 @@ void Cgi::CgiHandler(void)
         if(_envVar["REQUEST_METHOD"] == "GET")
         {
             close(pipe_in[0]);
-            close(pipe_out[0]);
-            close(pipe_in[0]);
+            close(pipe_out[1]);
+            close(pipe_in[1]);
         }
         if(_envVar["REQUEST_METHOD"] == "POST")
         {
                 close(pipe_in[0]);
                 // getionar para multiplexing
-                write(pipe_in[0], (_request.getBody()).c_str(), (_request.getBody()).size());
-                close(pipe_in[0]);
-                close(pipe_in[0]);
+                write(pipe_in[1], (_request.getBody()).c_str(), (_request.getBody()).size());
+                close(pipe_in[1]);
+                close(pipe_out[1]);
         }
     }
     if(pid == 0)
     {
+        dup2(pipe_in[0], STDIN_FILENO);
+        close(pipe_in[0]);
         
     }
 };
