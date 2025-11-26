@@ -34,6 +34,9 @@ void CgiHandler(void)
 
     pid_t pid;
     int fd[2];
+    if(pipe(fd) < 0)
+        // error
+    pid = fork();
     if(envVar["REQUEST_METHOD"] == "GET")
     {
         close(fd[0]);
@@ -45,9 +48,6 @@ void CgiHandler(void)
         write(fd[1], body.c_str() , body.size());
         close(fd[0]);
     }
-    if(pipe(fd) < 0)
-        // error
-    pid = fork();
 
     if(pid < 0)
         // error
