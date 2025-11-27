@@ -12,5 +12,5 @@ class Cgi
     private:
         std::map<std::string, std::string> _envVar;
         HttpRequest& _request;
-        
+        char** _getEnvVar(void);        
 };

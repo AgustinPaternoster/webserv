@@ -19,6 +19,32 @@ std::map<std::string, std::string> Cgi::setupCgiEnvironment(void)
     _envVar["CONTENT_TYPE"] = "application/x-www-form-urlencoded";
 }
 
+
+char** Cgi::_getEnvVar(void)
+{
+    char** envVar = nullptr;
+    int i = 0;
+    try
+    {
+        char** envVar = new char*[_envVar.size()];
+        for(std::map<std::string, std::string>::iterator  it = _envVar.begin(); it  < _envVar.end(); it++)
+        {
+            std::string tmp = it->first + "=" + it->second;
+            envVar[i] = new char[tmp.size() + 1];
+            strcpy(envVar[i], tmp.c_str());
+            i++;
+        }
+
+    }
+    catch(const std::exception& e)
+    {
+        //gestionar error new
+        std::cerr << e.what() << '\n';
+    }
+    
+    
+}
+
 void Cgi::CgiHandler(void)
 {
     int pipe_in[2];
@@ -49,7 +75,11 @@ void Cgi::CgiHandler(void)
     }
     if(pid == 0)
     {
-        dup2(pipe_in[0], STDIN_FILENO);
+        if(dup2(pipe_in[0], STDIN_FILENO) < 0)
+            //error
+        if(dup2(pipe_out[1], STDOUT_FILENO))
+            //error
+        close(pipe_out[1]);
         close(pipe_in[0]);
         
     }
