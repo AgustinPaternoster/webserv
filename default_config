@@ -7,6 +7,13 @@ server {
     client_max_body_size 10M;
     index index.html;
 
+    location /errors/ {
+        root www/errors;
+        upload_store ./www/uploads;
+        allow_methods GET  POST  ;
+        autoindex off;
+    } 
+
     location /images/ {
         root www/images;
         upload_store ./www/uploads;
@@ -18,7 +25,8 @@ server {
         root ./www/uploads;
         allow_methods GET POST;
         upload_store ./www/uploads;
-        autoindex on;}        
+        autoindex on;}
+        
 }
 
 server {
