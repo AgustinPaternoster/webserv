@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/25 19:23:18 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/26 17:51:42 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	
 	if (end_pos != std::string::npos) 
 	{
-		(void)config;
+		//(void)config;
 		HttpRequest par = HttpRequest::fromString(request_str);
 		//std::cout << par.toString();
 		HttpResponse response;
