@@ -40,11 +40,9 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	{
 		//(void)config;
 		HttpRequest par = HttpRequest::fromString(request_str);
-		//std::cout << par.toString();
+		std::cout << par.getMethod() << "&" <<std::endl;
 		HttpResponse response;
-
 		std::string res_response = response.execute_response(par, config);
-
 		int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0); //hasta aqui
 		//int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0); //hasta aqui
 		if  (sent_bytes > 0)

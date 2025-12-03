@@ -77,8 +77,8 @@ class HttpResponse
 			HttpResponse&	setBodyFile(const std::string& file);
 			std::string		execute_response(HttpRequest par, Config &config);
 			std::string		handle_get(HttpRequest par, t_server server, int flag);
-			std::string		handle_post(HttpRequest par, Config &config);
-			std::string		handle_delete(HttpRequest par, Config &config);
+			std::string		handle_post(HttpRequest par, t_server server, int flag);
+			std::string		handle_delete(HttpRequest par, t_server server);
 
 			//aux
 			bool			isvalidmethod(HttpRequest par, t_server server);
