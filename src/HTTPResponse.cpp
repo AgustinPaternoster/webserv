@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/26 11:59:58 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/26 13:07:08 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,11 +226,11 @@ void	HttpResponse::printResponse()
 }
 
 
-std::string	HttpResponse::execute_response(HttpRequest par, Config &config)
+std::string	HttpResponse::execute_response(HttpRequest par, t_server server)
 {
-	size_t num = get_port_www(config, par);
-	const std::vector<t_server> & servers = config.getServers();
-	const t_server &server = servers[num];
+	//size_t num = get_port_www(config, par);
+	// const std::vector<t_server> & servers = config.getServers();
+	// const t_server &server = servers[num];
 	if (!isvalidmethod(par, server))
 	{
 		_statusCode = 405;

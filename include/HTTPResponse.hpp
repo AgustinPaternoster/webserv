@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:24:59 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/25 19:33:51 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/26 13:07:26 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ class HttpResponse
 			HttpResponse	build();
 			HttpResponse&	setContent(const std::string& type);
 			HttpResponse&	setBodyFile(const std::string& file);
-			std::string		execute_response(HttpRequest par, Config &config);
+			std::string		execute_response(HttpRequest par, t_server server);
 			std::string		handle_get(HttpRequest par, t_server server, int flag);
 			std::string		handle_post(HttpRequest par, t_server server, int flag);
 			std::string		handle_delete(HttpRequest par, t_server server);

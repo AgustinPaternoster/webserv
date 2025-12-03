@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpUtils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 11:42:11 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/25 18:11:42 by camurill         ###   ########.fr       */
+/*   Updated: 2025/11/26 12:30:39 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,4 +73,15 @@ int stringToMethod(const std::string &s)
     if (s == "PATCH")  return PATCH;
 
     return -1;
+}
+
+std::string getServerPort(int client_fd)
+{
+    std::stringstream ss;
+    sockaddr_in srv;
+    socklen_t srv_len = sizeof(srv);
+    getsockname(client_fd, (sockaddr*)&srv, &srv_len);
+    int server_port = ntohs(srv.sin_port);
+    ss << server_port;
+    return(ss.str());
 }
