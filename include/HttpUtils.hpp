@@ -19,10 +19,14 @@
 #include <vector>
 #include "Config.hpp"
 #include "HTTPRequestParser.hpp"
+#include <cstdlib>
 
 size_t  get_port_www(Config &config, const HttpRequest& par);
 std::string get_error_page(const std::map<std::string,std::string>& error_pages, const std::string& code);
 int stringToMethod(const std::string &s);
 std::string getServerPort(int client_fd);
+size_t parseSize(const std::string &sizeStr);
+std::string joinPaths(const std::string& part1, const std::string& part2);
+
 
 #endif

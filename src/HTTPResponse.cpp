@@ -228,9 +228,6 @@ void	HttpResponse::printResponse()
 
 std::string	HttpResponse::execute_response(HttpRequest par, t_server server)
 {
-	//size_t num = get_port_www(config, par);
-	// const std::vector<t_server> & servers = config.getServers();
-	// const t_server &server = servers[num];
 	if (!isvalidmethod(par, server))
 	{
 		_statusCode = 405;
@@ -243,6 +240,10 @@ std::string	HttpResponse::execute_response(HttpRequest par, t_server server)
 	}
 	if (par.getMethod() == "GET")
 		return handle_get(par, server, 0);
+	else if (par.getMethod() == "POST")
+		return handle_post(par, server, 0);
+	else if (par.getMethod() == "DELETE")
+		return handle_delete(par, server, 0);
 	else
 	{
 		_statusCode = 501;
@@ -252,39 +253,27 @@ std::string	HttpResponse::execute_response(HttpRequest par, t_server server)
 		setContent("text/plain");
 		return build().toString();
 	}
-	/*if (isCGI())
-			execute(par, config); //only flag*/
-	/*switch (par.getMethod()) //location status code
-	{
-	case GET:
-		return handle_get(par, server);
-	case POST:
-		return handle_post(par, config);
-	case DELETE:
-		return handle_delete(par, config);
-	default:
-		_statusCode = 501;
-		_reason = HttpStatusCode::getReason(501);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
-		setContent("text/plain");
-		return ;
-	}*/
 }
 
 std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 {
 	std::string uri = par.getUri();
-	std::string root;
+	std::string root = server.root;
+	std::string path;
 
+	if (!server.locations.empty())
+		flag = 1;
 	if (flag && !server.locations[0].root.empty())
 	{
 		root = server.locations[0].root;
-		uri = uri.substr(server.locations[0].path.size() - 1);
+		std::string aux = server.locations[0].path;
+		if (aux.find(aux) == 0)
+			path = joinPaths(root, uri.substr(aux.size() - 1));
+		else
+			path = joinPaths(root, uri);
 	}
 	else
-		root = server.root;
-	std::string path = root + uri;
+		path = joinPaths(root, uri);
 	if (isFile(path))
 	{
 		_statusCode = 200;
@@ -298,15 +287,15 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 		_statusCode = 404;
 		_reason = HttpStatusCode::getReason(404);
 		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Not found");
+		setBody("404 Not found");
 		setContent("text/plain");
 		return build().toString();
 	}
-	if (path[path.size() - 1] != '/') //red
+	if (path[path.size() - 1] != '/') //if not found / -> redirect
 	{
 		_statusCode = 301;
 		_reason = HttpStatusCode::getReason(301);
-		getHeaders().set_http("Location", path + "/");
+		getHeaders().set_http("Location", uri + "/");
 		getHeaders().set_http("Server", "Webserv/1.0");
 		setBody("Moved Permanently");
 		setContent("text/plain");
@@ -321,91 +310,190 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 		setBodyFile(indexFile);
 		return build().toString();
 	}
-	if (server.locations[0].autoindex == "off")
+
+	std::string autoindex = "off";
+	if(flag)
+		autoindex = server.locations[0].autoindex;
+	
+	if (autoindex == "on")
+	{
+		std::string listen = autoIndexDir(path);
+		_statusCode = 200;
+		_reason = HttpStatusCode::getReason(200);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody(listen);
+		setContent("text/html");
+		return build().toString();
+	}
+	else
 	{
 		_statusCode = 403;
 		_reason = HttpStatusCode::getReason(403);
 		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
+		setBody("403 Forbidden: Directory access is disabled");
 		setContent("text/plain");
 		return build().toString();
 	}
-	std::string listen = autoIndexDir(path);
-	_statusCode = 200;
-	_reason = HttpStatusCode::getReason(200);
-	getHeaders().set_http("Server", "Webserv/1.0");
-	setBody(listen);
-	setContent("text/html");
+}
+
+std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag)
+{
+	size_t max_bytes = parseSize(server.client_max_body_size);
+	if (max_bytes > 0 && par.getBody().size() > max_bytes) //check client body size
+	{
+		_statusCode = 413;
+		_reason = HttpStatusCode::getReason(413);
+		setBody("Request Entity Too Large");
+		setContent("text/plain");
+		return build().toString();
+	}
+	if (!server.locations.empty())
+		flag = 1;
+	std::string base_path;
+	std::string uploadPath;
+	std::string uri = par.getUri();
+	if (flag)
+		uploadPath = server.locations[0].upload_store;
+
+	if (!uploadPath.empty())
+	{
+		if (uploadPath[0] == '/' || (uploadPath.size() > 2 && uploadPath[0] == '.' && uploadPath[1] == '/'))
+			base_path = uploadPath;
+		else
+			base_path = joinPaths(server.locations[0].root, uploadPath);
+	}
+	else
+	{
+		std::string aux = uri;
+		if (flag && aux.find(server.locations[0].path) == 0)
+			aux = aux.substr(server.locations[0].path.size() - 1);
+		base_path = joinPaths(server.locations[0].root, aux);
+	}
+
+	std::string finalPath;
+	std::string filename;
+	
+	if (isDir(base_path)) //directory
+	{
+		std::string uri_name = "";
+		size_t pos_2 = uri.find_last_of('/');
+		if (pos_2 != std::string::npos && pos_2 != uri.size() - 1)
+			uri_name = uri.substr(pos_2 + 1);
+		if (!uri_name.empty())
+			filename = uri_name;
+		else
+		{
+			std::stringstream ss;
+			ss << time(0);
+			filename = "post_" + ss.str() + ".txt";
+		}
+		finalPath = joinPaths(base_path, filename);
+	}
+	else //file
+	{
+		finalPath = base_path;
+		size_t pos = finalPath.find_last_of('/');
+		if (pos != std::string::npos)
+			filename = finalPath.substr(pos + 1);
+		else
+			filename = "uploaded_file";	
+	}
+
+	std::ofstream file(finalPath.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+	if (file.is_open())
+	{
+		file << par.getBody();
+		file.close();
+		_statusCode = 201;
+		_reason = HttpStatusCode::getReason(201);
+
+		std::string uri_aux = uri;
+        if (!uri.empty() && uri_aux[uri_aux.length() - 1] != '/')
+            uri_aux += '/';
+        if (isDir(base_path))
+            getHeaders().set_http("Location", uri_aux + filename);
+		else
+			getHeaders().set_http("Location", uri);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("Resource created successfully");
+		setContent("text/plain");
+		return build().toString();
+	}
+	else
+	{
+		_statusCode = 500; 
+        _reason = HttpStatusCode::getReason(500);
+        getHeaders().set_http("Server", "Webserv/1.0");
+        setBody("Error: Could not save file. Check permissions or path existence.");
+        setContent("text/plain");
+	}
 	return build().toString();
 }
 
-/*std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag)
+
+std::string HttpResponse::handle_delete(HttpRequest par, t_server server, int flag)
 {
 	std::string uri = par.getUri();
-	std::string root;
-
+	std::string root = server.root;
+	std::string path;
+	if (!server.locations.empty())
+		flag = 1;
 	if (flag && !server.locations[0].root.empty())
 	{
 		root = server.locations[0].root;
-		uri = uri.substr(server.locations[0].path.size() - 1);
+		std::string loc_path = server.locations[0].path;
+		if (uri.find(loc_path) == 0)
+			path = joinPaths(root, uri.substr(loc_path.size()));
+		else
+			path = joinPaths(root, uri);
 	}
 	else
-		root = server.root;
-	std::string path = root + uri;
-	if (isDir(path) && hasPerm(path))
+		path = joinPaths(root, uri);
+	if (!isFile(path) && !isDir(path))
 	{
-		if (par.)
+		_statusCode = 404;
+		_reason = HttpStatusCode::getReason(404);
+		getHeaders().set_http("Server", "Webserv/1.0");
+		setBody("404 Not found: File does not exist");
+		setContent("text/plain");
+		return build().toString();
 	}
-	else
+	if (isDir(path)) //For security dont delete directories
 	{
 		_statusCode = 403;
 		_reason = HttpStatusCode::getReason(403);
 		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
+		setBody("403 Forbidden: Directory access is disabled");
 		setContent("text/plain");
+		return build().toString();
 	}
-}
-
-std::string HttpReponse::handle_delete(HttpRequest par, Config &config)
-{
-	if (isfile(uri))
-		return file_delete(uri);
-	if (!isdirectory() && ismidpath())
-	{
-		_statusCode = 409;
-		_reason = HttpStatusCode::getReason(409);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
-		setContent("text/plain");
-	}
-	if (!has_perm())
+	if (access(path.c_str(), W_OK) != 0)
 	{
 		_statusCode = 403;
 		_reason = HttpStatusCode::getReason(403);
 		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
+		setBody("403 Forbidden: Permission denied");
 		setContent("text/plain");
-		return toString()
+		return build().toString();
 	}
-	if (is_delete())
+	std::cout << "Deleting file: " << path << std::endl;
+	if (std::remove(path.c_str()) == 0) //Success no content
 	{
-		_statuscode = 204;
+		_statusCode = 204;
 		_reason = HttpStatusCode::getReason(204);
 		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method implemented"); //delete succs
-		setContent("text/plain");
-		return toString()
+		return build().toString();
 	}
 	else
 	{
-		_statuscode = 500;
+		_statusCode = 500;
 		_reason = HttpStatusCode::getReason(500);
 		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented"); //delete succs
+		setBody("500 Internal Server Error: Could not delete file");
 		setContent("text/plain");
-		return toString();
+		return build().toString();
 	}
-}*/
+}
 
 
 //Aux
@@ -415,7 +503,11 @@ bool			HttpResponse::isvalidmethod(HttpRequest par, t_server server)
 	int nbr_input = stringToMethod(input);
 	if (nbr_input == -1)
 		return false;
+	if (server.locations.empty())
+		return true;
 	const std::vector <int> &allo = server.locations[0].methods;
+	if (allo.empty())
+		return true;
 	std::vector <int>::const_iterator it = std::find(allo.begin(), allo.end(), nbr_input);
 	return it != allo.end();
 }

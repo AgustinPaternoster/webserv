@@ -8,16 +8,16 @@ server {
     index index.html;
 
     location /images/ {
-        root www/images;
-        upload_store ./www/uploads;
-        allow_methods GET  POST  ;
+        root www/;
+        upload_store ./www/upload;
+        allow_methods GET POST DELETE ;
         autoindex off;
     }
 
     location /upload/ {
-        root ./www/uploads;
-        allow_methods GET POST;
-        upload_store ./www/uploads;
+        root ./www/upload;
+        allow_methods GET POST DELETE;
+        upload_store ./www/upload;
         autoindex on;}        
 }
 

@@ -308,19 +308,39 @@ t_server Config::_filterServer(std::string port)
     return (t_server());
 }
 
+static std::string trim_path(const std::string& str) 
+{
+    size_t first = str.find_first_not_of(" \t\n\r");
+    if (std::string::npos == first) 
+    {
+        return str;
+    }
+    size_t last = str.find_last_not_of(" \t\n\r");
+    return str.substr(first, (last - first + 1));
+}
+
 t_server  Config::locationRouter(std::string port , std::string uri)
 {
+    int     best_index = -1;
+    size_t  best_len = 0;
     t_server tmp = _filterServer(port);
     std::string location;
     
     for (size_t i = 0; i < tmp.locations.size(); i++)
     {
-        if(tmp.locations[i].path == location)
-            continue;
-        tmp.locations.erase(tmp.locations.begin() + i);
+        std::string path = trim_path(tmp.locations[i].path);
+        if (uri.find(path) == 0)
+        {
+            if (path.size() > best_len)
+            {
+                best_len = path.size();
+                best_index = i;
+            }
+        }
     }
-    
-    // si no encuentra locationg
-    return (tmp);
-
+    t_server result = tmp;
+    result.locations.clear();
+    if (best_index != -1)
+        result.locations.push_back(tmp.locations[best_index]);
+    return (result);
 }

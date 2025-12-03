@@ -38,15 +38,11 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	
 	if (end_pos != std::string::npos) 
 	{
-		//(void)config;
 		HttpRequest par = HttpRequest::fromString(request_str);
-		//std::cout << par.toString();
 		HttpResponse response;
-		
-		
 		std::string res_response = response.execute_response(par, config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri()));
 
-		int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0); //hasta aqui
+		int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0);
 		//int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0); //hasta aqui
 		if  (sent_bytes > 0)
 			close_pollfd(poll_fds, i);
