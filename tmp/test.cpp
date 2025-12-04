@@ -31,16 +31,10 @@ int main(void)
             i++;
         }
         envVar[_envVar.size()] = nullptr;
-        i = 0;
-        while(envVar[i] != nullptr)
-        {
-            std::cout << envVar[i] << std::endl;
-            i++;
-        }
     }
     catch(const std::exception& e)
     {
-        //gestionar error new
+        //gestionar error new // sistem error
         std::cerr << e.what() << '\n';
     }
 
