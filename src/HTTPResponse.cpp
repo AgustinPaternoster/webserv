@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/26 13:07:08 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/04 17:52:26 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,20 +228,8 @@ void	HttpResponse::printResponse()
 
 std::string	HttpResponse::execute_response(HttpRequest par, t_server server)
 {
-	//size_t num = get_port_www(config, par);
-	// const std::vector<t_server> & servers = config.getServers();
-	// const t_server &server = servers[num];
 	if (!isvalidmethod(par, server))
-	{
-		_statusCode = 405;
-		_reason = HttpStatusCode::getReason(405);
-		this->getHeaders().set_http("Server", "Webserv/1.0");
-		this->setBody("File not found");
-		this->setContent("/text/plain");
-
-		return build().toString();
-	}
-	std::cout << "tester1...." << par.getMethod() << std::endl;
+		return generateError(405, "File not Found");
 	if (par.getMethod() == "GET")
 		return handle_get(par, server, 0);
 	else if (par.getMethod() == "DELETE")
@@ -249,32 +237,7 @@ std::string	HttpResponse::execute_response(HttpRequest par, t_server server)
 	else if (par.getMethod() == "POST")
 		return handle_post(par, server, 0);
 	else
-	{
-		_statusCode = 501;
-		_reason = HttpStatusCode::getReason(501);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
-		setContent("text/plain");
-		return build().toString();
-	}
-	/*if (isCGI())
-			execute(par, config); //only flag*/
-	/*switch (par.getMethod()) //location status code
-	{
-	case GET:
-		return handle_get(par, server);
-	case POST:
-		return handle_post(par, config);
-	case DELETE:
-		return handle_delete(par, config);
-	default:
-		_statusCode = 501;
-		_reason = HttpStatusCode::getReason(501);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
-		setContent("text/plain");
-		return ;
-	}*/
+		return generateError(501, "Method not implemented");
 }
 
 std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
@@ -299,14 +262,7 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 		return build().toString();
 	}
 	if (!isDir(path))
-	{
-		_statusCode = 404;
-		_reason = HttpStatusCode::getReason(404);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Not found");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(404, "Not found");
 	if (path[path.size() - 1] != '/') //red
 	{
 		_statusCode = 301;
@@ -327,14 +283,7 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 		return build().toString();
 	}
 	if (server.locations[0].autoindex == "off")
-	{
-		_statusCode = 403;
-		_reason = HttpStatusCode::getReason(403);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(403, "Method not implemented");
 	std::string listen = autoIndexDir(path);
 	_statusCode = 200;
 	_reason = HttpStatusCode::getReason(200);
@@ -391,52 +340,25 @@ std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag
 		return build().toString();
 	}
 	else
-	{
-		_statusCode = 500;
-		_reason = HttpStatusCode::getReason(500);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Failed to create resource");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(500, "Failed to create resource");
 }
 
 std::string HttpResponse::handle_delete(HttpRequest par, t_server server)
 {
 	std::string uri = par.getUri();
 	std::string root = server.locations[0].root;
-	std::cout << "tester2...." << root << std::endl;
 	uri = uri.substr(server.locations[0].path.size() - 1);
 	std::string path = root + uri;
 
 	if (!isFile(path))
 	{
 		if (isDir(path))
-		{
-			_statusCode = 403;
-			_reason = HttpStatusCode::getReason(403);
-			getHeaders().set_http("Server", "Webserv/1.0");
-			setBody("Forbidden");
-			setContent("text/plain");
-			return build().toString();
-		}
-		_statusCode = 404;
-		_reason = HttpStatusCode::getReason(404);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("File not found");
-		setContent("text/plain");
-		return build().toString();
+			return generateError(403, "Forbidden");
+		return generateError(404, "File not found");
 	}
 
 	if (access(path.c_str(), W_OK) != 0)
-	{
-		_statusCode = 403;
-		_reason = HttpStatusCode::getReason(403);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Forbidden");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(403, "Forbidden");
 
 	if (unlink(path.c_str()) == 0)
 	{
@@ -447,14 +369,7 @@ std::string HttpResponse::handle_delete(HttpRequest par, t_server server)
 		return build().toString();
 	}
 	else
-	{
-		_statusCode = 500;
-		_reason = HttpStatusCode::getReason(500);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Internal Server Error");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(500, "Internal Server Error");
 }
 
 
@@ -531,4 +446,20 @@ std::string HttpResponse::autoIndexDir(const std::string &path)
 	html += "</ul></body></html>";
 	closedir(dir);
 	return html;
+}
+
+std::string HttpResponse::generateError(int code, const std::string& msg)
+{
+    _statusCode = code;
+    _reason = HttpStatusCode::getReason(code);
+
+    getHeaders().set_http("Server", "Webserv/1.0");
+    setContent("text/plain");
+
+    if (!msg.empty())
+        setBody(msg);
+    else
+        setBody(_reason);
+
+    return build().toString();
 }

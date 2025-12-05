@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:24:59 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/26 13:07:26 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/04 17:26:41 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ class HttpResponse
 			bool			haveIndex(const std::string &path);
 			std::string		getIndexFile(const std::string &path);
 			std::string		autoIndexDir(const std::string &path);
+			std::string		generateError(int code, const std::string& msg);
 };
 
 #endif
