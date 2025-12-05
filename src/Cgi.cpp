@@ -17,6 +17,8 @@ std::map<std::string, std::string> Cgi::setupCgiEnvironment(void)
     _envVar["GATEWAY_INTERFACE"] = "CGI/1.1";
     _envVar["CONTENT_LENGTH"] = "150";
     _envVar["CONTENT_TYPE"] = "application/x-www-form-urlencoded";
+    _envVar["SCRIPT_NAME"]="-";
+    _envVar["REMOTE_ADDR"]="-";
 }
 
 
