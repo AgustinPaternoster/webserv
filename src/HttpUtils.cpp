@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   HttpUtils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 11:42:11 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/11 15:32:42 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/11/26 12:30:39 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpUtils.hpp"
+#include "Common.hpp"
 
 
 void print_servers(const std::vector<t_server> &servers) {
@@ -61,6 +62,17 @@ std::string get_error_page(const std::map<std::string,std::string>& error_pages,
         return it->second;
     }
     return "";
+}
+
+int stringToMethod(const std::string &s)
+{
+    if (s == "GET")    return GET;
+    if (s == "POST")   return POST;
+    if (s == "DELETE") return DELETE;
+    if (s == "PUT")    return PUT;
+    if (s == "PATCH")  return PATCH;
+
+    return -1;
 }
 
 std::string getServerPort(int client_fd)

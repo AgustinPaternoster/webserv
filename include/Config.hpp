@@ -16,8 +16,7 @@ class Config
         std::vector<t_server> getServers(void)const;
         void printPorts(void);
         t_server locationRouter(std::string port, std::string url);
-
-
+        
     private:
         std::vector<t_server>   _servers;
         std::string             _configFile;
