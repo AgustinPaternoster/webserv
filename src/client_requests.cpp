@@ -20,7 +20,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i, Config &config) 
 	{
 	
-	
+	// intanciar objeto cgi.
 	char	buffer[4096];
 	int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
