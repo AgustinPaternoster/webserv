@@ -22,7 +22,6 @@ std::string _normalizeHeadersName(const std::string& name, bool ishttp)
         return ("HTTP_" + NormalizedName);
     return (NormalizedName);
 
-
 }
 
 void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
@@ -42,8 +41,14 @@ void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
             _envVar[cgiName] = value;
         }
    }
+
 }
 
+void Cgi::_parseRequestToEnv(HttpRequest &request)
+{
+    _envVar["REQUEST_METHOD"] = request.getMethod();
+    
+}
 
 char** Cgi::_getEnvVar(void)
 {
@@ -67,6 +72,17 @@ char** Cgi::_getEnvVar(void)
         std::cerr << e.what() << '\n';
     }
     return(envVar);
+}
+
+void Cgi::_extracScriptName(void)
+{
+    std::string scripName;
+    std::string uri = 
+    std::string cgi-prefix;
+
+    if((_request.getUri()).size() < (_config.locations[0].path).size() ||
+        )
+
 }
 
 void Cgi::CgiHandler(void)
