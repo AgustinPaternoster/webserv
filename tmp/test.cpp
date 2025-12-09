@@ -1,42 +1,17 @@
 #include <iostream>
-#include "../include/Common.hpp"
-
-std::map<std::string, std::string> setupCgiEnvironment(void)
-{
-    std::map<std::string, std::string> _envVar;
-    
-    _envVar["REQUEST_METHOD"] = "GET";
-    _envVar["SERVER_PROTOCOL"] = "HTTP/1.1";
-    _envVar["QUERY_STRING"] = "";
-    _envVar["SERVER_PORT"] = "8080";
-    _envVar["GATEWAY_INTERFACE"] = "CGI/1.1";
-    _envVar["CONTENT_LENGTH"] = "150";
-    _envVar["CONTENT_TYPE"] = "application/x-www-form-urlencoded";
-    return(_envVar);
-}
+#include <map>
+#include <string>
 
 int main(void)
 {
-    std::map<std::string, std::string> _envVar = setupCgiEnvironment();
-    char** envVar = nullptr;
-    int i = 0;
-    try
+    std::string test = "asdb1234--ff";
+
+    for (std::string::iterator it = test.begin(); it != test.end(); it++)
     {
-        char** envVar = new char*[_envVar.size() + 1];
-        for(std::map<std::string, std::string>::iterator  it = _envVar.begin(); it  != _envVar.end(); it++)
-        {
-            std::string tmp = it->first + "=" + it->second;
-            envVar[i] = new char[tmp.size() + 1];
-            strcpy(envVar[i], tmp.c_str());
-            i++;
-        }
-        envVar[_envVar.size()] = nullptr;
-    }
-    catch(const std::exception& e)
-    {
-        //gestionar error new // sistem error
-        std::cerr << e.what() << '\n';
+        *it = toupper(*it);
+        if(*it == '-')
+            *it = '_';
     }
 
-      
+    std::cout << test << std::endl;
 }
