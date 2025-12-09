@@ -1,16 +1,29 @@
 server {
 
     listen  8080;
-    error_page 404 /errors/404.html;
-    error_page 405 /errors/405.html;
-    root www/html;
+
+    error_page 404 errors/404.html;
+    error_page 405 errors/405.html;
+
+    root www/;
     client_max_body_size 10M;
     index index.html;
 
+    location / {
+        allow_methods GET;
+        autoindex off;
+    }
+
     location /images/ {
-        root www/;
+        root www/images;
         upload_store ./www/upload;
         allow_methods GET POST DELETE ;
+        autoindex on;
+    }
+
+    location /methods/ {
+        root www/methods;
+        allow_methods GET;
         autoindex off;
     }
 
@@ -18,25 +31,25 @@ server {
         root ./www/upload;
         allow_methods GET POST DELETE;
         upload_store ./www/upload;
-        autoindex on;}        
+        autoindex off;}        
 }
 
 server {
 
     listen  8090;
-    root ./www/html;
+    root    www/;
     client_max_body_size 10M;
     error_page 404 /errors/404.html;
     index index2.html;
 
     location /images/ {
-        root ./www/default;
+        root /www/images;
         allow_methods GET;
         autoindex off;
     }
 
     location /upload/ {
-        root ./www/uploads;
+        root /www/upload;
         allow_methods GET POST;
         upload_store ./www/uploads;
         autoindex on;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpUtils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 11:42:11 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/26 12:30:39 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/09 15:25:11 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,4 +127,11 @@ size_t parseSize(const std::string &sizeStr)
             break;
     }
     return size;
+}
+
+std::string intToString(int value) 
+{
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
 }

@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:02:17 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/25 19:07:56 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/09 17:05:05 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ HttpRequest::~HttpRequest()
 }
 
 HttpRequest HttpRequest::fromString(const std::string& request)
-
 {
 	RequestParser par;
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/26 13:07:08 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/09 17:39:24 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,31 +228,18 @@ void	HttpResponse::printResponse()
 
 std::string	HttpResponse::execute_response(HttpRequest par, t_server server)
 {
-	if (!isvalidmethod(par, server))
+	if (par.getMethod() == "GET" || par.getMethod() == "POST" || par.getMethod() == "DELETE")
 	{
-		_statusCode = 405;
-		_reason = HttpStatusCode::getReason(405);
-		this->getHeaders().set_http("Server", "Webserv/1.0");
-		this->setBody("File not found");
-		this->setContent("/text/plain");
-
-		return build().toString();
+		if (!isvalidmethod(par, server))
+			return generateError(405, server, "Method Not Allowed");
+		if (par.getMethod() == "GET")
+			return handle_get(par, server, 0);
+		else if (par.getMethod() == "POST")
+			return handle_post(par, server, 0);
+		else if (par.getMethod() == "DELETE")
+			return handle_delete(par, server, 0);
 	}
-	if (par.getMethod() == "GET")
-		return handle_get(par, server, 0);
-	else if (par.getMethod() == "POST")
-		return handle_post(par, server, 0);
-	else if (par.getMethod() == "DELETE")
-		return handle_delete(par, server, 0);
-	else
-	{
-		_statusCode = 501;
-		_reason = HttpStatusCode::getReason(501);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("Method not implemented");
-		setContent("text/plain");
-		return build().toString();
-	}
+	return generateError(501, server, "Method not implemented");
 }
 
 std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
@@ -283,14 +270,7 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 		return build().toString();
 	}
 	if (!isDir(path))
-	{
-		_statusCode = 404;
-		_reason = HttpStatusCode::getReason(404);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("404 Not found");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(404, server, "404 Not found");
 	if (path[path.size() - 1] != '/') //if not found / -> redirect
 	{
 		_statusCode = 301;
@@ -326,29 +306,18 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 		return build().toString();
 	}
 	else
-	{
-		_statusCode = 403;
-		_reason = HttpStatusCode::getReason(403);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("403 Forbidden: Directory access is disabled");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(403, server, "403 Forbidden: Directory access is disabled");
 }
 
 std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag)
 {
 	size_t max_bytes = parseSize(server.client_max_body_size);
-	if (max_bytes > 0 && par.getBody().size() > max_bytes) //check client body size
-	{
-		_statusCode = 413;
-		_reason = HttpStatusCode::getReason(413);
-		setBody("Request Entity Too Large");
-		setContent("text/plain");
-		return build().toString();
-	}
 	if (!server.locations.empty())
 		flag = 1;
+
+	if (max_bytes > 0 && par.getBody().size() > max_bytes) //check client body size
+		return generateError(413, server, "Request Entity Too Large");
+
 	std::string base_path;
 	std::string uploadPath;
 	std::string uri = par.getUri();
@@ -367,9 +336,8 @@ std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag
 		std::string aux = uri;
 		if (flag && aux.find(server.locations[0].path) == 0)
 			aux = aux.substr(server.locations[0].path.size() - 1);
-		base_path = joinPaths(server.locations[0].root, aux);
+		base_path = joinPaths(server.root, uri);
 	}
-
 	std::string finalPath;
 	std::string filename;
 	
@@ -420,14 +388,7 @@ std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag
 		return build().toString();
 	}
 	else
-	{
-		_statusCode = 500; 
-        _reason = HttpStatusCode::getReason(500);
-        getHeaders().set_http("Server", "Webserv/1.0");
-        setBody("Error: Could not save file. Check permissions or path existence.");
-        setContent("text/plain");
-	}
-	return build().toString();
+		return generateError(500, server, "Error: Could not save file. Check permissions or path existence");
 }
 
 
@@ -450,32 +411,11 @@ std::string HttpResponse::handle_delete(HttpRequest par, t_server server, int fl
 	else
 		path = joinPaths(root, uri);
 	if (!isFile(path) && !isDir(path))
-	{
-		_statusCode = 404;
-		_reason = HttpStatusCode::getReason(404);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("404 Not found: File does not exist");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(404, server, "404 Not found: File does not exist");
 	if (isDir(path)) //For security dont delete directories
-	{
-		_statusCode = 403;
-		_reason = HttpStatusCode::getReason(403);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("403 Forbidden: Directory access is disabled");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(44030, server, "403 Forbidden: Directory access is disabled");
 	if (access(path.c_str(), W_OK) != 0)
-	{
-		_statusCode = 403;
-		_reason = HttpStatusCode::getReason(403);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("403 Forbidden: Permission denied");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(403, server, "403 Forbidden: Permission denied");
 	std::cout << "Deleting file: " << path << std::endl;
 	if (std::remove(path.c_str()) == 0) //Success no content
 	{
@@ -485,14 +425,7 @@ std::string HttpResponse::handle_delete(HttpRequest par, t_server server, int fl
 		return build().toString();
 	}
 	else
-	{
-		_statusCode = 500;
-		_reason = HttpStatusCode::getReason(500);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("500 Internal Server Error: Could not delete file");
-		setContent("text/plain");
-		return build().toString();
-	}
+		return generateError(500, server, "500 Internal Server Error: Could not delete file");
 }
 
 
@@ -573,4 +506,52 @@ std::string HttpResponse::autoIndexDir(const std::string &path)
 	html += "</ul></body></html>";
 	closedir(dir);
 	return html;
+}
+
+std::string HttpResponse::generateError(int code, const t_server& server, const std::string& msg)
+{
+    _statusCode = code;
+    _reason = HttpStatusCode::getReason(code);
+	getHeaders().set_http("Server", "Webserv/1.0");
+    
+	bool server_custom = false;
+	std::string body;
+
+	std::string codeStr = intToString(code);
+
+	if (server.error_page.count(codeStr) > 0)
+	{
+		std::string relativePath = server.error_page.find(codeStr)->second;
+		std::string fullPath = joinPaths(server.root, relativePath);
+		std::string file_content = readFile(fullPath);
+
+		if (!file_content.empty())
+		{
+			body = file_content;
+			setContent("text/html");
+			server_custom = true;
+		}
+	}
+	if (!server_custom)
+    {
+        std::stringstream ss;
+        ss << "<!DOCTYPE html><html><head><title>" << code << " " << _reason << "</title></head>";
+        ss << "<body style=\"font-family: Arial, sans-serif; text-align: center; margin-top: 50px;\">";
+        ss << "<h1>Error " << code << "</h1>";
+        ss << "<h2>" << _reason << "</h2>";
+        
+        if (!msg.empty())
+            ss << "<p>" << msg << "</p>";
+        else
+            ss << "<p>The requested resource could not be found or processed.</p>";
+            
+        ss << "<hr><p><em>Webserv/1.0</em></p>";
+        ss << "</body></html>";
+        
+        body = ss.str();
+        setContent("text/html");
+    }
+
+    setBody(body);
+    return build().toString();
 }
