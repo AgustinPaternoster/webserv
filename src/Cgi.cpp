@@ -3,22 +3,45 @@
 Cgi::Cgi(HttpRequest &par, std::vector<struct pollfd> &poll_fds): _request(par)
 {
     (void)par;
+    
     (void)poll_fds;
 }
 
 Cgi::~Cgi(void){}
 
-std::map<std::string, std::string> Cgi::setupCgiEnvironment(void)
+std::string _normalizeHeadersName(const std::string& name, bool ishttp)
 {
-    _envVar["REQUEST_METHOD"] = "GET";
-    _envVar["SERVER_PROTOCOL"] = "HTTP/1.1";
-    _envVar["QUERY_STRING"] = "";
-    _envVar["SERVER_PORT"] = "8080";
-    _envVar["GATEWAY_INTERFACE"] = "CGI/1.1";
-    _envVar["CONTENT_LENGTH"] = "150";
-    _envVar["CONTENT_TYPE"] = "application/x-www-form-urlencoded";
-    _envVar["SCRIPT_NAME"]="-";
-    _envVar["REMOTE_ADDR"]="-";
+    std::string NormalizedName = name;
+    for (std::string::iterator it = NormalizedName.begin(); it != NormalizedName.end(); it++)
+    {
+        *it = toupper(*it);
+        if(*it == '-')
+             *it = '_';
+    }
+    if (ishttp)
+        return ("HTTP_" + NormalizedName);
+    return (NormalizedName);
+
+
+}
+
+void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
+{
+   for(std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); it++)
+   {
+        std::string name = it->first;
+        std::string value = it->second;
+
+        if (name == "Content-Type" || name == "Content-Length")
+        {
+            std::string CgiName = _normalizeHeadersName(name, false);
+        }
+        else
+        {
+            std::string cgiName = _normalizeHeadersName(name, true);
+            _envVar[cgiName] = value;
+        }
+   }
 }
 
 

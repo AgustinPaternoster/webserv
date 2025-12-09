@@ -8,9 +8,13 @@ class Cgi
         ~Cgi(void);
 
         void  CgiHandler(void);
-        std::map<std::string, std::string> setupCgiEnvironment(void);
-    private:
+        
+        private:
         std::map<std::string, std::string> _envVar;
         HttpRequest& _request;
-        char** _getEnvVar(void);        
+        char** _getEnvVar(void);
+        void _parseHeaderToCGIEnv(std::map<std::string, std::string> &headers);
+        std::string _normalizeHeadersName(std::string& name, bool hppt);
+
+
 };

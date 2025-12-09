@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include <csignal>
 #include <sys/stat.h>
+#include <algorithm> 
 
 
 // Errores
