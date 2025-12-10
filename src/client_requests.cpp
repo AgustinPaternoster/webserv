@@ -40,7 +40,8 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	{
 		//(void)config;
 		HttpRequest par = HttpRequest::fromString(request_str);
-		//std::cout << par.toString();
+		// condicional if(iscgi)
+		//		
 		HttpResponse response;
 		
 		

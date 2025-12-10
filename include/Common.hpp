@@ -19,7 +19,9 @@
 #include <fcntl.h>
 #include <csignal>
 #include <sys/stat.h>
-#include <algorithm> 
+#include <algorithm>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 
 // Errores

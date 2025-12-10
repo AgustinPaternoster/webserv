@@ -85,3 +85,26 @@ std::string getServerPort(int client_fd)
     ss << server_port;
     return(ss.str());
 }
+
+std::string getClientIP(int client_fd)
+{
+    std::string remote_addr = "0.0.0.0";
+    struct sockaddr_storage addr;
+    socklen_t addr_len = sizeof(addr);
+    if (getpeername(client_fd, (struct sockaddr*)&addr, &addr_len) == 0)
+    {
+        char ip_str[INET6_ADDRSTRLEN];
+        if (addr.ss_family == AF_INET)
+        {
+            struct sockaddr_in *s = (struct sockaddr_in *)&addr;
+            if (inet_ntop(AF_INET, &(s->sin_addr), ip_str, sizeof(ip_str)) != NULL) 
+            {
+                remote_addr = ip_str;
+            }
+        }
+    }
+    else
+        // gestionar error
+        // std::cerr << "Error al obtener la dirección del peer (getpeername)." << std::endl;
+    return(remote_addr);
+}

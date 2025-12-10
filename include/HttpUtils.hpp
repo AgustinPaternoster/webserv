@@ -24,5 +24,6 @@ size_t  get_port_www(Config &config, const HttpRequest& par);
 std::string get_error_page(const std::map<std::string,std::string>& error_pages, const std::string& code);
 int stringToMethod(const std::string &s);
 std::string getServerPort(int client_fd);
+std::string getClientIP(int client_fd);
 
 #endif

@@ -1,10 +1,10 @@
 #include "Cgi.hpp"
 
-Cgi::Cgi(HttpRequest &par, std::vector<struct pollfd> &poll_fds): _request(par)
+Cgi::Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id, t_server config):
+    _request(request), _poll_fds(poll_fds) , _config(config), _poll_id(poll_id)
 {
-    (void)par;
-    
-    (void)poll_fds;
+    _parseRequestToEnv();
+
 }
 
 Cgi::~Cgi(void){}
@@ -44,10 +44,14 @@ void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
 
 }
 
-void Cgi::_parseRequestToEnv(HttpRequest &request)
+void Cgi::_parseRequestToEnv(void)
 {
-    _envVar["REQUEST_METHOD"] = request.getMethod();
-    
+    std::map<std::string , std::string> header = (_request.getHeaders()).get_all_http();
+    _parseHeaderToCGIEnv(header);
+    _extracScriptName();
+    _envVar["REQUEST_METHOD"] = _request.getMethod();
+    _envVar["SERVER_PORT"] = _request.getPort();
+    _envVar["REMOTE_ADDR"] = getClientIP(_poll_fds[_poll_id].fd);
 }
 
 char** Cgi::_getEnvVar(void)
@@ -76,12 +80,51 @@ char** Cgi::_getEnvVar(void)
 
 void Cgi::_extracScriptName(void)
 {
-    std::string scripName;
-    std::string uri = 
-    std::string cgi-prefix;
+    std::string scrip_name = "";
+    std::string uri = _request.getUri();
+    std::string cgi_prefix = _config.locations[0].path;
+    std::string cgi_ext = _config.locations[0].cgi_extension.first;
 
-    if((_request.getUri()).size() < (_config.locations[0].path).size() ||
-        )
+    if(uri.size() < cgi_prefix.size() || uri.substr(0, cgi_prefix.size()) != cgi_prefix)
+    { 
+        // error
+        return;
+    }
+
+    size_t ext_pos = uri.find(cgi_ext, cgi_prefix.size());
+    if(ext_pos == std::string::npos)
+    {
+        // error 404/403
+        return;
+    }
+
+    size_t script_end = ext_pos + cgi_ext.size();
+    if(script_end < uri.size())
+    {
+        char next_char = uri[script_end];
+        if(next_char != '/' && next_char != '?')
+        {
+                //error ( 404 0 400)
+                return;
+        }
+        else
+        {
+            _envVar["SCRIPT_NAME"] = uri.substr(0, script_end);
+            std::string remaining_path = uri.substr(script_end);
+            size_t query_pos = remaining_path.find('?');
+
+            if(query_pos != std::string::npos)
+            {
+                _envVar["PATH_INFO"] = remaining_path.substr(0, query_pos);
+                _envVar["QUERY_STRING"] = remaining_path.substr(query_pos + 1);
+            }
+            else
+            {
+                _envVar["PATH_INFO"] = remaining_path;
+                _envVar["QUERY_STRING"] = "";
+            }
+        }   
+    }
 
 }
 
