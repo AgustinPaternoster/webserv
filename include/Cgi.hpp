@@ -19,7 +19,7 @@ class Cgi
 
         char** _getEnvVar(void);
         void _parseHeaderToCGIEnv(std::map<std::string, std::string> &headers);
-        std::string _normalizeHeadersName(std::string& name, bool hppt);
+        std::string _normalizeHeadersName(std::string& name, bool ishppt);
         void _parseRequestToEnv(void);
         void _extracScriptName(void);
 

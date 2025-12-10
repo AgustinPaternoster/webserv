@@ -4,7 +4,7 @@ CC = c++
 CFLAGS = -std=c++98 -MMD -MP -g
 SRC_PATH = ./src/
 SRC_FILES = main.cpp socket.cpp Config.cpp socket_utils.cpp client_requests.cpp HTTPHeaders.cpp HTTPRequest.cpp HTTPRequestParser.cpp\
-				HTTPResponse.cpp HTTPStatusCode.cpp HttpUtils.cpp
+				HTTPResponse.cpp HTTPStatusCode.cpp HttpUtils.cpp Cgi.cpp
 SRCS = $(addprefix $(SRC_PATH), $(SRC_FILES))
 
 OBJ_PATH = ./objects/

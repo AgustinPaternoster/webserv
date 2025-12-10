@@ -302,28 +302,15 @@ std::pair<std::string, std::string> Config::_ExtracExten(std::string src)
     return (tmp);
 }
 
-t_server Config::_filterServer(std::string port)
-{
-    for (int i = 0; i < _servers.size(); i++)
-    {
-        if (_servers[i].port == port)
-            return(_servers[i]);
-    }
-    return (t_server());
-}
-
 t_server  Config::locationRouter(std::string port , std::string uri)
 {
     t_server tmp = _filterServer(port);
-    std::string location;
-    
-    for (size_t i = 0; i < tmp.locations.size(); i++)
-    {
-        if(tmp.locations[i].path == location)
-            continue;
-        tmp.locations.erase(tmp.locations.begin() + i);
-    }
-    
+    std::string location = _getLocation(uri);
+    t_location specificLocation = _findSpecificLocation(location,tmp);
+    tmp.locations.clear();
+    if(specificLocation.path.empty())
+        return(tmp);
+    tmp.locations.push_back(specificLocation);      
     // si no encuentra locationg
     return (tmp);
 
@@ -339,19 +326,30 @@ t_server Config::_filterServer(std::string port)
     return (t_server());
 }
 
-t_server  Config::locationRouter(std::string port , std::string uri)
+std::string Config::_getLocation(std::string uri)
 {
-    t_server tmp = _filterServer(port);
-    std::string location;
-    
-    for (size_t i = 0; i < tmp.locations.size(); i++)
-    {
-        if(tmp.locations[i].path == location)
-            continue;
-        tmp.locations.erase(tmp.locations.begin() + i);
-    }
-    
-    // si no encuentra locationg
-    return (tmp);
+    size_t query_start_pos = uri.find('?');
+    if (query_start_pos == std::string::npos) 
+        return uri;
+    return uri.substr(0, query_start_pos);
+}
 
+t_location Config:: _findSpecificLocation(std::string req_location, t_server &server)
+{
+    t_location best_match_location = {0};
+    size_t longest_match_len = 0;
+    for(std::vector<t_location>::iterator it = server.locations.begin(); it != server.locations.end(); it++)
+    {
+        std::string &location_path = (*it).path;
+        size_t config_len = location_path.size();
+        if(req_location.length() >= config_len && req_location.substr(0, config_len) == location_path)
+        {
+            if(config_len > longest_match_len)
+            {
+                longest_match_len = config_len;
+                best_match_location = *it;
+            }
+        }
+        return(best_match_location);
+    }
 }

@@ -104,7 +104,9 @@ std::string getClientIP(int client_fd)
         }
     }
     else
+    {
         // gestionar error
         // std::cerr << "Error al obtener la dirección del peer (getpeername)." << std::endl;
+    }
     return(remote_addr);
 }

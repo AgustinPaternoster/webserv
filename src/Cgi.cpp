@@ -4,12 +4,14 @@ Cgi::Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id
     _request(request), _poll_fds(poll_fds) , _config(config), _poll_id(poll_id)
 {
     _parseRequestToEnv();
-
+    /// borrar 
+    for(std::map<std::string, std::string>::iterator it = _envVar.begin(); it != _envVar.end(); it++)
+        std::cout << (*it).first << "=" << (*it).second << std::endl;
 }
 
 Cgi::~Cgi(void){}
 
-std::string _normalizeHeadersName(const std::string& name, bool ishttp)
+std::string Cgi::_normalizeHeadersName(std::string& name, bool ishppt)
 {
     std::string NormalizedName = name;
     for (std::string::iterator it = NormalizedName.begin(); it != NormalizedName.end(); it++)
@@ -18,7 +20,7 @@ std::string _normalizeHeadersName(const std::string& name, bool ishttp)
         if(*it == '-')
              *it = '_';
     }
-    if (ishttp)
+    if (ishppt)
         return ("HTTP_" + NormalizedName);
     return (NormalizedName);
 
@@ -50,13 +52,13 @@ void Cgi::_parseRequestToEnv(void)
     _parseHeaderToCGIEnv(header);
     _extracScriptName();
     _envVar["REQUEST_METHOD"] = _request.getMethod();
-    _envVar["SERVER_PORT"] = _request.getPort();
+    _envVar["SERVER_PORT"] = getServerPort(_poll_fds[_poll_id].fd);
     _envVar["REMOTE_ADDR"] = getClientIP(_poll_fds[_poll_id].fd);
 }
 
 char** Cgi::_getEnvVar(void)
 {
-    char** envVar = nullptr;
+    char** envVar = NULL;
     int i = 0;
     try
     {
@@ -68,7 +70,7 @@ char** Cgi::_getEnvVar(void)
             strcpy(envVar[i], tmp.c_str());
             i++;
         }
-        envVar[_envVar.size()] = nullptr;
+        envVar[_envVar.size()] = NULL;
     }
     catch(const std::exception& e)
     {

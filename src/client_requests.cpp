@@ -15,6 +15,7 @@
 #include "HTTPRequestParser.hpp"
 #include "HTTPResponse.hpp"
 #include "HttpUtils.hpp"
+#include "Cgi.hpp"
 
 int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i, Config &config) 
@@ -40,6 +41,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	{
 		//(void)config;
 		HttpRequest par = HttpRequest::fromString(request_str);
+		Cgi httpcgi(par,poll_fds, i , config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri()));
 		// condicional if(iscgi)
 		//		
 		HttpResponse response;
