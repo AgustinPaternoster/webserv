@@ -1,0 +1,16 @@
+# Primera comprobacion -> Error 405  -> Method not Allowed
+	curl -v -X DELETE http://localhost:8080/methods/index.htm
+
+# Segunda comprobacion -> Error 405 -> Method not implemented
+	curl -v -X PUT http://localhost:8080/methods/index.htm
+
+# Test redirect
+
+# Test outoindex=off
+	curl -v GET http://localhost:8080/upload
+
+# Test autoindex=on
+	curl -v GET http://localhost:8080/images
+
+# Test client_max_body_size < request.size()
+	curl -v -X POST -H "Expect:" --data-binary @bigfile http://localhost:8080/uploads/

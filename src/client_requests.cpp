@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client_requests.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/26 13:04:09 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/09 17:10:36 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,19 @@
 #include "HTTPRequestParser.hpp"
 #include "HTTPResponse.hpp"
 #include "HttpUtils.hpp"
+
+size_t getContentLength(const std::string &req) 
+{
+    size_t pos = req.find("Content-Length:");
+    if (pos == std::string::npos) return 0;
+    
+    size_t start = pos + 15; 
+    size_t end = req.find("\r\n", start);
+    if (end == std::string::npos) return 0;
+    
+    std::string len_str = req.substr(start, end - start);
+    return std::atoi(len_str.c_str());
+}
 
 int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i, Config &config) 
@@ -29,6 +42,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 		if (bytes == 0)
 			std::cout << "Client closed connectin gracefully.\n";
 		close_pollfd(poll_fds, i);
+		client_requests.erase(poll_fds[i].fd);
 		return (1);
 	}
 	
@@ -38,21 +52,29 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	
 	if (end_pos != std::string::npos) 
 	{
-		//(void)config;
-		HttpRequest par = HttpRequest::fromString(request_str);
-		//std::cout << par.toString();
-		HttpResponse response;
-		
-		
-		std::string res_response = response.execute_response(par, config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri()));
+		size_t body_start = end_pos + 4;
+		size_t content_len = getContentLength(request_str);
+		size_t total_body = request_str.length() - body_start;
+		if (total_body < content_len)
+			return 0;
+		try
+		{
+			HttpRequest par = HttpRequest::fromString(request_str);
+			HttpResponse response;
 
-		int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0); //hasta aqui
-		//int sent_bytes = send(poll_fds[i].fd, get_http(), HTTP_LEN, 0); //hasta aqui
-		if  (sent_bytes > 0)
+			std::string res_response = response.execute_response(par, config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri()));
+
+			int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0);
+			if  (sent_bytes < 0)
+				std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
+			request_str.clear();
+
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "Request parsing failed: " << e.what() << std::endl;
 			close_pollfd(poll_fds, i);
-		else
-			std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
-		request_str.clear();
+		}
 	}
 	return (0);
 }

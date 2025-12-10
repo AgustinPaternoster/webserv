@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webserv Interface</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            margin-top: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            text-align: center;
+            opacity: 0.8;
+            margin-bottom: 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: white;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: background 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button.delete-btn {
+            background: linear-gradient(90deg, #ff416c 0%, #ff4b2b 100%);
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 0.9em;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .status.success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            display: block;
+        }
+
+        .status.error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            display: block;
+        }
+
+        .server-info {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚀 Webserv Control</h1>
+        <p class="subtitle">Manage your server resources with style</p>
+
+        <div class="grid">
+            <!-- POST Section -->
+            <div class="card">
+                <h2>📝 Create Resource</h2>
+                <form id="postForm">
+                    <label for="filename">Filename (optional)</label>
+                    <input type="text" id="filename" placeholder="e.g., note.txt">
+
+                    <label for="content">Content</label>
+                    <textarea id="content" rows="5" placeholder="Type your content here..." required></textarea>
+
+                    <button type="submit">Send POST</button>
+                </form>
+                <div id="postStatus" class="status"></div>
+            </div>
+
+            <!-- DELETE Section -->
+            <div class="card">
+                <h2>🗑️ Delete Resource</h2>
+                <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 20px;">
+                    Enter the path of the file you want to remove from the server.
+                </p>
+
+                <label for="deletePath">File Path</label>
+                <input type="text" id="deletePath" placeholder="e.g., /upload/note.txt">
+
+                <button type="button" class="delete-btn" onclick="deleteFile()">Delete File</button>
+                <div id="deleteStatus" class="status"></div>
+            </div>
+        </div>
+
+        <div class="server-info">
+            Server: Webserv 1.0 • Protocol: HTTP/1.1 • Port: 8080
+        </div>
+    </div>
+
+    <script>
+        // Handle POST
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const filename = document.getElementById('filename').value.trim();
+            const content = document.getElementById('content').value;
+            const statusEl = document.getElementById('postStatus');
+
+            let url = '/upload/';
+            if (filename) {
+                url += filename;
+            }
+
+            statusEl.className = 'status';
+            statusEl.textContent = 'Sending...';
+            statusEl.style.display = 'block';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: content
+                });
+
+                if (response.ok) {
+                    statusEl.className = 'status success';
+                    statusEl.textContent = `Success! Status: ${response.status} ${response.statusText}`;
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = `Error: ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = `Network Error: ${error.message}`;
+            }
+        });
+
+        // Handle DELETE
+        async function deleteFile() {
+            const path = document.getElementById('deletePath').value.trim();
+            const statusEl = document.getElementById('deleteStatus');
+
+            if (!path) {
+                statusEl.className = 'status error';
+                statusEl.textContent = 'Please enter a file path';
+                return;
+            }
+
+            statusEl.className = 'status';
+            statusEl.textContent = 'Deleting...';
+            statusEl.style.display = 'block';
+
+            try {
+                const response = await fetch(path, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) { // 200-299
+                    statusEl.className = 'status success';
+                    statusEl.textContent = `Deleted! Status: ${response.status} ${response.statusText}`;
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = `Error: ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = `Network Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+
+</html>
