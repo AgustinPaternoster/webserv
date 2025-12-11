@@ -233,7 +233,11 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
         end = location.find(';', pos);
         locTmp.root = _trimText(location.substr(pos, end - pos));
         break;
-    case 7:
+    case 4:
+        end = location.find(';', pos);
+        locTmp.client_max_body_size = _trimText(location.substr(pos, end - pos));
+        break;
+        case 7:
         end = location.find(';', pos);
         _extracMethods(_trimText(location.substr(pos, end - pos)), locTmp.methods);
         break;
@@ -302,20 +306,6 @@ std::pair<std::string, std::string> Config::_ExtracExten(std::string src)
     return (tmp);
 }
 
-t_server  Config::locationRouter(std::string port , std::string uri)
-{
-    t_server tmp = _filterServer(port);
-    std::string location = _getLocation(uri);
-    t_location specificLocation = _findSpecificLocation(location,tmp);
-    tmp.locations.clear();
-    if(specificLocation.path.empty())
-        return(tmp);
-    tmp.locations.push_back(specificLocation);      
-    // si no encuentra locationg
-    return (tmp);
-
-}
-
 t_server Config::_filterServer(std::string port)
 {
     for (int i = 0; i < _servers.size(); i++)
@@ -326,12 +316,60 @@ t_server Config::_filterServer(std::string port)
     return (t_server());
 }
 
-std::string Config::_getLocation(std::string uri)
+static std::string trim_path(const std::string& str) 
 {
-    size_t query_start_pos = uri.find('?');
-    if (query_start_pos == std::string::npos) 
-        return uri;
-    return uri.substr(0, query_start_pos);
+    size_t first = str.find_first_not_of(" \t\n\r");
+    if (std::string::npos == first) 
+    {
+        return str;
+    }
+    size_t last = str.find_last_not_of(" \t\n\r");
+    return str.substr(first, (last - first + 1));
+}
+
+t_server  Config::locationRouter(std::string port , std::string uri)
+{
+    t_location best_match_location;
+    t_server tmp = _filterServer(port);
+    std::string req_location = _getLocation(uri);
+    size_t longest_match_len = 0;
+    for(std::vector<t_location>::iterator it = tmp.locations.begin(); it != tmp.locations.end(); it++)
+    {
+        std::string &location_path = (*it).path;
+        size_t config_len = location_path.size();
+        if(req_location.length() >= config_len)
+        {
+            std::string locTmp = req_location.substr(0, config_len); // testeo
+            if(locTmp == location_path)
+            {
+                if(config_len > longest_match_len)
+                {
+                    longest_match_len = config_len;
+                    best_match_location = *it;
+                }
+            }
+        }
+        else if(req_location.length() + 1 == config_len)
+        {
+            if(location_path[config_len - 1] == '/')
+            {
+                std::string location_path_no_slash = location_path.substr(0, config_len - 1);
+                if(req_location == location_path_no_slash)
+                {
+                    if (config_len > longest_match_len)
+                    {
+                        longest_match_len = config_len;
+                        best_match_location = *it;
+                    }
+                }
+            }
+        }
+    }
+    tmp.locations.clear();
+    if(best_match_location.path.empty() && longest_match_len == 0)
+        return(tmp);
+    tmp.locations.push_back(best_match_location);      
+    return (tmp);
 }
 
 t_location Config:: _findSpecificLocation(std::string req_location, t_server &server)
@@ -350,6 +388,14 @@ t_location Config:: _findSpecificLocation(std::string req_location, t_server &se
                 best_match_location = *it;
             }
         }
-        return(best_match_location);
     }
+    return(best_match_location);
+}
+
+std::string Config::_getLocation(std::string uri)
+{
+    size_t query_start_pos = uri.find('?');
+    if (query_start_pos == std::string::npos) 
+        return uri;
+    return uri.substr(0, query_start_pos);
 }

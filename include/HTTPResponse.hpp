@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:24:59 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/26 13:07:26 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/09 15:31:29 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,8 @@ class HttpResponse
 			HttpResponse&	setBodyFile(const std::string& file);
 			std::string		execute_response(HttpRequest par, t_server server);
 			std::string		handle_get(HttpRequest par, t_server server, int flag);
-			std::string		handle_post(HttpRequest par, Config &config);
-			std::string		handle_delete(HttpRequest par, Config &config);
+			std::string		handle_post(HttpRequest par, t_server server, int flag);
+			std::string		handle_delete(HttpRequest par, t_server server, int flag);
 
 			//aux
 			bool			isvalidmethod(HttpRequest par, t_server server);
@@ -87,6 +87,7 @@ class HttpResponse
 			bool			haveIndex(const std::string &path);
 			std::string		getIndexFile(const std::string &path);
 			std::string		autoIndexDir(const std::string &path);
+			std::string		generateError(int code, const t_server& server, const std::string& msg);
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "Cgi.hpp"
 
+
 Cgi::Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id, t_server config):
     _request(request), _poll_fds(poll_fds) , _config(config), _poll_id(poll_id)
 {

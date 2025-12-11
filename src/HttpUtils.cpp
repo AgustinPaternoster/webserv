@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpUtils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 11:42:11 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/26 12:30:39 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/09 15:25:11 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,56 @@ std::string getServerPort(int client_fd)
     int server_port = ntohs(srv.sin_port);
     ss << server_port;
     return(ss.str());
+}
+
+std::string joinPaths(const std::string& part1, const std::string& part2) 
+{
+    if (part1.empty()) return part2;
+    if (part2.empty()) return part1;
+    
+    // Evita // o falta de /
+    bool endSlash = (part1[part1.length() - 1] == '/');
+    bool startSlash = (part2[0] == '/');
+
+    if (endSlash && startSlash)
+        return part1 + part2.substr(1);
+    if (!endSlash && !startSlash)
+        return part1 + "/" + part2;
+    return part1 + part2;
+}
+
+size_t parseSize(const std::string &sizeStr) 
+{
+    if (sizeStr.empty())
+        return 0;
+    char *endPtr;
+    size_t size = std::strtoul(sizeStr.c_str(), &endPtr, 10);
+    if (*endPtr == '\0')
+        return size;
+
+    // Chequeamos el sufijo (M, K, G)
+    char suffix = *endPtr;
+    switch (suffix) {
+        case 'k': case 'K':
+            size *= 1024;
+            break;
+        case 'm': case 'M':
+            size *= 1024 * 1024;
+            break;
+        case 'g': case 'G':
+            size *= 1024 * 1024 * 1024;
+            break;
+        default:
+            break;
+    }
+    return size;
+}
+
+std::string intToString(int value) 
+{
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
 }
 
 std::string getClientIP(int client_fd)
