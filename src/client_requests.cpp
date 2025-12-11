@@ -61,8 +61,12 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 		{
 			HttpRequest par = HttpRequest::fromString(request_str);
 			HttpResponse response;
+			t_server server = config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri());
+			/// comprobar si la request coincide exactamente con locations
+			// eje /methods vs /methosds/
+			// en caso contrario error 301
 
-			std::string res_response = response.execute_response(par, config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri()));
+			std::string res_response = response.execute_response(par,server );
 
 			int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0);
 			if  (sent_bytes < 0)

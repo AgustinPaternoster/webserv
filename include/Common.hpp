@@ -44,8 +44,9 @@ typedef struct s_location
    std::string path;
    std::string root;
    std::vector <int> methods;
-   std::string autoindex; //locations tambien puede tener max_body_size
+   std::string autoindex;
    std::string upload_store;
+   std::string client_max_body_size;
    std::pair<std::string, std::string> cgi_extension;
 }t_location;
 
