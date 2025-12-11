@@ -55,6 +55,9 @@ void Cgi::_parseRequestToEnv(void)
     _envVar["REQUEST_METHOD"] = _request.getMethod();
     _envVar["SERVER_PORT"] = getServerPort(_poll_fds[_poll_id].fd);
     _envVar["REMOTE_ADDR"] = getClientIP(_poll_fds[_poll_id].fd);
+    _envVar["SERVER_PROTOCOL"] = _request.getVersion();
+    _envVar["GATEWAY_INTERFACE"] = "CGI/1.1.";
+
 }
 
 char** Cgi::_getEnvVar(void)
@@ -128,11 +131,18 @@ void Cgi::_extracScriptName(void)
             }
         }   
     }
-
+    else
+    {
+        _envVar["SCRIPT_NAME"] = uri.substr(0, script_end);
+        _envVar["PATH_INFO"] = "";
+        _envVar["QUERY_STRING"] = "";
+    }
 }
 
 void Cgi::CgiHandler(void)
 {
+    // comprobar si los metodos son los permitidos
+    
     int pipe_in[2];
     int pipe_out[2];
     pid_t pid;
@@ -149,6 +159,12 @@ void Cgi::CgiHandler(void)
             close(pipe_in[0]);
             close(pipe_out[1]);
             close(pipe_in[1]);
+            struct pollfd cgi_poll_item;
+            cgi_poll_item.fd = pipe_out[0];
+            cgi_poll_item.events = POLLIN;
+            cgi_poll_item.revents = 0;
+            _poll_fds.push_back(cgi_poll_item);
+
         }
         if(_envVar["REQUEST_METHOD"] == "POST")
         {

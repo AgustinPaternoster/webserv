@@ -49,6 +49,22 @@ enum actions
    UPLOAD = 2
 };
 
+//estructura cgiJobs
+typedef struct s_cgi_job
+{
+    int             cgi_read_fd;     
+    int             cgi_write_fd;     
+    int             client_fd;        
+    pid_t           pid;              
+    std::string     cgi_output_buffer;
+    bool            header_parsed;    
+    bool            body_written;     
+    
+    // Opcional: El tiempo de inicio para gestionar timeouts
+    // time_t          start_time; 
+
+} t_cgi_job;
+
 // estructura location //
 typedef struct s_location
 {

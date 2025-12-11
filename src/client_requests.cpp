@@ -33,8 +33,6 @@ size_t getContentLength(const std::string &req)
 int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i, Config &config) 
 	{
-	
-	// intanciar objeto cgi.
 	char	buffer[4096];
 	int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
@@ -63,12 +61,15 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			HttpRequest par = HttpRequest::fromString(request_str);
 			HttpResponse response;
 			t_server server = config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri());
-			//crear objeto cgi
-			// condicional if(iscgi)
 			/// comprobar si la request coincide exactamente con locations
 			// eje /methods vs /methosds/
 			// en caso contrario error 301
-
+			Cgi httpcgi(par,poll_fds, i, server );
+			if(!server.locations[0].cgi_extension.first.empty())
+			{
+				std::cout << "CGI" << std::endl;
+			}	 
+				
 			std::string res_response = response.execute_response(par,server );
 
 			int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0);
@@ -89,7 +90,8 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket *> &sockets,
 		std::map<int, std::string> &client_requests, Config &config) {
 	
-	for (size_t i = 0; i < poll_fds.size(); i++) {
+		
+		for (size_t i = 0; i < poll_fds.size(); i++) {
 		
 		if (poll_fds[i].revents & POLLIN) {
 			
@@ -104,7 +106,6 @@ void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket
 				poll_fds.push_back(new_polls);
 			}
 			else {
-				
 				std::cout << "\e[0;92mclient able to send data " << poll_fds[i].fd << "\e[0m"  << std::endl;
 				int process_status = process_request(poll_fds, client_requests, i, config);
 				if (process_status)
