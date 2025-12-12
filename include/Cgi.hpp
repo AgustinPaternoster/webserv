@@ -26,5 +26,7 @@ class Cgi
         std::string _normalizeHeadersName(std::string& name, bool ishppt);
         void _parseRequestToEnv(void);
         void _extracScriptName(void);
+        void _closeAllFd(void);
+        void _executeCgi(void);
 };
 #endif

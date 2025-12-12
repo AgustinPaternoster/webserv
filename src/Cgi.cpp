@@ -200,12 +200,33 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
         {
             //error
             exit(EXIT_FAILURE);
-            close(pipe_out[1]);
         }
         close(pipe_in[0]);
         close(pipe_in[1]);
         close(pipe_out[0]);
         close(pipe_out[1]);
+        _closeAllFd();
         
     }
 };
+
+
+void Cgi::_closeAllFd(void)
+{
+    for(int i = 0; i < _poll_fds.size(); i++)
+    {
+        int fdToclose = _poll_fds[i].fd;
+        if(fdToclose != STDERR_FILENO && fdToclose != STDIN_FILENO && fdToclose != STDOUT_FILENO)
+            close(fdToclose);
+    }
+}
+
+void Cgi::_executeCgi(void)
+{
+    const char*cgi_executable = _config.locations[0].cgi_extension.second.c_str();
+    
+    char *const argv[] = {
+        const_cast<char*>(cgi_executable),
+        const_cast<char*>(_envVar["SCRIPT_NAME"])
+    }
+}
