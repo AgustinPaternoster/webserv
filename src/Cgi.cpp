@@ -171,6 +171,12 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
 
             cgiTask.cgi_read_fd = pipe_out[0];
             cgiTask.cgi_write_fd = -1;
+            cgiTask.client_fd = _poll_fds[_poll_id].fd;
+            cgiTask.pid = pid;
+            cgiTask.header_parsed = false;
+            cgiTask.body_written = true;
+
+            cgijobs.AddNewCgiTask(pipe_out[0], cgiTask);
             
 
         }
@@ -186,11 +192,20 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
     if(pid == 0)
     {
         if(dup2(pipe_in[0], STDIN_FILENO) < 0)
-            //error
+        {
+               //error
+               exit(EXIT_FAILURE);
+        }
         if(dup2(pipe_out[1], STDOUT_FILENO))
+        {
             //error
-        close(pipe_out[1]);
+            exit(EXIT_FAILURE);
+            close(pipe_out[1]);
+        }
         close(pipe_in[0]);
+        close(pipe_in[1]);
+        close(pipe_out[0]);
+        close(pipe_out[1]);
         
     }
 };
