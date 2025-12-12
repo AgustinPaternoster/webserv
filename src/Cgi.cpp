@@ -139,10 +139,14 @@ void Cgi::_extracScriptName(void)
     }
 }
 
-void Cgi::CgiHandler(void)
+void Cgi::CgiHandler(CgiTask &cgijobs)
 {
     // comprobar si los metodos son los permitidos
     
+    struct pollfd cgi_poll_item;
+    t_cgi_job cgiTask;
+    
+
     int pipe_in[2];
     int pipe_out[2];
     pid_t pid;
@@ -159,11 +163,15 @@ void Cgi::CgiHandler(void)
             close(pipe_in[0]);
             close(pipe_out[1]);
             close(pipe_in[1]);
-            struct pollfd cgi_poll_item;
+
             cgi_poll_item.fd = pipe_out[0];
             cgi_poll_item.events = POLLIN;
             cgi_poll_item.revents = 0;
             _poll_fds.push_back(cgi_poll_item);
+
+            cgiTask.cgi_read_fd = pipe_out[0];
+            cgiTask.cgi_write_fd = -1;
+            
 
         }
         if(_envVar["REQUEST_METHOD"] == "POST")

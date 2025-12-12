@@ -50,7 +50,7 @@ enum actions
 };
 
 //estructura cgiJobs
-typedef struct s_cgi_job
+typedef struct 
 {
     int             cgi_read_fd;     
     int             cgi_write_fd;     

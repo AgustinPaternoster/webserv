@@ -1,6 +1,10 @@
+#ifndef __CGI_H__
+#define __CGI_H__
 #include "Common.hpp"
 #include "HTTPRequest.hpp"
 #include "HttpUtils.hpp"
+#include "CgiTasks.hpp"
+
 
 class Cgi
 {
@@ -8,7 +12,7 @@ class Cgi
         Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id, t_server config);
         ~Cgi(void);
 
-        void  CgiHandler(void);
+        void  CgiHandler(CgiTask &cgijobs);
         
         private:
         std::map<std::string, std::string> _envVar;
@@ -22,6 +26,5 @@ class Cgi
         std::string _normalizeHeadersName(std::string& name, bool ishppt);
         void _parseRequestToEnv(void);
         void _extracScriptName(void);
-
-
 };
+#endif
