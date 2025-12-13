@@ -1,4 +1,6 @@
 #include "Cgi.hpp"
+#include <cerrno> // Necesario para errno
+#include <cstdio> // Necesario para perror
 
 
 Cgi::Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id, t_server config):
@@ -150,55 +152,84 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
 
     if (pipe(pipe_in) < 0 || pipe(pipe_out) < 0)
         //error pipe
+    std::cout << " iniciando fork" << std::endl;
     pid = fork();
     if( pid < 0)
         //error;
-    if(pid != 0)
-    {
-        if(_envVar["REQUEST_METHOD"] == "GET")
+        if(pid != 0)
         {
-            close(pipe_in[0]);
-            close(pipe_out[1]);
-            close(pipe_in[1]);
-
-            // cgi_poll_item.fd = pipe_out[0];
-            // cgi_poll_item.events = POLLIN;
-            // cgi_poll_item.revents = 0;
-            // _poll_fds.push_back(cgi_poll_item);
-
-            // cgiTask.cgi_read_fd = pipe_out[0];
-            // cgiTask.cgi_write_fd = -1;
-            // cgiTask.client_fd = _poll_fds[_poll_id].fd;
-            // cgiTask.pid = pid;
-            // cgiTask.header_parsed = false;
-            // cgiTask.body_written = true;
-
-            // cgijobs.AddNewCgiTask(pipe_out[0], cgiTask);
-            ////// testeo //
-
-            char buffer[4096];
-            std::string cgi_output;
-            ssize_t bytes_read;
-
-            // Leer del pipe de salida hasta que el CGI lo cierre (EOF)
-            while ((bytes_read = read(pipe_out[0], buffer, sizeof(buffer) - 1)) > 0)
+            if(_envVar["REQUEST_METHOD"] == "GET")
             {
-                buffer[bytes_read] = '\0';
-                cgi_output += buffer;
+                close(pipe_in[0]);
+                close(pipe_out[1]);
+                close(pipe_in[1]);
+                
+                // cgi_poll_item.fd = pipe_out[0];
+                // cgi_poll_item.events = POLLIN;
+                // cgi_poll_item.revents = 0;
+                // _poll_fds.push_back(cgi_poll_item);
+                
+                // cgiTask.cgi_read_fd = pipe_out[0];
+                // cgiTask.cgi_write_fd = -1;
+                // cgiTask.client_fd = _poll_fds[_poll_id].fd;
+                // cgiTask.pid = pid;
+                // cgiTask.header_parsed = false;
+                // cgiTask.body_written = true;
+                
+                // cgijobs.AddNewCgiTask(pipe_out[0], cgiTask);
+                ////// testeo //
+                char buffer[4096];
+                std::string cgi_output;
+                ssize_t bytes_read;
+                
+                std::cerr << "[DEBUG] Padre: Iniciando lectura del CGI..." << std::endl;
+                
+                while (true)
+                {
+                    bytes_read = read(pipe_out[0], buffer, sizeof(buffer) - 1);
+                    
+                    if (bytes_read > 0)
+                    {
+                        // CASO 1: Leímos datos correctamente
+                        buffer[bytes_read] = '\0';
+                        cgi_output += buffer;
+                        std::cerr << "[DEBUG] Leidos " << bytes_read << " bytes." << std::endl;
+                    }
+                    else if (bytes_read == 0)
+                    {
+                        // CASO 2: EOF (El hijo cerró el pipe o terminó)
+                        std::cerr << "[DEBUG] Fin de la transmisión (EOF)." << std::endl;
+                        break; 
+                    }
+                    else
+                    {
+                        // CASO 3: read devolvió -1 (Error o No Bloqueante)
+                        if (errno == EAGAIN || errno == EWOULDBLOCK)
+                        {
+                            // El pipe es no bloqueante y aún no hay datos.
+                            // En un servidor real usarías poll(), aquí hacemos una espera activa sucia para testear.
+                            continue; 
+                        }
+                        else
+                        {
+                            // Error real
+                            perror("[ERROR] Fallo en read");
+                            break;
+                        }
+                    }
+                }
+                
+                close(pipe_out[0]); // Ahora sí es seguro cerrar
+                std::cerr << "[DEBUG] Pipe de lectura cerrado." << std::endl;
+                
+                int status;
+                waitpid(pid, &status, 0);
+                
+                std::cout << cgi_output << std::endl;
+                
             }
-            
-            // 4. Cerrar el extremo de lectura restante
-            close(pipe_out[0]);
-            int status;
-            waitpid(pid, &status, 0);
-            std::cout << cgi_output << std::endl;
-
-            if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-            std::cerr << "El CGI terminó con error: " << WEXITSTATUS(status) << std::endl;
-
-        }
-        if(_envVar["REQUEST_METHOD"] == "POST")
-        {
+            if(_envVar["REQUEST_METHOD"] == "POST")
+            {
                 close(pipe_in[0]);
                 // getionar para multiplexing
                 write(pipe_in[1], (_request.getBody()).c_str(), (_request.getBody()).size());
@@ -208,7 +239,7 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
         }
         if(pid == 0)
         {
-            _closeAllFd();
+           // _closeAllFd();
             if(dup2(pipe_in[0], STDIN_FILENO) < 0)
             {
                 //error
@@ -223,9 +254,13 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
             close(pipe_in[1]);
             close(pipe_out[0]);
             close(pipe_out[1]);
-            _executeCgi();
+            //_executeCgi();
+            /////
+            const char *test_message = "TEST OK: PIPE CERRADO Y REDIRIGIDO CORRECTAMENTE\r\n";
+            write(STDOUT_FILENO, test_message, std::strlen(test_message));
+            exit(EXIT_SUCCESS);
         }
-};
+    };
 
 
 void Cgi::_closeAllFd(void)
