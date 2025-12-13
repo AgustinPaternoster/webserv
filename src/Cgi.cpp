@@ -5,9 +5,6 @@ Cgi::Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id
     _request(request), _poll_fds(poll_fds) , _config(config), _poll_id(poll_id)
 {
     _parseRequestToEnv();
-    /// borrar 
-    for(std::map<std::string, std::string>::iterator it = _envVar.begin(); it != _envVar.end(); it++)
-        std::cout << (*it).first << "=" << (*it).second << std::endl;
 }
 
 Cgi::~Cgi(void){}
@@ -164,20 +161,40 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
             close(pipe_out[1]);
             close(pipe_in[1]);
 
-            cgi_poll_item.fd = pipe_out[0];
-            cgi_poll_item.events = POLLIN;
-            cgi_poll_item.revents = 0;
-            _poll_fds.push_back(cgi_poll_item);
+            // cgi_poll_item.fd = pipe_out[0];
+            // cgi_poll_item.events = POLLIN;
+            // cgi_poll_item.revents = 0;
+            // _poll_fds.push_back(cgi_poll_item);
 
-            cgiTask.cgi_read_fd = pipe_out[0];
-            cgiTask.cgi_write_fd = -1;
-            cgiTask.client_fd = _poll_fds[_poll_id].fd;
-            cgiTask.pid = pid;
-            cgiTask.header_parsed = false;
-            cgiTask.body_written = true;
+            // cgiTask.cgi_read_fd = pipe_out[0];
+            // cgiTask.cgi_write_fd = -1;
+            // cgiTask.client_fd = _poll_fds[_poll_id].fd;
+            // cgiTask.pid = pid;
+            // cgiTask.header_parsed = false;
+            // cgiTask.body_written = true;
 
-            cgijobs.AddNewCgiTask(pipe_out[0], cgiTask);
+            // cgijobs.AddNewCgiTask(pipe_out[0], cgiTask);
+            ////// testeo //
+
+            char buffer[4096];
+            std::string cgi_output;
+            ssize_t bytes_read;
+
+            // Leer del pipe de salida hasta que el CGI lo cierre (EOF)
+            while ((bytes_read = read(pipe_out[0], buffer, sizeof(buffer) - 1)) > 0)
+            {
+                buffer[bytes_read] = '\0';
+                cgi_output += buffer;
+            }
             
+            // 4. Cerrar el extremo de lectura restante
+            close(pipe_out[0]);
+            int status;
+            waitpid(pid, &status, 0);
+            std::cout << cgi_output << std::endl;
+
+            if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+            std::cerr << "El CGI terminó con error: " << WEXITSTATUS(status) << std::endl;
 
         }
         if(_envVar["REQUEST_METHOD"] == "POST")
@@ -187,27 +204,27 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
                 write(pipe_in[1], (_request.getBody()).c_str(), (_request.getBody()).size());
                 close(pipe_in[1]);
                 close(pipe_out[1]);
+            }
         }
-    }
-    if(pid == 0)
-    {
-        if(dup2(pipe_in[0], STDIN_FILENO) < 0)
+        if(pid == 0)
         {
-               //error
-               exit(EXIT_FAILURE);
+            _closeAllFd();
+            if(dup2(pipe_in[0], STDIN_FILENO) < 0)
+            {
+                //error
+                exit(EXIT_FAILURE);
+            }
+            if(dup2(pipe_out[1], STDOUT_FILENO) < 0)
+            {
+                //error
+                exit(EXIT_FAILURE);
+            }
+            close(pipe_in[0]);
+            close(pipe_in[1]);
+            close(pipe_out[0]);
+            close(pipe_out[1]);
+            _executeCgi();
         }
-        if(dup2(pipe_out[1], STDOUT_FILENO))
-        {
-            //error
-            exit(EXIT_FAILURE);
-        }
-        close(pipe_in[0]);
-        close(pipe_in[1]);
-        close(pipe_out[0]);
-        close(pipe_out[1]);
-        _closeAllFd();
-        
-    }
 };
 
 
@@ -223,10 +240,123 @@ void Cgi::_closeAllFd(void)
 
 void Cgi::_executeCgi(void)
 {
+    const char *script_name = _getScriptFileName();
+    const char*directory_path = _getDirectoryPath();
     const char*cgi_executable = _config.locations[0].cgi_extension.second.c_str();
+    char **envp = _getEnvVar();
     
     char *const argv[] = {
         const_cast<char*>(cgi_executable),
-        const_cast<char*>(_envVar["SCRIPT_NAME"])
+        const_cast<char*>(script_name),
+        NULL
+    };
+    if(chdir(directory_path) < 0)
+    {
+        _freeCGIResources(envp,script_name,directory_path);
+        exit(EXIT_FAILURE);
     }
+    if(execve(cgi_executable, argv, envp) == -1)
+    {
+        _freeCGIResources(envp,script_name,directory_path);
+        exit(EXIT_FAILURE);
+    }
+}
+
+const char* Cgi::_getScriptPath(void)
+{
+    std::string script_uri = _envVar.at("SCRIPT_NAME");
+    std::string location_path = _config.locations[0].path;
+    std::string location_root = _config.locations[0].root;
+    std::string relative_path_segment;
+
+    if (script_uri.find(location_path) == 0)
+        relative_path_segment = script_uri.substr(location_path.length());
+    else 
+        relative_path_segment = script_uri;
+    
+    std::string full_path_temp = location_root;
+
+    if (full_path_temp.empty() || full_path_temp[full_path_temp.length() - 1] != '/')
+        full_path_temp += "/";
+    full_path_temp += relative_path_segment;
+    
+    char* script_path = new char[full_path_temp.length() + 1];
+    std::strcpy(script_path, full_path_temp.c_str());
+    
+    return script_path;
+}
+
+const char* Cgi::_getDirectoryPath(void)
+{
+    std::string script_uri = _envVar.at("SCRIPT_NAME");
+    std::string location_path = _config.locations[0].path;
+    std::string location_root = _config.locations[0].root;
+    std::string relative_path_segment;
+
+    if (script_uri.find(location_path) == 0)
+        relative_path_segment = script_uri.substr(location_path.length());
+    else 
+        relative_path_segment = script_uri;
+    
+    std::string full_path_temp = location_root;
+
+    if (full_path_temp.empty() || full_path_temp[full_path_temp.length() - 1] != '/')
+        full_path_temp += "/";
+    full_path_temp += relative_path_segment;
+    std::string dir_path_temp;
+    size_t last_slash = full_path_temp.find_last_of('/');
+    
+    if (last_slash == std::string::npos)
+        dir_path_temp = ".";
+    else 
+        dir_path_temp = full_path_temp.substr(0, last_slash);
+    char* directory_path = new char[dir_path_temp.length() + 1];
+    std::strcpy(directory_path, dir_path_temp.c_str());
+    
+    return directory_path;
+}
+
+void Cgi::_freeCGIResources(char** envp, const char* script_path, const char* directory_path)
+{
+     if (envp)
+    {
+        for (int i = 0; envp[i] != NULL; ++i)
+            delete[] envp[i];
+        delete[] envp;
+    }
+    if (script_path)
+        delete[] const_cast<char*>(script_path);
+    if (directory_path)
+        delete[] const_cast<char*>(directory_path);
+}
+
+const char* Cgi::_getScriptFileName(void)
+{
+    std::string script_uri = _envVar.at("SCRIPT_NAME");
+    std::string location_path = _config.locations[0].path;
+    std::string location_root = _config.locations[0].root;
+    std::string relative_path_segment;
+
+    if (script_uri.find(location_path) == 0)
+        relative_path_segment = script_uri.substr(location_path.length());
+    else 
+        relative_path_segment = script_uri;
+    
+    std::string full_path_temp = location_root;
+    if (full_path_temp.empty() || full_path_temp[full_path_temp.length() - 1] != '/')
+        full_path_temp += "/";
+    full_path_temp += relative_path_segment;
+       
+    size_t last_slash = full_path_temp.find_last_of('/');
+    std::string script_filename_str;
+    
+    if (last_slash == std::string::npos)
+        script_filename_str = full_path_temp;
+    else 
+        script_filename_str = full_path_temp.substr(last_slash + 1);
+ 
+    char* script_filename = new char[script_filename_str.length() + 1];
+    std::strcpy(script_filename, script_filename_str.c_str());
+    
+    return script_filename; 
 }

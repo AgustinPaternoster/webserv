@@ -1,1 +1,6 @@
+
+### TEST GENERICO
 GET  http://localhost:8080/cgi-bin/test.py/usuarios/5?formato=xml HTTP/1.1
+
+### TESG cgi
+GET  http://localhost:8080/cgi-bin/tester.py

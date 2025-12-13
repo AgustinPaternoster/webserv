@@ -28,5 +28,11 @@ class Cgi
         void _extracScriptName(void);
         void _closeAllFd(void);
         void _executeCgi(void);
+        const char* _getScriptPath(void);
+        const char* _getDirectoryPath(void);
+        void _freeCGIResources(char** envp, const char* script_path, const char* directory_path);
+        const char* _getScriptFileName(void);
+
 };
+
 #endif
