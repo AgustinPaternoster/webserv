@@ -69,7 +69,8 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			if(!server.locations[0].cgi_extension.first.empty())
 			{
 				httpcgi.CgiHandler(cgiJobs);
-				//salir del bucle
+				std::cout << "salida del bucle" << std::endl;
+				return(0);
 			}	 
 				
 			std::string res_response = response.execute_response(par,server );
