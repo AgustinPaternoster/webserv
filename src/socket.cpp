@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Socket.hpp"
+#include "CgiTasks.hpp"
 
 Socket::Socket(): socket_fd(-1), server_info(NULL) {
 	
@@ -126,6 +127,9 @@ int	Socket::webserver_init(Config &config) {
 	std::vector<t_server>	servers = config.getServers();
 	std::map<int, std::string>	client_requests;
 	std::vector<struct pollfd> poll_fds;
+	CgiTask CgiJobs;
+	config.CgiJobs = CgiJobs;
+	
 
 	if (socket_creation(sockets, servers))
 		return (1);

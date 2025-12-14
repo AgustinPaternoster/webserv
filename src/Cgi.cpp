@@ -196,7 +196,6 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
     }
         if(pid == 0)
         {
-            _closeAllFd();
             if(dup2(pipe_in[0], STDIN_FILENO) < 0)
             {
                 //error
@@ -207,6 +206,7 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
                 //error
                 exit(EXIT_FAILURE);
             }
+            _closeAllFd();
             close(pipe_in[0]);
             close(pipe_in[1]);
             close(pipe_out[0]);

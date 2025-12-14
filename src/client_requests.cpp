@@ -32,7 +32,7 @@ size_t getContentLength(const std::string &req)
 }
 
 int	process_request(std::vector<struct pollfd> &poll_fds,
-		std::map<int, std::string> &client_requests, size_t &i, Config &config , CgiTask &cgiJobs) 
+		std::map<int, std::string> &client_requests, size_t &i, Config &config) 
 	{
 	char	buffer[4096];
 	int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
@@ -68,7 +68,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			Cgi httpcgi(par,poll_fds, i, server );
 			if(!server.locations[0].cgi_extension.first.empty())
 			{
-				httpcgi.CgiHandler(cgiJobs);
+				httpcgi.CgiHandler(config.CgiJobs);
 				std::cout << "salida del bucle" << std::endl;
 				return(0);
 			}	 
@@ -93,8 +93,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket *> &sockets,
 		std::map<int, std::string> &client_requests, Config &config) {
 			
-		CgiTask cgiJobs; // se debe incluir en el loop mas arriba
-
+		
 		for (size_t i = 0; i < poll_fds.size(); i++) {
 		
 		if (poll_fds[i].revents & POLLIN) {
@@ -111,7 +110,7 @@ void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket
 			}
 			else {
 				std::cout << "\e[0;92mclient able to send data " << poll_fds[i].fd << "\e[0m"  << std::endl;
-				int process_status = process_request(poll_fds, client_requests, i, config, cgiJobs);
+				int process_status = process_request(poll_fds, client_requests, i, config);
 				if (process_status)
 					continue ;
 			}

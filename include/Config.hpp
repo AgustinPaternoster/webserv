@@ -1,6 +1,7 @@
 #ifndef _CONFIG_HPP_
 #define _CONFIG_HPP_
 #include "Common.hpp"
+#include "CgiTasks.hpp"
 
 
 class Config
@@ -10,7 +11,8 @@ class Config
         Config(const char *path);
         Config(const Config& other);
         ~Config(void);
-
+        
+        CgiTask &CgiJobs;
         Config& operator=(const Config& other);
         static const std::map<int,std::string> validDirectives;
         std::vector<t_server> getServers(void)const;
@@ -20,6 +22,7 @@ class Config
     private:
         std::vector<t_server>   _servers;
         std::string             _configFile;
+        
         void _openFile(const char* path);
         void _parseFile(void);
         void _parserServerConfig(std::string server);
