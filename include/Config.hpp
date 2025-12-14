@@ -12,7 +12,7 @@ class Config
         Config(const Config& other);
         ~Config(void);
         
-        CgiTask &CgiJobs;
+        CgiTask CgiJobs;
         Config& operator=(const Config& other);
         static const std::map<int,std::string> validDirectives;
         std::vector<t_server> getServers(void)const;
