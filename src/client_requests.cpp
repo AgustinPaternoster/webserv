@@ -93,7 +93,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket *> &sockets,
 		std::map<int, std::string> &client_requests, Config &config) {
 			
-		CgiTask cgiJobs;
+		CgiTask cgiJobs; // se debe incluir en el loop mas arriba
 
 		for (size_t i = 0; i < poll_fds.size(); i++) {
 		
@@ -115,6 +115,43 @@ void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket
 				if (process_status)
 					continue ;
 			}
+
+			/*
+			else if(cgijobs.isCgiReadFd(poll_fd[i].fd))
+			{
+				void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, size_t &i)
+				{
+					int current_fd = poll_fds[i].fd;
+					t_cgi_job cgi_task = cgiJobs.getCgiTask(current_fd);
+					char buffer[4096];
+					ssize_t bytes_read;
+
+					bytes_read = read(current_fd, buffer, sizeof(buffer));
+
+					if (bytes_read > 0)
+					{
+						hay datos a almacenar	
+					}
+					else if (bytes_read == 0)
+					{
+						int status;
+       					waitpid(cgi_task.pid, &status, WNOHANG);
+						close(current_fd);
+						// enviar respuesta al cliente //
+						cgiJobs.removeCgiTask(current_fd);
+						poll_fds.erase(poll_fds.begin() + i);
+					}
+					else if (bytes_read == -1)
+					{	
+						if (errno != EAGAIN && errno != EWOULDBLOCK)
+       					 {
+           					 Gestion Error
+           					 // Lógica de limpieza de error...
+        				}
+					}
+				}
+			}
+			*/
 		}
 	}
 }

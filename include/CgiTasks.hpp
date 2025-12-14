@@ -11,6 +11,8 @@ class CgiTask
 
         CgiTask& operator=(const CgiTask& other);
         void AddNewCgiTask(int pipe, t_cgi_job task);
+        bool isCgiReadFd(int fd);
+        void removeCgiTask(int fd);
     private:
         std::map<int , t_cgi_job> _cgiJobs; 
         //first int  is for the reading pipe when
