@@ -13,6 +13,8 @@ class CgiTask
         void AddNewCgiTask(int pipe, t_cgi_job task);
         bool isCgiReadFd(int fd);
         void removeCgiTask(int fd);
+        t_cgi_job& getCgiTask(int current_fd);
+        void sendResponse(t_cgi_job& task);
     private:
         std::map<int , t_cgi_job> _cgiJobs; 
         //first int  is for the reading pipe when

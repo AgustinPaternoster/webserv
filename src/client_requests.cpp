@@ -18,6 +18,55 @@
 #include "Cgi.hpp"
 #include "CgiTasks.hpp"
 
+
+void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, size_t &i)
+{
+	int current_fd = poll_fds[i].fd;
+	t_cgi_job &cgi_task = cgiJobs.getCgiTask(current_fd);
+	char buffer[4096];
+	ssize_t bytes_read;
+
+	bytes_read = read(current_fd, buffer, sizeof(buffer));
+
+	if (bytes_read > 0)
+	{
+		cgi_task.cgi_output_buffer.append(buffer, bytes_read);
+		if (!cgi_task.header_parsed)
+		{
+			size_t header_end_pos = cgi_task.cgi_output_buffer.find("\r\n\r\n");
+			if (header_end_pos != std::string::npos)
+				cgi_task.header_parsed = true;
+		}
+		
+	}
+	else if (bytes_read == 0)
+	{
+		int status;
+		waitpid(cgi_task.pid, &status, WNOHANG);
+		close(current_fd);
+		cgiJobs.sendResponse(cgi_task); /// COMPLETAR CON LOGICA CARLOS ///
+		cgiJobs.removeCgiTask(current_fd);
+		poll_fds.erase(poll_fds.begin() + i);
+		i--;
+		return;
+	}
+	else if (bytes_read == -1)
+	{	
+		if (errno != EAGAIN && errno != EWOULDBLOCK)
+			{
+				std::cerr << "[CGI ERROR] Error crítico de lectura en pipe FD " << current_fd 
+                      << ": " << strerror(errno) << std::endl;
+				// 1. Enviar una respuesta de error 500 al cliente.
+				int status;
+            	waitpid(cgi_task.pid, &status, WNOHANG);
+				close(current_fd);
+				cgiJobs.removeCgiTask(current_fd);
+				poll_fds.erase(poll_fds.begin() + i);
+				i--;
+		}
+	}
+}
+
 size_t getContentLength(const std::string &req) 
 {
     size_t pos = req.find("Content-Length:");
@@ -93,10 +142,11 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket *> &sockets,
 		std::map<int, std::string> &client_requests, Config &config) {
 			
-		
+		CgiTask &cgijobs = config.CgiJobs;
+
 		for (size_t i = 0; i < poll_fds.size(); i++) {
 		
-		if (poll_fds[i].revents & POLLIN) {
+		if (poll_fds[i].revents & (POLLIN | POLLHUP )) {
 			
 			if (is_listening_socket(poll_fds[i].fd, sockets)) {
 				
@@ -108,49 +158,16 @@ void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket
 				new_polls.revents = 0;
 				poll_fds.push_back(new_polls);
 			}
+			else if(cgijobs.isCgiReadFd(poll_fds[i].fd)){
+				handle_cgi_read(poll_fds, cgijobs, i);
+			}
 			else {
 				std::cout << "\e[0;92mclient able to send data " << poll_fds[i].fd << "\e[0m"  << std::endl;
 				int process_status = process_request(poll_fds, client_requests, i, config);
 				if (process_status)
 					continue ;
-			}
-
-			/*
-			else if(cgijobs.isCgiReadFd(poll_fd[i].fd))
-			{
-				void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, size_t &i)
-				{
-					int current_fd = poll_fds[i].fd;
-					t_cgi_job cgi_task = cgiJobs.getCgiTask(current_fd);
-					char buffer[4096];
-					ssize_t bytes_read;
-
-					bytes_read = read(current_fd, buffer, sizeof(buffer));
-
-					if (bytes_read > 0)
-					{
-						hay datos a almacenar	
-					}
-					else if (bytes_read == 0)
-					{
-						int status;
-       					waitpid(cgi_task.pid, &status, WNOHANG);
-						close(current_fd);
-						// enviar respuesta al cliente //
-						cgiJobs.removeCgiTask(current_fd);
-						poll_fds.erase(poll_fds.begin() + i);
-					}
-					else if (bytes_read == -1)
-					{	
-						if (errno != EAGAIN && errno != EWOULDBLOCK)
-       					 {
-           					 Gestion Error
-           					 // Lógica de limpieza de error...
-        				}
-					}
 				}
-			}
-			*/
+		
 		}
 	}
 }
