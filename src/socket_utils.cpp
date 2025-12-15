@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:26:45 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/15 13:41:56 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/15 17:26:29 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,3 +88,5 @@ int	poll_events_ready(std::vector<struct pollfd> &poll_fds) {
 		}
 		return (0);
 }
+
+

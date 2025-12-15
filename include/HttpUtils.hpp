@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpUtils.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 11:42:37 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/09 15:25:00 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/15 17:26:43 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,6 @@ std::string joinPaths(const std::string& part1, const std::string& part2);
 std::string intToString(int value);
 
 std::string getClientIP(int client_fd);
+void clean_poll_fd(std::vector<struct pollfd>& fds);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/15 16:57:04 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/15 17:38:30 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,16 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
 		close(current_fd);
 		cgiJobs.sendResponse(cgi_task);
 		cgiJobs.removeCgiTask(current_fd);
-		poll_fds.erase(poll_fds.begin() + i);
+		//poll_fds.erase(poll_fds.begin() + i);
 		close(cgi_task.client_fd);
-		i--;
+		poll_fds[i].fd = -1;
+		for (size_t j = 0; j < poll_fds.size(); j++) {
+            if (poll_fds[j].fd == cgi_task.client_fd) {
+                poll_fds[j].fd = -1;
+                break;
+            }
+        }
+		
 		
 		return;
 	}
@@ -106,7 +113,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	if (end_pos != std::string::npos) 
 	{ 
 		size_t body_start = end_pos + 4;
-		size_t content_len =getContentLength(request_str); // NO OBTIENE EL CONTENT LENGHT
+		size_t content_len =getContentLength(request_str);
 		size_t total_body = request_str.length() - body_start;
 		if (total_body < content_len)
 			return 0;
@@ -122,7 +129,6 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			if(!server.locations[0].cgi_extension.first.empty())
 			{
 				httpcgi.CgiHandler(config.CgiJobs);
-				std::cout << "salida del bucle" << std::endl;
 				return(0);
 			}	 
 				
@@ -174,4 +180,5 @@ void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket
 		
 		}
 	}
+	clean_poll_fd(poll_fds);
 }

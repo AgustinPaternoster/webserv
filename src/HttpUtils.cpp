@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpUtils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 11:42:11 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/09 15:25:11 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/15 17:26:32 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,4 +159,19 @@ std::string getClientIP(int client_fd)
         // std::cerr << "Error al obtener la dirección del peer (getpeername)." << std::endl;
     }
     return(remote_addr);
+}
+
+void clean_poll_fd(std::vector<struct pollfd>& fds)
+{
+    for(std::vector<struct pollfd>::iterator it = fds.begin(); it != fds.end(); )
+    {
+        if(it->fd == -1)
+        {
+            it = fds.erase(it); 
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
