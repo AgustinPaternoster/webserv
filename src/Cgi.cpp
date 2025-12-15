@@ -36,6 +36,7 @@ void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
         if (name == "Content-Type" || name == "Content-Length")
         {
             std::string CgiName = _normalizeHeadersName(name, false);
+            _envVar[CgiName] = value;
         }
         else
         {
@@ -141,6 +142,10 @@ void Cgi::_extracScriptName(void)
 void Cgi::CgiHandler(CgiTask &cgijobs)
 {
     // comprobar si los metodos son los permitidos
+    for(std::map<std::string, std::string>::iterator it = _envVar.begin(); it != _envVar.end(); it++ )
+    {
+        std::cout << (*it).first << "=" << (*it).second << std::endl;
+    }
     
     struct pollfd cgi_poll_item;
     t_cgi_job cgiTask;

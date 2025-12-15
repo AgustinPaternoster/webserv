@@ -21,11 +21,6 @@ Content-Type: application/json
             "cantidad": 1,
             "precio": 999.99
         },
-        {
-            "nombre": "Mouse Inalámbrico",
-            "cantidad": 2,
-            "precio": 25.50
-        }
     ],
     "nota_adicional": "Entrega urgente requerida."
 }

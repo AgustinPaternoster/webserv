@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client_requests.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/09 17:10:36 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/15 11:09:41 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	if (end_pos != std::string::npos) 
 	{
 		size_t body_start = end_pos + 4;
-		size_t content_len = getContentLength(request_str);
+		size_t content_len = getContentLength(request_str); // NO OBTIENE EL CONTENT LENGHT
 		size_t total_body = request_str.length() - body_start;
 		if (total_body < content_len)
 			return 0;
