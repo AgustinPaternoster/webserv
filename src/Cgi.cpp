@@ -178,8 +178,28 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
         }   
         if(_envVar["REQUEST_METHOD"] == "POST")
         {
-            
-            
+            const std::string body_data = _request.getBody();
+            ssize_t total_written = 0;
+            size_t body_len = body_data.length();
+            while (total_written < (ssize_t)body_len) 
+            {
+                ssize_t bytes_sent = write(
+                    pipe_in[1], 
+                    body_data.c_str() + total_written, 
+                    body_len - total_written
+                );
+                if (bytes_sent < 0) 
+                {
+                    std::cerr << "Error escribiendo body POST al CGI. " << std::endl;
+                    // matar el proceso CGI y enviar 500 al cliente//
+                    break; 
+                }
+                total_written += bytes_sent;            
+            }
+            close(pipe_in[1]);
+            cgiTask.cgi_write_fd = -1;
+            cgiTask.body_written = true;
+
         }
 
         int flags = fcntl(pipe_out[0], F_GETFL, 0);

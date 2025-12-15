@@ -44,7 +44,7 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
 		int status;
 		waitpid(cgi_task.pid, &status, WNOHANG);
 		close(current_fd);
-		cgiJobs.sendResponse(cgi_task); /// COMPLETAR CON LOGICA CARLOS ///
+		cgiJobs.sendResponse(cgi_task);
 		cgiJobs.removeCgiTask(current_fd);
 		poll_fds.erase(poll_fds.begin() + i);
 		i--;
