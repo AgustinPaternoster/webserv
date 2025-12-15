@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/15 17:38:30 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/15 18:12:54 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, size_t &i)
 {
 
-	printf("HOLA MUNDO\n");
 	int current_fd = poll_fds[i].fd;
 	t_cgi_job &cgi_task = cgiJobs.getCgiTask(current_fd);
 	char buffer[4096];
@@ -125,9 +124,9 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			/// comprobar si la request coincide exactamente con locations
 			// eje /methods vs /methosds/
 			// en caso contrario error 301
-			Cgi httpcgi(par,poll_fds, i, server );
 			if(!server.locations[0].cgi_extension.first.empty())
 			{
+				Cgi httpcgi(par,poll_fds, i, server );
 				httpcgi.CgiHandler(config.CgiJobs);
 				return(0);
 			}	 

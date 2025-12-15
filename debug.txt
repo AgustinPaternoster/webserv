@@ -1,0 +1,44 @@
+Socket in PORT: 8080
+Socket fd: 3
+Socket in PORT: 8090
+Socket fd: 4
+Socket in PORT: 8070
+Socket fd: 5
+🕐 Waiting for connections...
+[0;92mNew CLient fd is created: 6[0m
+🕐 Waiting for connections...
+[0;92mclient able to send data 6[0m
+accept-encoding=gzip, deflate
+connection=close
+host=localhost:8080
+user-agent=vscode-restclient
+🕐 Waiting for connections...
+[0;92mclient able to send data 6[0m
+Client closed connectin gracefully.
+🕐 Waiting for connections...
+[0;92mNew CLient fd is created: 6[0m
+🕐 Waiting for connections...
+[0;92mclient able to send data 6[0m
+accept-encoding=gzip, deflate
+connection=close
+host=localhost:8080
+user-agent=vscode-restclient
+🕐 Waiting for connections...
+HOLA MUNDO
+🕐 Waiting for connections...
+HOLA MUNDO
+[CGI] Respuesta HTTP completa enviada a FD 6 (1302 bytes)
+🕐 Waiting for connections...
+[0;92mNew CLient fd is created: 6[0m
+🕐 Waiting for connections...
+[0;92mclient able to send data 6[0m
+accept-encoding=gzip, deflate
+connection=close
+host=localhost:8080
+user-agent=vscode-restclient
+🕐 Waiting for connections...
+HOLA MUNDO
+🕐 Waiting for connections...
+HOLA MUNDO
+[CGI] Respuesta HTTP completa enviada a FD 6 (1302 bytes)
+🕐 Waiting for connections...

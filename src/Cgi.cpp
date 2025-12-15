@@ -50,10 +50,6 @@ void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
 void Cgi::_parseRequestToEnv(void)
 {
     std::map<std::string , std::string> header = (_request.getHeaders()).get_all_http();
-    for(std::map<std::string,std::string>::iterator it = header.begin(); it != header.end(); it++)
-    {
-        std::cout << (*it).first << "=" << (*it).second << std::endl;
-    }
     _parseHeaderToCGIEnv(header);
     _extracScriptName();
     _envVar["REQUEST_METHOD"] = _request.getMethod();
@@ -146,10 +142,6 @@ void Cgi::_extracScriptName(void)
 void Cgi::CgiHandler(CgiTask &cgijobs)
 {
     // comprobar si los metodos son los permitidos
-    for(std::map<std::string, std::string>::iterator it = _envVar.begin(); it != _envVar.end(); it++ )
-    {
-        std::cout << (*it).first << "=" << (*it).second << std::endl;
-    }
     
     struct pollfd cgi_poll_item;
     t_cgi_job cgiTask;
