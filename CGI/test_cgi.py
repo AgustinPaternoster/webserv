@@ -3,9 +3,11 @@
 import os
 import sys
 
+# Definición de la secuencia de nueva línea estándar de HTTP/CGI
+CRLF = "\r\n"
+
 # --- 1. Obtener la información de la solicitud ---
 
-# Las variables de entorno son cruciales para CGI
 method = os.environ.get("REQUEST_METHOD", "N/A")
 query_string = os.environ.get("QUERY_STRING", "N/A")
 content_length_str = os.environ.get("CONTENT_LENGTH", "0")
@@ -24,6 +26,7 @@ except Exception:
 
 # --- 2. Construir la Respuesta HTML ---
 
+# Usamos f-string de triple comilla para manejar el HTML multilinea
 html_body = f"""
 <!DOCTYPE html>
 <html lang="es">
@@ -60,16 +63,18 @@ html_body = f"""
 
 # --- 3. Imprimir las Cabeceras CGI y el Cuerpo (al stdout/Pipe de Salida) ---
 
-# Cabeceras CGI obligatorias para el servidor:
-# 1. Content-type: Le dice al servidor qué tipo de contenido es.
-# 2. Un Status: (opcional, si es 200 OK)
-print("Content-type: text/html")
-print("Status: 200 OK")
-print() # Línea vacía OBLIGATORIA para separar las cabeceras del cuerpo
+# Usamos sys.stdout.write() para tener control explícito sobre los saltos de línea (\r\n)
 
-# Cuerpo HTML
-print(html_body)
+# 1. Cabeceras
+sys.stdout.write(f"Content-type: text/html{CRLF}")
+sys.stdout.write(f"Status: 200 OK{CRLF}")
 
-# Importante: sys.stdout.flush() no es estrictamente necesario en muchos casos,
-# pero asegura que todo se escriba al pipe inmediatamente.
-# sys.stdout.flush()
+# 2. Separador OBLIGATORIO: La línea vacía \r\n
+# Esta es la secuencia que tu código C++ está buscando (\r\n\r\n)
+sys.stdout.write(CRLF) 
+
+# 3. Cuerpo HTML
+sys.stdout.write(html_body) 
+
+# Aseguramos que la salida se envíe inmediatamente al pipe del servidor
+sys.stdout.flush()
