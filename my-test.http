@@ -1,9 +1,9 @@
 
-### TEST GENERICO
-GET  http://localhost:8080/cgi-bin/test.py/usuarios/5?formato=xml HTTP/1.1
+###
+GET  http://localhost:8080
 
-### TESG cgi
-GET  http://localhost:8080/cgi-bin/tester.py
+###
+GET  http://localhost:8070
 
 ### test full cgi
 GET http://localhost:8080/cgi-bin/test_cgi.py
@@ -11,6 +11,7 @@ GET http://localhost:8080/cgi-bin/test_cgi.py
 ### Solicitud POST para enviar datos al script CGI
 POST http://localhost:8080/cgi-bin/test-post.py
 Content-Type: application/json
+Content-Length: 261
 
 {
     "accion": "procesar_pedido",
@@ -20,7 +21,7 @@ Content-Type: application/json
             "nombre": "Laptop",
             "cantidad": 1,
             "precio": 999.99
-        },
+        }
     ],
     "nota_adicional": "Entrega urgente requerida."
 }

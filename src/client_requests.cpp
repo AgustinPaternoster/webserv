@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/15 11:09:41 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/15 16:57:04 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 
 void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, size_t &i)
 {
+
+	printf("HOLA MUNDO\n");
 	int current_fd = poll_fds[i].fd;
 	t_cgi_job &cgi_task = cgiJobs.getCgiTask(current_fd);
 	char buffer[4096];
@@ -47,7 +49,9 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
 		cgiJobs.sendResponse(cgi_task);
 		cgiJobs.removeCgiTask(current_fd);
 		poll_fds.erase(poll_fds.begin() + i);
+		close(cgi_task.client_fd);
 		i--;
+		
 		return;
 	}
 	else if (bytes_read == -1)
@@ -100,9 +104,9 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 	size_t end_pos = request_str.find("\r\n\r\n");
 	
 	if (end_pos != std::string::npos) 
-	{
+	{ 
 		size_t body_start = end_pos + 4;
-		size_t content_len = getContentLength(request_str); // NO OBTIENE EL CONTENT LENGHT
+		size_t content_len =getContentLength(request_str); // NO OBTIENE EL CONTENT LENGHT
 		size_t total_body = request_str.length() - body_start;
 		if (total_body < content_len)
 			return 0;
@@ -158,7 +162,7 @@ void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket
 				new_polls.revents = 0;
 				poll_fds.push_back(new_polls);
 			}
-			else if(cgijobs.isCgiReadFd(poll_fds[i].fd)){
+			else if(cgijobs.isCgiReadFd(poll_fds[i].fd)) {
 				handle_cgi_read(poll_fds, cgijobs, i);
 			}
 			else {

@@ -33,7 +33,7 @@ void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
         std::string name = it->first;
         std::string value = it->second;
 
-        if (name == "Content-Type" || name == "Content-Length")
+        if (name == "content-type" || name == "content-length")
         {
             std::string CgiName = _normalizeHeadersName(name, false);
             _envVar[CgiName] = value;
@@ -50,6 +50,10 @@ void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
 void Cgi::_parseRequestToEnv(void)
 {
     std::map<std::string , std::string> header = (_request.getHeaders()).get_all_http();
+    for(std::map<std::string,std::string>::iterator it = header.begin(); it != header.end(); it++)
+    {
+        std::cout << (*it).first << "=" << (*it).second << std::endl;
+    }
     _parseHeaderToCGIEnv(header);
     _extracScriptName();
     _envVar["REQUEST_METHOD"] = _request.getMethod();

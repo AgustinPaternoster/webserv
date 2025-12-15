@@ -55,5 +55,5 @@ void CgiTask::sendResponse(t_cgi_job& task)
         std::cerr << "[CGI ERROR] Fallo al enviar/Escritura parcial no manejada en FD " 
                   << task.client_fd << std::endl;
     }
-    close(task.client_fd);
+    
 }
