@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/15 18:12:54 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/16 10:00:59 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 		size_t content_len =getContentLength(request_str);
 		size_t total_body = request_str.length() - body_start;
 		if (total_body < content_len)
-			return 0;
+		return 0;
 		try
 		{
 			HttpRequest par = HttpRequest::fromString(request_str);
