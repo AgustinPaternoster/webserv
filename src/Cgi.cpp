@@ -66,7 +66,7 @@ char** Cgi::_getEnvVar(void)
     int i = 0;
     try
     {
-        char** envVar = new char*[_envVar.size() + 1];
+        envVar = new char*[_envVar.size() + 1];
         for(std::map<std::string, std::string>::iterator  it = _envVar.begin(); it  != _envVar.end(); it++)
         {
             std::string tmp = it->first + "=" + it->second;
@@ -142,6 +142,11 @@ void Cgi::_extracScriptName(void)
 void Cgi::CgiHandler(CgiTask &cgijobs)
 {
     // comprobar si los metodos son los permitidos
+
+    for(std::map<std::string, std::string>::iterator it = _envVar.begin(); it != _envVar.end(); it++)
+    {   
+        std::cout << (*it).first << "=" << (*it).second << std::endl;
+    }
     
     struct pollfd cgi_poll_item;
     t_cgi_job cgiTask;
