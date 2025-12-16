@@ -4,10 +4,7 @@
 
 
 Cgi::Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id, t_server config):
-    _request(request), _poll_fds(poll_fds) , _config(config), _poll_id(poll_id)
-{
-    _parseRequestToEnv();
-}
+    _request(request), _poll_fds(poll_fds) , _config(config), _poll_id(poll_id){}
 
 Cgi::~Cgi(void){}
 
@@ -47,17 +44,19 @@ void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
 
 }
 
-void Cgi::_parseRequestToEnv(void)
+int Cgi::parseRequestToEnv(void)
 {
+    int status;
     std::map<std::string , std::string> header = (_request.getHeaders()).get_all_http();
     _parseHeaderToCGIEnv(header);
-    _extracScriptName();
+    if((status =_extracScriptName())!= 200)
+        return(status);
     _envVar["REQUEST_METHOD"] = _request.getMethod();
     _envVar["SERVER_PORT"] = getServerPort(_poll_fds[_poll_id].fd);
     _envVar["REMOTE_ADDR"] = getClientIP(_poll_fds[_poll_id].fd);
     _envVar["SERVER_PROTOCOL"] = _request.getVersion();
     _envVar["GATEWAY_INTERFACE"] = "CGI/1.1.";
-
+    return (200);
 }
 
 char** Cgi::_getEnvVar(void)
@@ -84,7 +83,7 @@ char** Cgi::_getEnvVar(void)
     return(envVar);
 }
 
-void Cgi::_extracScriptName(void)
+int Cgi::_extracScriptName(void)
 {
     std::string scrip_name = "";
     std::string uri = _request.getUri();
@@ -93,15 +92,13 @@ void Cgi::_extracScriptName(void)
 
     if(uri.size() < cgi_prefix.size() || uri.substr(0, cgi_prefix.size()) != cgi_prefix)
     { 
-        // error
-        return;
+        return (404);
     }
 
     size_t ext_pos = uri.find(cgi_ext, cgi_prefix.size());
     if(ext_pos == std::string::npos)
     {
-        // error 404/403
-        return;
+        return(404);
     }
 
     size_t script_end = ext_pos + cgi_ext.size();
@@ -110,8 +107,7 @@ void Cgi::_extracScriptName(void)
         char next_char = uri[script_end];
         if(next_char != '/' && next_char != '?')
         {
-                //error ( 404 0 400)
-                return;
+                return(404);
         }
         else
         {
@@ -137,17 +133,13 @@ void Cgi::_extracScriptName(void)
         _envVar["PATH_INFO"] = "";
         _envVar["QUERY_STRING"] = "";
     }
+    return (200);
 }
 
-void Cgi::CgiHandler(CgiTask &cgijobs)
+int Cgi::CgiHandler(CgiTask &cgijobs)
 {
-    // comprobar si los metodos son los permitidos
-
-    for(std::map<std::string, std::string>::iterator it = _envVar.begin(); it != _envVar.end(); it++)
-    {   
-        std::cout << (*it).first << "=" << (*it).second << std::endl;
-    }
     
+
     struct pollfd cgi_poll_item;
     t_cgi_job cgiTask;
     
@@ -158,7 +150,10 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
 
     if (pipe(pipe_in) < 0 || pipe(pipe_out) < 0)
     {
-        //error pipe
+        std::cerr << "CGI Error: Fallo al crear pipes." << std::endl;
+        int client_fd = _poll_fds[_poll_id].fd;
+
+
     }        
     
     pid = fork();
@@ -239,6 +234,7 @@ void Cgi::CgiHandler(CgiTask &cgijobs)
             close(pipe_out[1]);
             _executeCgi();
         }
+        return (200);
     };
 
 

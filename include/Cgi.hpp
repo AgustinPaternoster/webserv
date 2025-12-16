@@ -12,9 +12,10 @@ class Cgi
         Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id, t_server config);
         ~Cgi(void);
 
-        void  CgiHandler(CgiTask &cgijobs);
+        int  CgiHandler(CgiTask &cgijobs);
+        int  parseRequestToEnv(void);
         
-        private:
+    private:
         std::map<std::string, std::string> _envVar;
         HttpRequest& _request;
         t_server _config;
@@ -24,8 +25,7 @@ class Cgi
         char** _getEnvVar(void);
         void _parseHeaderToCGIEnv(std::map<std::string, std::string> &headers);
         std::string _normalizeHeadersName(std::string& name, bool ishppt);
-        void _parseRequestToEnv(void);
-        void _extracScriptName(void);
+        int _extracScriptName(void);
         void _closeAllFd(void);
         void _executeCgi(void);
         const char* _getScriptPath(void);

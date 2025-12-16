@@ -47,7 +47,6 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
 		close(current_fd);
 		cgiJobs.sendResponse(cgi_task);
 		cgiJobs.removeCgiTask(current_fd);
-		//poll_fds.erase(poll_fds.begin() + i);
 		close(cgi_task.client_fd);
 		poll_fds[i].fd = -1;
 		for (size_t j = 0; j < poll_fds.size(); j++) {
@@ -92,7 +91,8 @@ size_t getContentLength(const std::string &req)
 
 int	process_request(std::vector<struct pollfd> &poll_fds,
 		std::map<int, std::string> &client_requests, size_t &i, Config &config) 
-	{
+{
+	std::string res_response;
 	char	buffer[4096];
 	int bytes = recv(poll_fds[i].fd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
@@ -100,6 +100,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			std::cerr << "Error: recv() funtion\n";
 		if (bytes == 0)
 			std::cout << "Client closed connectin gracefully.\n";
+		//// revisar // 
 		close_pollfd(poll_fds, i);
 		client_requests.erase(poll_fds[i].fd);
 		return (1);
@@ -126,13 +127,28 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			// en caso contrario error 301
 			if(!server.locations[0].cgi_extension.first.empty())
 			{
-				Cgi httpcgi(par,poll_fds, i, server );
-				httpcgi.CgiHandler(config.CgiJobs);
-				client_requests.erase(poll_fds[i].fd);
-				return(0);
-			}	 
 				
-			std::string res_response = response.execute_response(par,server );
+				Cgi httpcgi(par,poll_fds, i, server );
+				int status =httpcgi.parseRequestToEnv();
+				if(status != 200)
+				{
+					res_response = response.generateError(status, server, "File not found");
+				}
+				else
+				{
+					status = httpcgi.CgiHandler(config.CgiJobs);
+					if(status == 200)
+					{
+						client_requests.erase(poll_fds[i].fd);
+						return(0);
+					}
+					res_response = response.generateError(status, server, "File not found");
+				}
+				//client_requests.erase(poll_fds[i].fd);
+			}
+			else
+				res_response = response.execute_response(par,server );
+
 
 			int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0);
 			if  (sent_bytes < 0)
