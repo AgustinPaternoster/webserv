@@ -128,6 +128,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			{
 				Cgi httpcgi(par,poll_fds, i, server );
 				httpcgi.CgiHandler(config.CgiJobs);
+				client_requests.erase(poll_fds[i].fd);
 				return(0);
 			}	 
 				
