@@ -58,6 +58,8 @@ typedef struct
     int             client_fd;        
     pid_t           pid;              
     std::string     cgi_output_buffer;
+    std::string     cgi_input_buffer;
+    size_t          bytes_written_to_cgi;
     bool            header_parsed;    
     bool            body_written;     
     
