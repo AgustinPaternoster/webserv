@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/17 19:14:10 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/17 19:30:38 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,17 +204,18 @@ std::string	HttpResponse::build_redict(HttpRequest par, t_server server)
 	(void)par;
 	std::string code_str = server.locations[0].redirecction.first;
 	std::string url = server.locations[0].redirecction.second;
+	std::string clean_uri = trim(url);
 
 	int code = std::atoi(code_str.c_str());
 	_statusCode = code;
 
 	_reason = HttpStatusCode::getReason(code);
-	getHeaders().set_http("Location", url);
+	getHeaders().set_http("Location", clean_uri);
 	getHeaders().set_http("Server", "Webserv/1.0");
     getHeaders().set_http("Connection", "close");
 
 	std::string body = "<html><body><h1>" + code_str + " Redirect</h1>"
-                       "<p>The document has moved <a href=\"" + url + "\">here</a>.</p>"
+                       "<p>The document has moved <a href=\"" + clean_uri + "\">here</a>.</p>"
                        "</body></html>";
     setBody(body);
     setContent("text/html");
