@@ -19,7 +19,7 @@ GET http://{{host}}/old-page/
 
 # TEST 1.2: Redirección de Directorio (Falta la barra final)
 # Objetivo: Pedir una carpeta sin "/" al final. El servidor debe corregirlo.
-GET http://{{host}}/uploads
+GET http://{{host}}/images
 # 🟢 ESPERADO: 
 #   HTTP/1.1 301 Moved Permanently
 #   Location: /uploads/ (o http://localhost:8080/uploads/)
@@ -39,14 +39,14 @@ GET http://{{host}}/index.html
 
 # TEST 2.2: Autoindex ON
 # Objetivo: Listar contenido de un directorio.
-GET http://{{host}}/uploads/
+GET http://{{host}}/images/
 # 🟢 ESPERADO: HTTP/1.1 200 OK (y un HTML con lista de archivos)
 
 ###
 
 # TEST 2.3: Autoindex OFF (Forbidden)
 # Objetivo: Intentar listar un directorio protegido o vacío sin index.
-GET http://{{host}}/forbidden_folder/
+GET http://{{host}}/uploads/
 # 🟢 ESPERADO: HTTP/1.1 403 Forbidden (o 404 si decides ocultarlo)
 
 ###
@@ -67,21 +67,21 @@ Este es un archivo creado desde el archivo .http para probar el POST.
 
 # TEST 3.2: GET - Verificar Archivo Subido
 # Objetivo: Leer el archivo que acabamos de crear.
-GET http://{{host}}/uploads/test_http.txt
+GET http://{{host}}/upload/hola
 # 🟢 ESPERADO: HTTP/1.1 200 OK (y el texto "Este es un archivo...")
 
 ###
 
 # TEST 3.3: DELETE - Borrar Archivo
 # Objetivo: Eliminar el recurso.
-DELETE http://{{host}}/uploads/test_http.txt
+DELETE http://{{host}}/upload/hola
 # 🟢 ESPERADO: HTTP/1.1 200 OK o 204 No Content
 
 ###
 
 # TEST 3.4: GET - Confirmar Borrado
 # Objetivo: Asegurar que ya no existe.
-GET http://{{host}}/uploads/test_http.txt
+GET http://{{host}}/upload/test_http.txt
 # 🟢 ESPERADO: HTTP/1.1 404 Not Found
 
 ###
@@ -110,7 +110,7 @@ DELETE http://{{host}}/methods/index.html
 
 # TEST 5.1: Segundo Servidor
 # Objetivo: Verificar que el puerto 8081 responde independientemente.
-GET http://localhost:8081/index2.html
+GET http://localhost:8090/index2.html
 # 🟢 ESPERADO: HTTP/1.1 200 OK
 
 ###

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequestParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 16:17:27 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/05 12:54:05 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/12/17 12:40:12 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

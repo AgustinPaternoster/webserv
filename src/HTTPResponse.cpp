@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/09 17:39:24 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/17 12:40:35 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,7 +247,6 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 	std::string uri = par.getUri();
 	std::string root = server.root;
 	std::string path;
-
 	if (!server.locations.empty())
 		flag = 1;
 	if (flag && !server.locations[0].root.empty())
