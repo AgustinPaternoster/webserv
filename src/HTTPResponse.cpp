@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/17 19:30:38 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/17 19:50:55 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,7 +285,7 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 	}
 	else
 		path = joinPaths(root, uri);
-	if (!server.locations[0].redirecction.first.empty() && !server.locations[0].redirecction.second.empty())
+	if (flag && !server.locations[0].redirecction.first.empty() && !server.locations[0].redirecction.second.empty())
 		return build_redict(par, server);
 	if (isFile(path))
 	{
@@ -340,7 +340,8 @@ std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag
 	size_t max_bytes = parseSize(server.client_max_body_size);
 	if (!server.locations.empty())
 		flag = 1;
-
+	if (flag && !server.locations[0].client_max_body_size.empty())
+		max_bytes = parseSize(server.locations[0].client_max_body_size);
 	if (max_bytes > 0 && par.getBody().size() > max_bytes) //check client body size
 		return generateError(413, server, "Request Entity Too Large");
 
