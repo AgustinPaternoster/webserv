@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/16 10:00:59 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/17 14:42:45 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,9 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
         {
             std::cerr << "[CGI ERROR] El proceso hijo falló o envió salida inválida." << std::endl;
             std::string respos = response.generateError(500, cgi_task.server,"Internal Server Error");
-			// continuar
+			int sent_bytes = send(cgi_task.client_fd , respos.c_str(), respos.size(), 0);
+			if  (sent_bytes < 0)
+				std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
         }
 		else
 			cgiJobs.sendResponse(cgi_task);
@@ -82,16 +84,23 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
 	else if (bytes_read == -1)
 	{	
 		if (errno != EAGAIN && errno != EWOULDBLOCK)
-			{
-				std::cerr << "[CGI ERROR] Error crítico de lectura en pipe FD " << current_fd 
-                      << ": " << strerror(errno) << std::endl;
-				// 1. Enviar una respuesta de error 500 al cliente.
-				int status;
-            	waitpid(cgi_task.pid, &status, WNOHANG);
-				close(current_fd);
-				cgiJobs.removeCgiTask(current_fd);
-				poll_fds.erase(poll_fds.begin() + i);
-				i--;
+		{
+			std::cerr << "[CGI ERROR] Error crítico de lectura en pipe FD " << current_fd 
+					<< ": " << strerror(errno) << std::endl;
+			std::string respos = response.generateError(500, cgi_task.server,"Internal Server Error");
+			int sent_bytes = send(cgi_task.client_fd , respos.c_str(), respos.size(), 0);
+			if  (sent_bytes < 0)
+				std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
+			int status;
+			waitpid(cgi_task.pid, &status, WNOHANG);
+			close(current_fd);
+			cgiJobs.removeCgiTask(current_fd);
+			for (size_t j = 0; j < poll_fds.size(); j++) {
+				if (poll_fds[j].fd == cgi_task.client_fd) {
+					poll_fds[j].fd = -1;
+					break;
+				}
+			}
 		}
 	}
 }
@@ -120,7 +129,6 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			std::cerr << "Error: recv() funtion\n";
 		if (bytes == 0)
 			std::cout << "Client closed connectin gracefully.\n";
-		//// revisar // 
 		close_pollfd(poll_fds, i);
 		client_requests.erase(poll_fds[i].fd);
 		return (1);
@@ -142,9 +150,6 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			HttpRequest par = HttpRequest::fromString(request_str);
 			HttpResponse response;
 			t_server server = config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri());
-			/// comprobar si la request coincide exactamente con locations
-			// eje /methods vs /methosds/
-			// en caso contrario error 301
 			if(!server.locations[0].cgi_extension.first.empty())
 			{
 				

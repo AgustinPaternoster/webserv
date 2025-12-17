@@ -5,10 +5,13 @@ GET  http://localhost:8090
 
 
 ### test redirection
-GET http://localhost:8080//allurl/
+GET http://localhost:8080/allurl/
 
 ###
 GET  http://localhost:8080
+
+### error 404
+GET  http://localhost:8080/tes.io
 
 ###
 GET  http://localhost:8070

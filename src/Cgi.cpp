@@ -1,6 +1,4 @@
 #include "Cgi.hpp"
-#include <cerrno> // Necesario para errno
-#include <cstdio> // Necesario para perror
 
 
 Cgi::Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id, t_server config):
@@ -75,10 +73,10 @@ char** Cgi::_getEnvVar(void)
         }
         envVar[_envVar.size()] = NULL;
     }
-    catch(const std::exception& e)
+    catch(const std::bad_alloc& e)
     {
-        //gestionar error new // sistem error
-        std::cerr << e.what() << '\n';
+        std::cerr << "[ERROR HIJO CGI] fallo de memoria (new) en _getEnvVar: " << e.what() << std::endl;
+        exit(EXIT_FAILURE);
     }
     return(envVar);
 }
@@ -203,8 +201,6 @@ int Cgi::CgiHandler(CgiTask &cgijobs)
                     close(pipe_out[0]);
                     waitpid(pid, NULL, WNOHANG);
                     return(500);
-                    // matar el proceso CGI y enviar 500 al cliente//
-                    break; 
                 }
                 total_written += bytes_sent;            
             }
@@ -279,11 +275,13 @@ void Cgi::_executeCgi(void)
     };
     if(chdir(directory_path) < 0)
     {
+        std::cerr << "[ERROR CHILD CGI] fallo en chdir para la ruta: ";
         _freeCGIResources(envp,script_name,directory_path);
         exit(EXIT_FAILURE);
     }
     if(execve(cgi_executable, argv, envp) == -1)
     {
+        std::cerr << "[ERROR CHILD CGI] fallo en execve: ";
         _freeCGIResources(envp,script_name,directory_path);
         exit(EXIT_FAILURE);
     }
