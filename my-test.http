@@ -1,9 +1,7 @@
 
 
-
 ###
 GET  http://localhost:8090
-
 
 ###
 GET  http://localhost:8080
@@ -16,6 +14,12 @@ GET http://localhost:8080/cgi-bin/test_cgi.py
 
 ### error extension
 GET http://localhost:8080/cgi-bin/test_cgi
+
+### Error metod no allow
+DELETE  http://localhost:8080/cgi-bin/test_cgi.py
+
+### Error metod not exist
+TRACE   http://localhost:8080/cgi-bin/test_cgi.py
 
 ### Solicitud POST para enviar datos al script CGI
 POST http://localhost:8080/cgi-bin/test-post.py

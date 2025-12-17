@@ -138,7 +138,9 @@ int Cgi::_extracScriptName(void)
 
 int Cgi::CgiHandler(CgiTask &cgijobs)
 {
-    
+    int status = _allowMethod();
+    if(status != 200)
+        return(status);
 
     struct pollfd cgi_poll_item;
     t_cgi_job cgiTask;
@@ -151,21 +153,25 @@ int Cgi::CgiHandler(CgiTask &cgijobs)
     if (pipe(pipe_in) < 0 || pipe(pipe_out) < 0)
     {
         std::cerr << "CGI Error: Fallo al crear pipes." << std::endl;
-        int client_fd = _poll_fds[_poll_id].fd;
-
-
+        return(500);
     }        
     
     pid = fork();
     if( pid < 0)
     {
-        //error;
+        std::cerr << "CGI Error: Fallo al ejecutar fork. " << strerror(errno) << std::endl;
+        close(pipe_in[0]);
+        close(pipe_in[1]);
+        close(pipe_out[0]);
+        close(pipe_out[1]);
+        return(500);
     }    
     if(pid != 0)
     {
         close(pipe_in[0]);
         close(pipe_out[1]);
         
+        cgiTask.server = _config;
         cgiTask.cgi_read_fd = pipe_out[0];
         cgiTask.client_fd = _poll_fds[_poll_id].fd;
         cgiTask.pid = pid;
@@ -191,7 +197,12 @@ int Cgi::CgiHandler(CgiTask &cgijobs)
                 );
                 if (bytes_sent < 0) 
                 {
-                    std::cerr << "Error escribiendo body POST al CGI. " << std::endl;
+                    std::cerr << "Error escribiendo body POST al CGI: " << strerror(errno) << std::endl;
+                    kill(pid, SIGKILL);
+                    close(pipe_in[1]);
+                    close(pipe_out[0]);
+                    waitpid(pid, NULL, WNOHANG);
+                    return(500);
                     // matar el proceso CGI y enviar 500 al cliente//
                     break; 
                 }
@@ -206,7 +217,13 @@ int Cgi::CgiHandler(CgiTask &cgijobs)
         int flags = fcntl(pipe_out[0], F_GETFL, 0);
         if (flags == -1 || fcntl(pipe_out[0], F_SETFL, flags | O_NONBLOCK) == -1) 
         { 
-            /* Manejar error */ 
+            std::cerr << "CGI Error: fcntl ha fallado en pipe_out. " << strerror(errno) << std::endl;
+            kill(pid, SIGKILL);
+            waitpid(pid, NULL, WNOHANG);
+            close(pipe_out[0]);
+            if (_envVar["REQUEST_METHOD"] == "POST")
+                close(pipe_in[1]);
+            return(500);
         }
 
         cgi_poll_item.fd = pipe_out[0];
@@ -219,12 +236,12 @@ int Cgi::CgiHandler(CgiTask &cgijobs)
         {
             if(dup2(pipe_in[0], STDIN_FILENO) < 0)
             {
-                //error
+                std::cerr << "CGI Child Error: dup2 STDIN ha fallado" << std::endl;
                 exit(EXIT_FAILURE);
             }
             if(dup2(pipe_out[1], STDOUT_FILENO) < 0)
             {
-                //error
+                std::cerr << "CGI Child Error: dup2 STDOUT ha fallado" << std::endl;
                 exit(EXIT_FAILURE);
             }
             _closeAllFd();
@@ -369,4 +386,35 @@ const char* Cgi::_getScriptFileName(void)
     std::strcpy(script_filename, script_filename_str.c_str());
     
     return script_filename; 
+}
+
+int Cgi::_closeAndClean(struct pollfd & poll , int error)
+{
+    close(poll.fd);
+    poll.fd = -1;
+    return(500); 
+}
+
+int Cgi::_allowMethod(void)
+{
+    methods currentMethod = _convertStringToEnum(_envVar["REQUEST_METHOD"]);
+    if(currentMethod == -1)
+        return(501);
+    const std::vector<int>& allowed = _config.locations[0].methods;
+    for(size_t i = 0; i < allowed.size(); i++)
+    {
+        if(allowed[i] == static_cast<int>(currentMethod))
+            return(200);
+    }
+    return(405);
+}
+
+methods Cgi::_convertStringToEnum(const std::string& method)
+{
+    if (method == "GET")    return GET;
+    if (method == "POST")   return POST;
+    if (method == "DELETE") return DELETE;
+    if (method == "PUT")    return PUT;
+    if (method == "PATCH")  return PATCH;
+    return(UNKNOWN);
 }

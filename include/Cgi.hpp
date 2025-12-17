@@ -32,6 +32,9 @@ class Cgi
         const char* _getDirectoryPath(void);
         void _freeCGIResources(char** envp, const char* script_path, const char* directory_path);
         const char* _getScriptFileName(void);
+        int _closeAndClean(struct pollfd & poll , int error);
+        int _allowMethod(void);
+        methods _convertStringToEnum(const std::string& method);
 
 };
 

@@ -35,7 +35,8 @@ server {
         autoindex off;} 
     
 location /cgi-bin/ {
-    root ./CGI; 
+    root ./CGI;
+    allow_methods GET POST; 
     cgi_extension .py /usr/bin/python3;
 }
 

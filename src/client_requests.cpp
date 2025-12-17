@@ -19,9 +19,24 @@
 #include "CgiTasks.hpp"
 
 
+std::string manageMethodError(int status, HttpResponse &response, t_server &server)
+{
+	std::string respon;
+	if(status == 404)
+		respon = response.generateError(status,server, "File not found" );
+	if(status == 405 )
+		respon = response.generateError(status,server, "Method Not Allowed" );
+	if(status == 500)
+		respon = response.generateError(status,server, "Internal Server Error");
+	if(status == 501)
+		respon = response.generateError(status,server, "Method not implemented");
+	return(respon);
+}
+
 void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, size_t &i)
 {
 
+	HttpResponse response;
 	int current_fd = poll_fds[i].fd;
 	t_cgi_job &cgi_task = cgiJobs.getCgiTask(current_fd);
 	char buffer[4096];
@@ -45,7 +60,14 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
 		int status;
 		waitpid(cgi_task.pid, &status, WNOHANG);
 		close(current_fd);
-		cgiJobs.sendResponse(cgi_task);
+		if ((WIFEXITED(status) && WEXITSTATUS(status) != 0))
+        {
+            std::cerr << "[CGI ERROR] El proceso hijo falló o envió salida inválida." << std::endl;
+            std::string respos = response.generateError(500, cgi_task.server,"Internal Server Error");
+			// continuar
+        }
+		else
+			cgiJobs.sendResponse(cgi_task);
 		cgiJobs.removeCgiTask(current_fd);
 		close(cgi_task.client_fd);
 		poll_fds[i].fd = -1;
@@ -55,8 +77,6 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
                 break;
             }
         }
-		
-		
 		return;
 	}
 	else if (bytes_read == -1)
@@ -142,9 +162,9 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 						client_requests.erase(poll_fds[i].fd);
 						return(0);
 					}
-					res_response = response.generateError(status, server, "File not found");
+					res_response = manageMethodError(status,response,server);
 				}
-				//client_requests.erase(poll_fds[i].fd);
+				client_requests.erase(poll_fds[i].fd);
 			}
 			else
 				res_response = response.execute_response(par,server );

@@ -40,7 +40,8 @@ enum methods
    POST = 1,
    DELETE = 2,
    PUT = 3,
-   PATCH = 4
+   PATCH = 4,
+   UNKNOWN = -1
 };
 
 enum actions
@@ -51,20 +52,6 @@ enum actions
 };
 
 //estructura cgiJobs
-typedef struct 
-{
-    int             cgi_read_fd;     
-    int             cgi_write_fd;     
-    int             client_fd;        
-    pid_t           pid;              
-    std::string     cgi_output_buffer;
-    bool            header_parsed;    
-    bool            body_written;     
-    
-    // Opcional: El tiempo de inicio para gestionar timeouts
-    // time_t          start_time; 
-
-} t_cgi_job;
 
 // estructura location //
 typedef struct s_location
@@ -82,15 +69,26 @@ typedef struct s_location
 
 
 /// estructura servers //
- typedef struct s_server
- {
+typedef struct s_server
+{
    std::string port;
    std::string root;
    std::string index;
    std::map<std::string,std::string> error_page;
    std::string client_max_body_size;
    std::vector <t_location> locations;
- }t_server;
+}t_server;
 
+typedef struct 
+{
+    int             cgi_read_fd;     
+    int             cgi_write_fd;     
+    int             client_fd;        
+    pid_t           pid;              
+    std::string     cgi_output_buffer;
+    bool            header_parsed;    
+    bool            body_written;
+    t_server        server;
+} t_cgi_job;
 
 #endif
