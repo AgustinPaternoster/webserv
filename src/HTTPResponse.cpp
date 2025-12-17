@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/09 17:39:24 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/17 14:42:39 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,6 +199,28 @@ HttpResponse& HttpResponse::setBodyFile(const std::string& file)
 	}
 }
 
+std::string	HttpResponse::build_redict(HttpRequest par, t_server server)
+{
+	std::string code_str = server.locations[0].redirecction.first;
+	std::string url = server.locations[0].redirecction.second;
+
+	int code = std::atoi(code_str.c_str());
+	_statusCode = code;
+
+	_reason = HttpStatusCode::getReason(code);
+	getHeaders().set_http("Location", url);
+	getHeaders().set_http("Server", "Webserv/1.0");
+    getHeaders().set_http("Connection", "close");
+
+	std::string body = "<html><body><h1>" + code_str + " Redirect</h1>"
+                       "<p>The document has moved <a href=\"" + url + "\">here</a>.</p>"
+                       "</body></html>";
+    setBody(body);
+    setContent("text/html");
+	
+    return build().toString();
+}
+
 void	HttpResponse::printResponse()
 {
 	std::cout << "=== HTTP Response ===" << std::endl;
@@ -261,6 +283,8 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 	}
 	else
 		path = joinPaths(root, uri);
+	if (!server.locations[0].redirecction.first.empty() && !server.locations[0].redirecction.second.empty())
+		return build_redict(par, server);
 	if (isFile(path))
 	{
 		_statusCode = 200;

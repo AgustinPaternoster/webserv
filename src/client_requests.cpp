@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client_requests.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/16 10:00:59 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/17 12:48:21 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,9 +121,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			HttpRequest par = HttpRequest::fromString(request_str);
 			HttpResponse response;
 			t_server server = config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri());
-			/// comprobar si la request coincide exactamente con locations
-			// eje /methods vs /methosds/
-			// en caso contrario error 301
+
 			if(!server.locations[0].cgi_extension.first.empty())
 			{
 				Cgi httpcgi(par,poll_fds, i, server );

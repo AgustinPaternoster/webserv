@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequestParser.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 16:19:20 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/05 12:43:49 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/12/17 14:36:59 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ class RequestParser
 		const std::string&	getErrorMsg() const;
 		const HttpRequest&	getRequest() const;
 		void				printState() const;
+		bool				isValidHeaderValue(const std::string& value);
 };
 
 std::string trim(const std::string &str);

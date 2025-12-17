@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequestParser.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 16:17:27 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/05 12:54:05 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/12/17 14:50:05 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ std::string trim(const std::string &str)
 
     while (end > start && std::isspace(static_cast<unsigned char>(str[end - 1])))
         end--;
-
+	if (start == 0 && end == str.length())
+        return str;
     return str.substr(start, end - start);
 }
 
@@ -237,9 +238,22 @@ void	RequestParser::RequestLineBuffer()
 	_state = PARSING_HEADERS; //Change status
 }
 
+bool RequestParser::isValidHeaderValue(const std::string& value)
+{
+    for (size_t i = 0; i < value.size(); ++i)
+    {
+        unsigned char c = static_cast <unsigned char>(value[i]);
+        if (c == '\t')
+			continue;
+        if (c < 32 || c == 127)
+			return false;
+    }
+    return true;
+}
+
 bool	RequestParser::parseHeader(const std::string& line)
 {
-	if (line.empty())
+	if (line.empty() || line == "\r")
 		return true;
 	
 	size_t pos = line.find(':');
@@ -252,7 +266,12 @@ bool	RequestParser::parseHeader(const std::string& line)
 	std::string name = line.substr(0, pos); //get name
 	std::string value = line.substr(pos + 1);
 
-	name = trim(name); //delete space
+	if (!name.empty() && name[name.size() -1] == '\r')
+		name.erase(name.size() - 1);
+	if (!value.empty() && value[value.size() -1] == '\r')
+		value.erase(value.size() - 1);
+
+	name = trim(name);
 	value = trim(value);
 
 	if (name.empty())
@@ -260,9 +279,19 @@ bool	RequestParser::parseHeader(const std::string& line)
 		_error = "Empty header name";
 		return false;
 	}
+	if (name.find(' ') != std::string::npos)
+	{
+		_error = "Header name cannot contain spaces";
+		return false;
+	}
 	if (!isValidToken(name))
 	{
 		_error = "Invalid header name: " + name;
+		return false;
+	}
+	if (!isValidHeaderValue(value))
+	{
+		_error = "Invalid character in header value";
 		return false;
 	}
 	_request.getHeaders().set_http(name, value);
@@ -270,17 +299,15 @@ bool	RequestParser::parseHeader(const std::string& line)
 	std::string lName = toLower(name);
 	if (lName == "content-length")
 	{
-		try
-		{
-			char *end_ptr = NULL;
-
-			_contentLen = std::strtoull(value.c_str(), &end_ptr, 10); //Investigar
-		}
-		catch (...)
+		char *end_ptr = NULL;
+		errno = 0;
+		unsigned long long len = std::strtoull(value.c_str(), &end_ptr, 10);
+		if (*end_ptr != '\0' || errno == ERANGE)
 		{
 			_error = "Invalid Content-Length value: " + value;
 			return false;
 		}
+		_contentLen = len;
 	}
 	else if (lName == "host")
 	{
