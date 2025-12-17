@@ -19,7 +19,6 @@ int main(int arc, char** argv)
                 throw std::invalid_argument(ARG_ERROR_MSG);
                 break;
         }
-
         Socket::webserver_init(conFile);
     }
     catch(const std::exception& e)
