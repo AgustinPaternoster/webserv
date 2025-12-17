@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 20:15:11 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/25 19:08:16 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/17 19:05:50 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <string>
 # include <iostream>
 # include <sstream>
+# include <cerrno>
 # include "HTTPHeaders.hpp"
 
 /**

@@ -13,8 +13,8 @@ server {
         allow_methods GET;
         autoindex off;
     }
-    location /allurl {
-        return 301 google.com
+    location /allurl/ {
+        return 301 http://google.com
     }
     
     location /images/ {
