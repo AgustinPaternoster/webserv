@@ -4,13 +4,6 @@ import sys
 import os
 import json
 
-# --- DEBUG: Imprimir variables recibidas en la terminal del servidor ---
-sys.stderr.write("--- VARIABLES DE ENTORNO RECIBIDAS POR PYTHON ---\n")
-for key, value in os.environ.items():
-    sys.stderr.write(f"{key}={value}\n")
-sys.stderr.write("-------------------------------------------------\n")
-
-
 # Definición de la secuencia de nueva línea estándar de HTTP/CGI
 CRLF = "\r\n"
 

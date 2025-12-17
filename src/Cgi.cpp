@@ -2,7 +2,7 @@
 
 
 Cgi::Cgi(HttpRequest &request, std::vector<struct pollfd> &poll_fds, int poll_id, t_server config):
-    _request(request), _poll_fds(poll_fds) , _config(config), _poll_id(poll_id){}
+    _request(request), _config(config), _poll_fds(poll_fds) ,  _poll_id(poll_id){}
 
 Cgi::~Cgi(void){}
 
@@ -253,7 +253,7 @@ int Cgi::CgiHandler(CgiTask &cgijobs)
 
 void Cgi::_closeAllFd(void)
 {
-    for(int i = 0; i < _poll_fds.size(); i++)
+    for(size_t i = 0; i < _poll_fds.size(); i++)
     {
         int fdToclose = _poll_fds[i].fd;
         if(fdToclose != STDERR_FILENO && fdToclose != STDIN_FILENO && fdToclose != STDOUT_FILENO)
@@ -386,7 +386,7 @@ const char* Cgi::_getScriptFileName(void)
     return script_filename; 
 }
 
-int Cgi::_closeAndClean(struct pollfd & poll , int error)
+int Cgi::_closeAndClean(struct pollfd & poll)
 {
     close(poll.fd);
     poll.fd = -1;

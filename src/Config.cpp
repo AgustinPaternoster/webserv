@@ -311,7 +311,7 @@ std::pair<std::string, std::string> Config::_ExtracExten(std::string src)
 
 t_server Config::_filterServer(std::string port)
 {
-    for (int i = 0; i < _servers.size(); i++)
+    for (size_t i = 0; i < _servers.size(); i++)
     {
         if (_servers[i].port == port)
             return(_servers[i]);
@@ -319,16 +319,6 @@ t_server Config::_filterServer(std::string port)
     return (t_server());
 }
 
-static std::string trim_path(const std::string& str) 
-{
-    size_t first = str.find_first_not_of(" \t\n\r");
-    if (std::string::npos == first) 
-    {
-        return str;
-    }
-    size_t last = str.find_last_not_of(" \t\n\r");
-    return str.substr(first, (last - first + 1));
-}
 
 t_server  Config::locationRouter(std::string port , std::string uri)
 {
@@ -377,7 +367,7 @@ t_server  Config::locationRouter(std::string port , std::string uri)
 
 t_location Config:: _findSpecificLocation(std::string req_location, t_server &server)
 {
-    t_location best_match_location = {0};
+    t_location best_match_location;
     size_t longest_match_len = 0;
     for(std::vector<t_location>::iterator it = server.locations.begin(); it != server.locations.end(); it++)
     {

@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/17 14:42:45 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/17 15:57:32 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,11 +70,12 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
         }
 		else
 			cgiJobs.sendResponse(cgi_task);
+		int client_fd =  cgi_task.client_fd;
+		close(client_fd);
 		cgiJobs.removeCgiTask(current_fd);
-		close(cgi_task.client_fd);
 		poll_fds[i].fd = -1;
 		for (size_t j = 0; j < poll_fds.size(); j++) {
-            if (poll_fds[j].fd == cgi_task.client_fd) {
+            if (poll_fds[j].fd == client_fd) {
                 poll_fds[j].fd = -1;
                 break;
             }
@@ -94,9 +95,10 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
 			int status;
 			waitpid(cgi_task.pid, &status, WNOHANG);
 			close(current_fd);
+			int client_fd = cgi_task.client_fd;
 			cgiJobs.removeCgiTask(current_fd);
 			for (size_t j = 0; j < poll_fds.size(); j++) {
-				if (poll_fds[j].fd == cgi_task.client_fd) {
+				if (poll_fds[j].fd == client_fd) {
 					poll_fds[j].fd = -1;
 					break;
 				}
