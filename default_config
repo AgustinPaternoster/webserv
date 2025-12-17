@@ -6,7 +6,7 @@ server {
     error_page 405 errors/405.html;
 
     root www/;
-    client_max_body_size 10M;
+    client_max_body_size 50M;
     index index.html;
 
     location / {
