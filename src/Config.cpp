@@ -251,12 +251,14 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
         locTmp.upload_store = _trimText(location.substr(pos, end - pos));
         break;
     case 10:
-        end = end = location.find(';', pos);
+        end = location.find(';', pos);
         locTmp.actions = CGI;
         locTmp.cgi_extension =  _ExtracExten(_trimText(location.substr(pos, end - pos)));
+        break;
     case 11:
-        end = end = location.find(';', pos);
+        end = location.find(';', pos);
         locTmp.redirecction = _ExtracExten(_trimText(location.substr(pos, end - pos)));
+        break;
     default:
         break;
     }
