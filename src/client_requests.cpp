@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/17 19:10:42 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/17 19:23:22 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			else
 				res_response = response.execute_response(par,server );
 
-
+			std::cout << res_response << std::endl;
 			int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0);
 			if  (sent_bytes < 0)
 				std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;
