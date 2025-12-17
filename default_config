@@ -13,7 +13,10 @@ server {
         allow_methods GET;
         autoindex off;
     }
-
+    location /allurl {
+        return 301 google.com
+    }
+    
     location /images/ {
         root www/images;
         upload_store ./www/upload;

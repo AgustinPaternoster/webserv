@@ -63,6 +63,7 @@ typedef struct s_location
    std::string upload_store;
    std::string client_max_body_size;
    std::pair<std::string, std::string> cgi_extension;
+   std::pair<std::string, std::string> redirecction;
    int actions;
 }t_location;
 
