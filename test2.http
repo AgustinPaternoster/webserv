@@ -1,0 +1,123 @@
+@hostname = localhost
+@port = 8080
+@host = {{hostname}}:{{port}}
+@contentType = text/plain
+
+# ==============================================================================
+# 1. PRUEBAS DE REDIRECCIÓN (TU FOCO DE HOY)
+# ==============================================================================
+
+# TEST 1.1: Redirección por Configuración (301)
+# Objetivo: Verificar que la regla "return 301" en /old-page/ funciona.
+# IMPORTANTE: Tu servidor NO debe buscar un archivo, debe responder 301 inmediatamente.
+GET http://{{host}}/old-page/
+# 🟢 ESPERADO: 
+#   HTTP/1.1 301 Moved Permanently
+#   Location: http://google.com
+
+###
+
+# TEST 1.2: Redirección de Directorio (Falta la barra final)
+# Objetivo: Pedir una carpeta sin "/" al final. El servidor debe corregirlo.
+GET http://{{host}}/uploads
+# 🟢 ESPERADO: 
+#   HTTP/1.1 301 Moved Permanently
+#   Location: /uploads/ (o http://localhost:8080/uploads/)
+
+###
+
+# ==============================================================================
+# 2. PRUEBAS DE MÉTODOS BÁSICOS (GET)
+# ==============================================================================
+
+# TEST 2.1: GET Archivo Estático
+# Objetivo: Servir un archivo existente correctamente.
+GET http://{{host}}/index.html
+# 🟢 ESPERADO: HTTP/1.1 200 OK (y ver el contenido HTML)
+
+###
+
+# TEST 2.2: Autoindex ON
+# Objetivo: Listar contenido de un directorio.
+GET http://{{host}}/uploads/
+# 🟢 ESPERADO: HTTP/1.1 200 OK (y un HTML con lista de archivos)
+
+###
+
+# TEST 2.3: Autoindex OFF (Forbidden)
+# Objetivo: Intentar listar un directorio protegido o vacío sin index.
+GET http://{{host}}/forbidden_folder/
+# 🟢 ESPERADO: HTTP/1.1 403 Forbidden (o 404 si decides ocultarlo)
+
+###
+
+# ==============================================================================
+# 3. CICLO DE VIDA DE ARCHIVOS (POST -> GET -> DELETE)
+# ==============================================================================
+
+# TEST 3.1: POST - Subir Archivo
+# Objetivo: Crear un recurso nuevo.
+POST http://{{host}}/uploads/test_http.txt
+Content-Type: {{contentType}}
+
+Este es un archivo creado desde el archivo .http para probar el POST.
+# 🟢 ESPERADO: HTTP/1.1 201 Created
+
+###
+
+# TEST 3.2: GET - Verificar Archivo Subido
+# Objetivo: Leer el archivo que acabamos de crear.
+GET http://{{host}}/uploads/test_http.txt
+# 🟢 ESPERADO: HTTP/1.1 200 OK (y el texto "Este es un archivo...")
+
+###
+
+# TEST 3.3: DELETE - Borrar Archivo
+# Objetivo: Eliminar el recurso.
+DELETE http://{{host}}/uploads/test_http.txt
+# 🟢 ESPERADO: HTTP/1.1 200 OK o 204 No Content
+
+###
+
+# TEST 3.4: GET - Confirmar Borrado
+# Objetivo: Asegurar que ya no existe.
+GET http://{{host}}/uploads/test_http.txt
+# 🟢 ESPERADO: HTTP/1.1 404 Not Found
+
+###
+
+# ==============================================================================
+# 4. PRUEBAS DE ERRORES (PÁGINAS PERSONALIZADAS)
+# ==============================================================================
+
+# TEST 4.1: Error 404 (Not Found)
+# Objetivo: Pedir algo que no existe.
+GET http://{{host}}/archivo_imaginario.html
+# 🟢 ESPERADO: HTTP/1.1 404 Not Found (y TU html de error bonito)
+
+###
+
+# TEST 4.2: Error 405 (Method Not Allowed)
+# Objetivo: Usar DELETE en una ruta que solo permite GET.
+DELETE http://{{host}}/methods/index.html
+# 🟢 ESPERADO: HTTP/1.1 405 Method Not Allowed
+
+###
+
+# ==============================================================================
+# 5. PRUEBAS MULTI-PUERTO
+# ==============================================================================
+
+# TEST 5.1: Segundo Servidor
+# Objetivo: Verificar que el puerto 8081 responde independientemente.
+GET http://localhost:8081/index2.html
+# 🟢 ESPERADO: HTTP/1.1 200 OK
+
+###
+
+# ==============================================================================
+# 6. NOTA SOBRE EL ERROR 413 (PAYLOAD TOO LARGE)
+# ==============================================================================
+# No se recomienda hacer el test de 12MB desde este archivo de texto porque
+# puede bloquear el editor. Para el error 413, usa el comando curl en terminal:
+# curl -v -X POST -H "Expect:" --data-binary @bigfile http://localhost:8080/uploads/
