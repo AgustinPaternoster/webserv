@@ -35,6 +35,7 @@ class Cgi
         int _closeAndClean(struct pollfd & poll);
         int _allowMethod(void);
         methods _convertStringToEnum(const std::string& method);
+        int _checkFiles(std::string filePath);
 
 };
 

@@ -18,7 +18,6 @@ std::string Cgi::_normalizeHeadersName(std::string& name, bool ishppt)
     if (ishppt)
         return ("HTTP_" + NormalizedName);
     return (NormalizedName);
-
 }
 
 void Cgi::_parseHeaderToCGIEnv(std::map<std::string, std::string> &headers)
@@ -139,6 +138,7 @@ int Cgi::CgiHandler(CgiTask &cgijobs)
     int status = _allowMethod();
     if(status != 200)
         return(status);
+    status = 
 
     struct pollfd cgi_poll_item;
     t_cgi_job cgiTask;
@@ -415,4 +415,9 @@ methods Cgi::_convertStringToEnum(const std::string& method)
     if (method == "PUT")    return PUT;
     if (method == "PATCH")  return PATCH;
     return(UNKNOWN);
+}
+
+int _checkFiles(std::string filePath)
+{
+    
 }
