@@ -1,28 +1,34 @@
-Socket in PORT: 8080
-Socket fd: 3
-Socket in PORT: 8090
-Socket fd: 4
-Socket in PORT: 8070
-Socket fd: 5
-🕐 Waiting for connections...
-[0;92mNew CLient fd is created: 6[0m
-🕐 Waiting for connections...
-[0;92mclient able to send data 6[0m
-CONTENT_LENGTH=246
-CONTENT_TYPE=application/json
-GATEWAY_INTERFACE=CGI/1.1.
-HTTP_ACCEPT_ENCODING=gzip, deflate
-HTTP_CONNECTION=close
-HTTP_HOST=localhost:8080
-HTTP_USER_AGENT=vscode-restclient
-PATH_INFO=
-QUERY_STRING=
-REMOTE_ADDR=127.0.0.1
-REQUEST_METHOD=POST
-SCRIPT_NAME=/cgi-bin/test-post.py
-SERVER_PORT=8080
-SERVER_PROTOCOL=HTTP/1.1
-🕐 Waiting for connections...
-🕐 Waiting for connections...
-[CGI] Respuesta HTTP completa enviada a FD 6 (184 bytes)
-🕐 Waiting for connections...
+void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, size_t &i)
+{
+    int current_fd = poll_fds[i].fd;
+    short revents = poll_fds[i].revents; // Miramos qué eventos ocurrieron
+    t_cgi_job &cgi_task = cgiJobs.getCgiTask(current_fd);
+    
+    // 1. GESTIÓN DE ERRORES DEL PIPE (Sin usar errno)
+    if (revents & POLLERR) {
+        handle_critical_error(poll_fds, cgiJobs, i, cgi_task);
+        return;
+    }
+
+    // 2. LECTURA DE DATOS
+    if (revents & POLLIN) {
+        char buffer[4096];
+        ssize_t bytes_read = read(current_fd, buffer, sizeof(buffer));
+        
+        if (bytes_read > 0) {
+            cgi_task.cgi_output_buffer.append(buffer, bytes_read);
+            // Lógica de header_parsed...
+        }
+        // Si read devuelve 0 con POLLIN, es que se cerró justo ahora
+        else if (bytes_read == 0) {
+            handle_cgi_finish(poll_fds, cgiJobs, i, cgi_task);
+            return;
+        }
+    }
+
+    // 3. CIERRE DEL LADO DEL HIJO (Hang up)
+    // A veces POLLHUP llega solo o junto a POLLIN
+    if (revents & POLLHUP && !(revents & POLLIN)) {
+        handle_cgi_finish(poll_fds, cgiJobs, i, cgi_task);
+    }
+}

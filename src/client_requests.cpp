@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/18 13:34:00 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/18 17:51:18 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,11 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
 
 	HttpResponse response;
 	int current_fd = poll_fds[i].fd;
+	short revents = poll_fds[i].revents;
 	t_cgi_job &cgi_task = cgiJobs.getCgiTask(current_fd);
 	char buffer[4096];
 	ssize_t bytes_read;
+	if(revents)
 
 	bytes_read = read(current_fd, buffer, sizeof(buffer));
 
