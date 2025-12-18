@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/18 13:35:02 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/18 14:42:08 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -495,14 +495,17 @@ bool	HttpResponse::isDir(const std::string &path)
 bool	HttpResponse::haveIndex(const std::string &path, t_server server)
 {
 	std::string index = trim(server.index);
+	if (!server.locations.empty() && !server.locations[0].index.empty())
+			index = trim(server.locations[0].index);
 	std::string indexPath = path + index;
-	//if (!server.locations.empty()) for implemented
 	return isFile(indexPath);
 }
 
 std::string	HttpResponse::getIndexFile(const std::string &path, t_server server)
 {
 	std::string index = trim(server.index);
+	if (!server.locations.empty() && !server.locations[0].index.empty())
+			index = trim(server.locations[0].index);
 	std::string indexPath = path + index;
 	return indexPath;
 }
