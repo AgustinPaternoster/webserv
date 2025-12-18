@@ -5,8 +5,8 @@ server {
     error_page 404 errors/404.html;
     error_page 405 errors/405.html;
 
-    root www/;
-    client_max_body_size 50M;
+    root ./www/;
+    client_max_body_size 10M;
     index index.html;
 
     location / {
@@ -14,11 +14,11 @@ server {
         autoindex off;
     }
     location /allurl/ {
-        return 301 http://google.com
+        return 301 http://google.com ;
     }
     
     location /images/ {
-        root www/images;
+        root ./www/images;
         upload_store ./www/upload;
         allow_methods GET POST DELETE ;
         autoindex on;
@@ -37,10 +37,10 @@ server {
         client_max_body_size 10M;
         autoindex off;} 
     
-location /cgi-bin/ {
-    root ./CGI;
-    allow_methods GET POST; 
-    cgi_extension .py /usr/bin/python3;
+    location /cgi-bin/ {
+        root ./CGI;
+        allow_methods GET POST; 
+        cgi_extension .py /usr/bin/python3;
 }
 
 }

@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/18 12:29:35 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/18 13:35:02 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,9 +308,9 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 		setContent("text/plain");
 		return build().toString();
 	}
-	if (haveIndex(path))
+	if (haveIndex(path, server))
 	{
-		std::string indexFile = getIndexFile(path);
+		std::string indexFile = getIndexFile(path, server);
 		_statusCode = 200;
 		_reason = HttpStatusCode::getReason(200);
 		getHeaders().set_http("Server", "Webserv/1.0");
@@ -492,15 +492,18 @@ bool	HttpResponse::isDir(const std::string &path)
 	return S_ISDIR(st.st_mode);
 }
 
-bool	HttpResponse::haveIndex(const std::string &path)
+bool	HttpResponse::haveIndex(const std::string &path, t_server server)
 {
-	std::string indexPath = path + "index.html";
+	std::string index = trim(server.index);
+	std::string indexPath = path + index;
+	//if (!server.locations.empty()) for implemented
 	return isFile(indexPath);
 }
 
-std::string	HttpResponse::getIndexFile(const std::string &path)
+std::string	HttpResponse::getIndexFile(const std::string &path, t_server server)
 {
-	std::string indexPath = path + "index.html";
+	std::string index = trim(server.index);
+	std::string indexPath = path + index;
 	return indexPath;
 }
 
