@@ -54,13 +54,13 @@ server {
     index index2.html;
 
     location /images/ {
-        root /www/images;
+        root ./www/images;
         allow_methods GET;
         autoindex off;
     }
 
     location /upload/ {
-        root /www/upload;
+        root ./www/upload;
         allow_methods GET POST;
         upload_store ./www/uploads;
         autoindex on;
@@ -71,13 +71,13 @@ server {
 server {
 
     listen  8070;
-    root /www/;
+    root ./www/;
     client_max_body_size 10M;
     error_page 404 /errors/404.html;
     index index3.html;
 
     location / {
-        root /www/html/;
+        root ./www/html/;
         allow_methods GET;
         autoindex off;
     }
