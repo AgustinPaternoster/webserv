@@ -28,8 +28,8 @@ HttpRequest HttpRequest::fromString(const std::string& request)
 	par.feedData(request);
 	if (!par.isComplete())
 	{
-		throw std::runtime_error("Invalid HTTP request");
 		return HttpRequest();
+		throw std::runtime_error("Invalid HTTP request");
 	}
 	return par.getRequest();
 }
