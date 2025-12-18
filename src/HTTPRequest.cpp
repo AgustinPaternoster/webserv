@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:02:17 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/09 17:05:05 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/18 13:16:58 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ HttpRequest HttpRequest::fromString(const std::string& request)
 	par.feedData(request);
 	if (!par.isComplete())
 	{
-		throw std::runtime_error("Invalid HTTP request");
+		std::cerr << "Invalid HTTP request" << std::endl;
 		return HttpRequest();
 	}
 	return par.getRequest();
@@ -131,8 +131,6 @@ std::string  HttpRequest::toString() const
 
 	//Request line
 	oss << _method << " " << _uri << " " << _version << "\r\n";
-
-	//headers
 	oss << _headers.toString();
 
 	oss << "\r\n";

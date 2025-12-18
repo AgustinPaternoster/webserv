@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client_requests.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/17 19:57:34 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/18 13:34:00 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,13 +146,13 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 		size_t content_len =getContentLength(request_str);
 		size_t total_body = request_str.length() - body_start;
 		if (total_body < content_len)
-			return 0;
+		return 0;
 		try
 		{
 			HttpRequest par = HttpRequest::fromString(request_str);
 			HttpResponse response;
 			t_server server = config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri());
-			if(!server.locations.empty() && !server.locations[0].cgi_extension.first.empty()) //segfault si no comprueba primero el locations
+			if(!server.locations.empty() && !server.locations[0].cgi_extension.first.empty())
 			{
 				
 				Cgi httpcgi(par,poll_fds, i, server );
@@ -176,7 +176,7 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			else
 				res_response = response.execute_response(par,server );
 
-			std::cout << res_response << std::endl;
+
 			int sent_bytes = send(poll_fds[i].fd, res_response.c_str(), res_response.size(), 0);
 			if  (sent_bytes < 0)
 				std::cerr << "ERROR IN SEND: " << strerror(errno) << std::endl;

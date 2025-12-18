@@ -233,11 +233,15 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
         end = location.find(';', pos);
         locTmp.root = _trimText(location.substr(pos, end - pos));
         break;
+    case 3:
+        end = location.find(';', pos);
+        locTmp.index = _trimText(location.substr(pos, end - pos));
+        break;
     case 4:
         end = location.find(';', pos);
         locTmp.client_max_body_size = _trimText(location.substr(pos, end - pos));
         break;
-        case 7:
+    case 7:
         end = location.find(';', pos);
         _extracMethods(_trimText(location.substr(pos, end - pos)), locTmp.methods);
         break;

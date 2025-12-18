@@ -55,7 +55,7 @@ except Exception as e:
 
 # --- 2. Preparar el Cuerpo JSON para la Respuesta ---
 # El cuerpo siempre se genera como una cadena JSON
-json_body = json.dumps(response_data, indent=4)
+json_body = json.dumps(response_data, indent=4, ensure_ascii=False)
 
 # --- 3. Imprimir las Cabeceras CGI y el Cuerpo (Usando CRLF) ---
 
@@ -64,7 +64,7 @@ json_body = json.dumps(response_data, indent=4)
 # 3.1. Cabeceras Obligatorias (terminadas en CRLF)
 sys.stdout.write(f"Content-type: application/json{CRLF}")
 sys.stdout.write(f"Status: 200 OK{CRLF}")
-sys.stdout.write(f"Content-Length: {len(json_body)}{CRLF}") # Recomendado: añadir Content-Length de la respuesta
+
 
 # 3.2. Separador OBLIGATORIO: La línea vacía (\r\n\r\n)
 # Esto indica al servidor Webserv que las cabeceras han terminado.
