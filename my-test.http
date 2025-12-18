@@ -28,6 +28,10 @@ DELETE  http://localhost:8080/cgi-bin/test_cgi.py
 ### Error metod not exist
 TRACE   http://localhost:8080/cgi-bin/test_cgi.py
 
+### Error metod not exist
+TRACE   http://localhost:8080
+
+
 ### Solicitud POST para enviar datos al script CGI
 POST http://localhost:8080/cgi-bin/test-post.py
 Content-Type: application/json

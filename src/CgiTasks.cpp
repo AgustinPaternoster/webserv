@@ -35,13 +35,13 @@ void CgiTask::sendResponse(t_cgi_job& task)
     size_t separator_pos = full_cgi_output.find("\r\n\r\n");
     if (separator_pos == std::string::npos) {
           std::cerr << "[CGI ERROR] Respuesta CGI sin separador de cuerpo.\n";
-        // enviar una respuesta 500 Internal Server Error
         return;
     }
+    std::string cgi_headers = full_cgi_output.substr(0, separator_pos);
     std::string cgi_body = full_cgi_output.substr(separator_pos + 4);
     size_t body_size = cgi_body.size();
     ss << "HTTP/1.1 200 OK\r\n";
-    ss << "Content-Type: text/html\r\n";
+    ss << cgi_headers << "\r\n";
     ss << "Content-Length: " << body_size << "\r\n";
     ss << "Connection: close\r\n";
     ss << "\r\n";
