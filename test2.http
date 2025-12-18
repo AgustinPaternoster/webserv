@@ -59,7 +59,7 @@ GET http://{{host}}/upload/
 
 # TEST 3.1: POST - Subir Archivo
 # Objetivo: Crear un recurso nuevo.
-POST http://{{host}}/uploads/test_http.txt
+POST http://{{host}}/upload/test_http.txt
 Content-Type: {{contentType}}
 
 Este es un archivo creado desde el archivo .http para probar el POST.
@@ -69,14 +69,14 @@ Este es un archivo creado desde el archivo .http para probar el POST.
 
 # TEST 3.2: GET - Verificar Archivo Subido
 # Objetivo: Leer el archivo que acabamos de crear.
-GET http://{{host}}/upload/hola
+GET http://{{host}}/upload/test_http.txt
 # 🟢 ESPERADO: HTTP/1.1 200 OK (y el texto "Este es un archivo...")
 
 ###
 
 # TEST 3.3: DELETE - Borrar Archivo
 # Objetivo: Eliminar el recurso.
-DELETE http://{{host}}/upload/hola
+DELETE http://{{host}}/upload/test_http.txt
 # 🟢 ESPERADO: HTTP/1.1 200 OK o 204 No Content
 
 ###
@@ -122,4 +122,4 @@ GET http://localhost:8090/index2.html
 # ==============================================================================
 # No se recomienda hacer el test de 12MB desde este archivo de texto porque
 # puede bloquear el editor. Para el error 413, usa el comando curl en terminal:
-# curl -v -X POST -H "Expect:" --data-binary @bigfile http://localhost:8080/uploads/
+# curl -v -X POST -H "Expect:" --data-binary @bigfile http://localhost:8080/upload/

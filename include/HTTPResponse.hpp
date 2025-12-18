@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:24:59 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/17 19:06:35 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/18 13:14:57 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,8 +84,8 @@ class HttpResponse
 			bool			isvalidmethod(HttpRequest par, t_server server);
 			bool			isFile(const std::string &path);
 			bool			isDir(const std::string &path);
-			bool			haveIndex(const std::string &path);
-			std::string		getIndexFile(const std::string &path);
+			bool			haveIndex(const std::string &path, t_server server);
+			std::string		getIndexFile(const std::string &path, t_server server);
 			std::string		autoIndexDir(const std::string &path);
 			std::string		generateError(int code, const t_server& server, const std::string& msg);
 			std::string		build_redict(HttpRequest par, t_server server);
