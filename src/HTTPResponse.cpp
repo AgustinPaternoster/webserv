@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/17 19:50:55 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/18 12:29:35 by apaterno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,6 +285,7 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 	}
 	else
 		path = joinPaths(root, uri);
+	std::cout << path << std::endl;
 	if (flag && !server.locations[0].redirecction.first.empty() && !server.locations[0].redirecction.second.empty())
 		return build_redict(par, server);
 	if (isFile(path))

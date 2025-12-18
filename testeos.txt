@@ -10,4 +10,4 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 ### Error metod not exist
 TRACE   http://localhost:8080 // error
 
-ff
+
