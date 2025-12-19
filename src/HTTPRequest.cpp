@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:02:17 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/19 17:59:13 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/19 19:38:09 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,15 +26,21 @@ HttpRequest HttpRequest::fromString(const std::string& request)
 	RequestParser par;
 
 	par.feedData(request);
-	if (!par.isComplete())
+	if (par.hasError() || !par.getErrorMsg().empty())
 	{
 		std::cerr << "Invalid HTTP request" << std::endl;
 		HttpRequest  bad;
-		bad.setUri("/");
-		bad.setFlag(-1);
+		if (par.getErrorMsg() == "Invalid method")
+			bad.setFlag(-2);
+		else
+			bad.setFlag(-1);
 		return bad;
 	}
-	return par.getRequest();
+	if (par.isComplete())
+		return par.getRequest();
+	HttpRequest  incomplete;
+	incomplete.setFlag(-1);
+	return incomplete;
 }
 
 //Getters

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPHeaders.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 20:30:48 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/05 12:26:59 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/12/19 18:45:21 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,15 @@ std::string	HttpHeaders::toString() const
 	for (it = _header.begin(); it != _header.end(); ++it)
 		os << it->first << ": " << it->second << "\r\n";
 	return os.str();
+}
+
+bool HttpHeaders::has(const std::string& key) const 
+{
+    std::string lowerKey = toLower(key);
+    
+    if (_header.find(lowerKey) != _header.end())
+        return true;
+    return false;
 }
 
 const std::map<std::string, std::string>& HttpHeaders::get_all_http() const
