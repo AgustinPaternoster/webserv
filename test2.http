@@ -112,7 +112,7 @@ DELETE http://{{host}}/methods/index.html
 
 # TEST 5.1: Segundo Servidor
 # Objetivo: Verificar que el puerto 8081 responde independientemente.
-GET http://localhost:8090/index2.html
+GET http://localhost:8070/
 # 🟢 ESPERADO: HTTP/1.1 200 OK
 
 ###

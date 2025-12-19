@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 20:15:11 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/17 19:05:50 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/19 17:45:27 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class HttpRequest
 			std::string	_version; //HTTP/1.1
 			std::string	_body; //optional
 			HttpHeaders _headers;
+			int			_flag_error;
 	public:
 			HttpRequest();
 			~HttpRequest();
@@ -42,14 +43,15 @@ class HttpRequest
 			const std::string& getVersion() const;
 			const std::string& getBody() const;
 			const HttpHeaders& getHeaders() const;
-
 			HttpHeaders& getHeaders();
+			int getFlag();
 			//Setters
 			void	setMethod(const std::string& method);
 			void	setUri(const std::string& uri);
 			void	setVersion(const std::string& version);
 			void	setHeaders(const HttpHeaders& headers);
 			void	setBody(const std::string& body);
+			void	setFlag(int code);
 			std::string	getPort() const;
 
 			//Utils
