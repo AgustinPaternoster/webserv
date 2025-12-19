@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:02:17 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/19 17:45:28 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/19 17:59:13 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ HttpRequest HttpRequest::fromString(const std::string& request)
 		std::cerr << "Invalid HTTP request" << std::endl;
 		HttpRequest  bad;
 		bad.setUri("/");
-		bad.se
-		return par.getRequest();
+		bad.setFlag(-1);
+		return bad;
 	}
 	return par.getRequest();
 }
