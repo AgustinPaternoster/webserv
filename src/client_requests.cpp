@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/19 17:45:26 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/19 19:35:29 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,8 @@ int	process_request(std::vector<struct pollfd> &poll_fds,
 			t_server server = config.locationRouter(getServerPort(poll_fds[i].fd), par.getUri());
 			if (par.getFlag() == -1)
 				res_response =response.generateError(400, server, "Bad Request");
+			else if (par.getFlag() == -2)
+				res_response =response.generateError(501, server, "Method not implemented");
 			else if(!server.locations.empty() && !server.locations[0].cgi_extension.first.empty())
 			{
 				

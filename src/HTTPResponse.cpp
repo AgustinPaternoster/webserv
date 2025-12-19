@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/18 14:42:08 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/19 19:40:49 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,7 +285,6 @@ std::string	HttpResponse::handle_get(HttpRequest par, t_server server, int flag)
 	}
 	else
 		path = joinPaths(root, uri);
-	std::cout << path << std::endl;
 	if (flag && !server.locations[0].redirecction.first.empty() && !server.locations[0].redirecction.second.empty())
 		return build_redict(par, server);
 	if (isFile(path))
@@ -364,15 +363,18 @@ std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag
 		std::string aux = uri;
 		if (flag && aux.find(server.locations[0].path) == 0)
 			aux = aux.substr(server.locations[0].path.size() - 1);
-		base_path = joinPaths(server.root, uri);
+		base_path = joinPaths(server.root, aux);
 	}
+
 	std::string finalPath;
 	std::string filename;
+	bool		uriIsDirec = (uri[uri.size() - 1] == '/');
 	
-	if (isDir(base_path)) //directory
+	if (isDir(base_path) || uriIsDirec) //directory
 	{
 		std::string uri_name = "";
 		size_t pos_2 = uri.find_last_of('/');
+
 		if (pos_2 != std::string::npos && pos_2 != uri.size() - 1)
 			uri_name = uri.substr(pos_2 + 1);
 		if (!uri_name.empty())
@@ -383,7 +385,10 @@ std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag
 			ss << time(0);
 			filename = "post_" + ss.str() + ".txt";
 		}
-		finalPath = joinPaths(base_path, filename);
+		if (isDir(base_path))
+             finalPath = joinPaths(base_path, filename);
+		else
+			finalPath = joinPaths(base_path, filename);
 	}
 	else //file
 	{
@@ -398,18 +403,22 @@ std::string	HttpResponse::handle_post(HttpRequest par, t_server server, int flag
 	std::ofstream file(finalPath.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
 	if (file.is_open())
 	{
-		file << par.getBody();
+		file.write(par.getBody().c_str(), par.getBody().size());
+		if (file.bad() || file.fail()) 
+		{
+			file.close();
+			return generateError(500, server, "Internal Server Error: Write failed (Disk full?)");
+		}
 		file.close();
 		_statusCode = 201;
 		_reason = HttpStatusCode::getReason(201);
 
-		std::string uri_aux = uri;
-        if (!uri.empty() && uri_aux[uri_aux.length() - 1] != '/')
-            uri_aux += '/';
-        if (isDir(base_path))
-            getHeaders().set_http("Location", uri_aux + filename);
+		std::string locationval;
+		if (uriIsDirec)
+			locationval = uri + filename;
 		else
-			getHeaders().set_http("Location", uri);
+			locationval = uri;
+		getHeaders().set_http("Location", locationval);
 		getHeaders().set_http("Server", "Webserv/1.0");
 		setBody("Resource created successfully");
 		setContent("text/plain");

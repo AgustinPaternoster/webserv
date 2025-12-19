@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 16:17:27 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/19 18:06:50 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/19 19:01:28 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,7 +197,7 @@ bool	RequestParser::parseRequestLine(const std::string& line)
 	}
 	if (!isValidMethod(method))
 	{
-		_error = "Invalid method: " + method;
+		_error = "Invalid method";
 		return false;
 	}
 
@@ -259,14 +259,27 @@ bool RequestParser::isValidHeaderValue(const std::string& value)
 bool	RequestParser::parseHeader(const std::string& line)
 {
 	if (line.empty() || line == "\r")
+	{
+		if (_request.getVersion() == "HTTP/1.1" && !_request.getHeaders().has("Host"))
+        {
+            _error = "HTTP/1.1 requires a Host header";
+            return false;
+        }
 		return true;
-	
+	}
+
 	size_t pos = line.find(':');
 	if (pos == std::string::npos)
 	{
 		_error = "No ':' found in header line";
 		return false;
 	}
+	
+	if (pos > 0 && (line[pos - 1] == ' ' || line[pos - 1] == '\t'))
+    {
+        _error = "Space before colon is not allowed (OWS)";
+        return false;
+    }
 
 	std::string name = line.substr(0, pos); //get name
 	std::string value = line.substr(pos + 1);
@@ -299,9 +312,15 @@ bool	RequestParser::parseHeader(const std::string& line)
 		_error = "Invalid character in header value";
 		return false;
 	}
+	std::string lName = toLower(name);
+
+    if (lName == "host" && _request.getHeaders().has("Host"))
+    {
+         _error = "Multiple Host headers forbidden in HTTP/1.1";
+         return false;
+    }
 	_request.getHeaders().set_http(name, value);
 
-	std::string lName = toLower(name);
 	if (lName == "content-length")
 	{
 		char *end_ptr = NULL;

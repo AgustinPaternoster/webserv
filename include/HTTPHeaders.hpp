@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPHeaders.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nikitadorofeychik <nikitadorofeychik@st    +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 20:16:22 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/11/04 11:53:04 by nikitadorof      ###   ########.fr       */
+/*   Updated: 2025/12/19 18:44:33 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ class HttpHeaders
 
 			//booleans
 			bool		has_http(const std::string& name) const;
+			bool 		has(const std::string& key) const;
 			bool		is_empty() const;
 
 			//aux
