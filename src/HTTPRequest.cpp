@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:02:17 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/18 13:16:58 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/19 17:59:13 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPRequest.hpp"
 #include "HTTPRequestParser.hpp"
 
-HttpRequest::HttpRequest() : _version("HTTP/1.1")
+HttpRequest::HttpRequest() : _version("HTTP/1.1"), _flag_error(0)
 {
 }
 
@@ -29,7 +29,10 @@ HttpRequest HttpRequest::fromString(const std::string& request)
 	if (!par.isComplete())
 	{
 		std::cerr << "Invalid HTTP request" << std::endl;
-		return HttpRequest();
+		HttpRequest  bad;
+		bad.setUri("/");
+		bad.setFlag(-1);
+		return bad;
 	}
 	return par.getRequest();
 }
@@ -65,6 +68,11 @@ HttpHeaders& HttpRequest::getHeaders()
 	return (_headers);
 }
 
+int HttpRequest::getFlag()
+{
+	return (_flag_error);
+}
+
 //Setters
 void	HttpRequest::setMethod(const std::string& method)
 {
@@ -74,6 +82,11 @@ void	HttpRequest::setMethod(const std::string& method)
 void	HttpRequest::setUri(const std::string& uri)
 {
 	_uri = uri;
+}
+
+void	HttpRequest::setFlag(int code)
+{
+	_flag_error = code;
 }
 
 void	HttpRequest::setVersion(const std::string& version)

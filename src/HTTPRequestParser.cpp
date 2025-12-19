@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 16:17:27 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/17 19:13:34 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/19 18:06:50 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,11 @@ bool	RequestParser::parseRequestLine(const std::string& line)
 	std::string method = line.substr(0, fSpace);
 	std::string uri = line.substr(fSpace + 1, sSpace - fSpace - 1);
 	std::string	version = line.substr(sSpace + 1);
-
+	if (version.find(' ') != std::string::npos)
+	{
+    	_error = "Request line has too many arguments";
+    	return false;
+	}
 	if (method.empty())
 	{
 		_error = "Error method";
