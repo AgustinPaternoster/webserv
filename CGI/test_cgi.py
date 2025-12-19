@@ -2,6 +2,8 @@
 
 import os
 import sys
+import time
+
 
 # Definición de la secuencia de nueva línea estándar de HTTP/CGI
 CRLF = "\r\n"

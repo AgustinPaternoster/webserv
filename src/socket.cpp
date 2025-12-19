@@ -11,7 +11,41 @@
 /* ************************************************************************** */
 
 #include "Socket.hpp"
-#include "CgiTasks.hpp"
+
+
+void check_cgi_timeouts(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs) {
+    time_t now = time(NULL);
+    const int TIMEOUT_LIMIT = 30;
+
+    std::vector<int> active_fds = cgiJobs.getAllReadFds(); 
+
+    for (size_t i = 0; i < active_fds.size(); i++) {
+        int fd = active_fds[i];
+        t_cgi_job &task = cgiJobs.getCgiTask(fd);
+
+        if (now - task.start_time > TIMEOUT_LIMIT) {
+            std::cerr << "[CGI TIMEOUT] El proceso " << task.pid << " ha excedido el tiempo." << std::endl;
+
+            HttpResponse response;
+            std::string respos = response.generateError(504, task.server, "Gateway Timeout");
+            send(task.client_fd, respos.c_str(), respos.size(), 0);
+
+            kill(task.pid, SIGKILL); 
+            waitpid(task.pid, NULL, 0);
+			int client_fd = task.client_fd;
+			if (fd != -1) close(fd);
+            if (client_fd != -1) close(client_fd);
+			for (size_t j = 0; j < poll_fds.size(); j++) {
+                if (poll_fds[j].fd == fd || poll_fds[j].fd == client_fd) {
+                    poll_fds[j].fd = -1;
+                    poll_fds[j].revents = 0;
+                }
+            }
+			cgiJobs.removeCgiTask(fd);
+
+        }
+    }
+}
 
 Socket::Socket(): socket_fd(-1), server_info(NULL) {
 	
@@ -144,6 +178,8 @@ int	Socket::webserver_init(Config &config) {
 		if(event_ready == 2)
 			continue;
 		connect_to_clients(poll_fds, sockets, client_requests, config);
+		check_cgi_timeouts(poll_fds,config.CgiJobs);
+		clean_poll_fd(poll_fds);
 	}
 
 	for (size_t i = 0; i < sockets.size(); i++) {

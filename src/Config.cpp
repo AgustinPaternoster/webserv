@@ -29,7 +29,7 @@ Config::Config(const char *path)
 {
     _openFile(path);
     _parseFile();
-
+    _checkduplicatedServer();
 }
 
 Config::Config(const Config& other)
@@ -397,4 +397,18 @@ std::string Config::_getLocation(std::string uri)
     if (query_start_pos == std::string::npos) 
         return uri;
     return uri.substr(0, query_start_pos);
+}
+
+void Config::_checkduplicatedServer(void)
+{
+    std::string port;
+    for(int i = 0; i < _servers.size() ; i++)
+    {
+        port = _servers[i].port;
+        for (int j = 0; j < i ; j++)
+        {
+            if(_servers[j].port == port)
+                throw std::invalid_argument(SERVER_DUPLICATED_ERROR);
+        }
+    }
 }

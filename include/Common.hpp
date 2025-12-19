@@ -23,6 +23,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include <ctime>
 
 
 // Errores
@@ -30,6 +31,7 @@
 #define ERROR_FILE_NOT_OPEN "the specified file could not be opened."
 #define CONFIG_NO_SERVER_ERROR "Configuration file must define at least one server."
 #define SERVER_CONFIG_ERROR "There is a failure in the server setup."
+#define SERVER_DUPLICATED_ERROR "There is a duplicated server port."
 //volatile int g_signal = true;
 
 #define  DEFAULTCONFIG "./default_config"
@@ -91,6 +93,7 @@ typedef struct
     bool            header_parsed;    
     bool            body_written;
     t_server        server;
+    time_t          start_time;
 } t_cgi_job;
 
 #endif

@@ -54,6 +54,14 @@ void CgiTask::sendResponse(t_cgi_job& task)
     } else {
         std::cerr << "[CGI ERROR] Fallo al enviar/Escritura parcial no manejada en FD " 
                   << task.client_fd << std::endl;
+    } 
+}
+
+std::vector<int> CgiTask::getAllReadFds(void)
+{
+    std::vector<int> fds;
+    for (std::map<int, t_cgi_job>::iterator it = _cgiJobs.begin(); it != _cgiJobs.end(); ++it) {
+        fds.push_back(it->first); 
     }
-    
+    return fds;
 }

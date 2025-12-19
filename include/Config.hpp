@@ -38,6 +38,7 @@ class Config
         t_server _filterServer(std::string port);
         std::string _getLocation(std::string uri);
         t_location _findSpecificLocation(std::string location,  t_server &server);
+        void _checkduplicatedServer(void);
     };
 
 #endif

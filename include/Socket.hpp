@@ -13,6 +13,9 @@
 #pragma once
 
 #include "Config.hpp"
+#include "CgiTasks.hpp"
+#include "HTTPResponse.hpp"
+#include "HttpUtils.hpp"
 
 extern int g_signal;
 

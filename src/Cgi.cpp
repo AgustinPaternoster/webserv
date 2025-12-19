@@ -174,6 +174,7 @@ int Cgi::CgiHandler(CgiTask &cgijobs)
         cgiTask.client_fd = _poll_fds[_poll_id].fd;
         cgiTask.pid = pid;
         cgiTask.header_parsed = false;
+        cgiTask.start_time = time(NULL);
         
         if(_envVar["REQUEST_METHOD"] == "GET")
         {
