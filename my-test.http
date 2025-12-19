@@ -67,3 +67,6 @@ error=crash
 
 ### error
 GET http://localhost:8080/cgi-bin/cgi-error.py?error=crash
+
+### error
+GET http://localhost:8080/cgi-bin/cgi-error.py?error=bad_header

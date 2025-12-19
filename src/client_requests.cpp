@@ -80,14 +80,22 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
             int status;
             waitpid(cgi_task.pid, &status, 0);
             
-            if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
-                cgiJobs.sendResponse(cgi_task);
-            else {
-                std::string respos = response.generateError(500, cgi_task.server, "CGI Script Error");
-                send(client_fd, respos.c_str(), respos.size(), 0);
+            if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+			{
+				std::cerr << "⚠️ El script terminó con error code: " << WEXITSTATUS(status) << std::endl;
+        		std::string respos = response.generateError(500, cgi_task.server, "CGI Execution Error");
+        		send(client_fd, respos.c_str(), respos.size(), 0);
+			}
+            else if(!cgi_task.header_parsed)
+			{
+				std::cerr << "⚠️ El script terminó sin enviar cabeceras válidas." << std::endl;
+        		std::string respos = response.generateError(500, cgi_task.server, "Invalid CGI Response");
+        		send(client_fd, respos.c_str(), respos.size(), 0);
             }
+			else
+				cgiJobs.sendResponse(cgi_task);
 
-			
+
             cleanupTask(poll_fds, cgiJobs,  current_fd, client_fd);
             return;
         }
@@ -101,12 +109,31 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
     }
 	if (revents & (POLLERR | POLLHUP | POLLNVAL))
 	{
-		if (!cgi_task.cgi_output_buffer.empty()) {
-			cgiJobs.sendResponse(cgi_task);
-		} else {
-			std::string respos = response.generateError(500, cgi_task.server, "CGI Pipe Closed Unexpectedly");
-			send(client_fd, respos.c_str(), respos.size(), 0);
-		}
+		int status;
+		waitpid(cgi_task.pid, &status, 0);
+		if (WIFEXITED(status) && WEXITSTATUS(status) != 0) 
+        {
+            std::cerr << "[CGI] Crash detectado (Exit " << WEXITSTATUS(status) << "). Enviando 500." << std::endl;
+            std::string respos = response.generateError(500, cgi_task.server, "CGI Script Crash");
+            send(client_fd, respos.c_str(), respos.size(), 0);
+        }
+		else if (WIFSIGNALED(status))
+        {
+            std::cerr << "[CGI] Proceso muerto por señal. Enviando 500." << std::endl;
+            std::string respos = response.generateError(500, cgi_task.server, "CGI Terminated by Signal");
+            send(client_fd, respos.c_str(), respos.size(), 0);
+        }
+		else if (!cgi_task.header_parsed)
+        {
+            std::cerr << "[CGI] Respuesta incompleta. Enviando 500." << std::endl;
+            std::string respos = response.generateError(500, cgi_task.server, "Invalid CGI Headers");
+            send(client_fd, respos.c_str(), respos.size(), 0);
+        }
+		else 
+        {
+            std::cout << "[CGI] Éxito. Enviando respuesta acumulada." << std::endl;
+            cgiJobs.sendResponse(cgi_task);
+        }
 		cleanupTask(poll_fds, cgiJobs,  current_fd, client_fd);
 	}
 }

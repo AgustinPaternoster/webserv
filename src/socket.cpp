@@ -15,7 +15,7 @@
 
 void check_cgi_timeouts(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs) {
     time_t now = time(NULL);
-    const int TIMEOUT_LIMIT = 30;
+    const int TIMEOUT_LIMIT = 15;
 
     std::vector<int> active_fds = cgiJobs.getAllReadFds(); 
 
