@@ -4,6 +4,7 @@ import os
 import sys
 import time
 
+time.sleep(60)
 
 # Definición de la secuencia de nueva línea estándar de HTTP/CGI
 CRLF = "\r\n"
