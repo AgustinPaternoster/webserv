@@ -30,6 +30,8 @@ std::string manageMethodError(int status, HttpResponse &response, t_server &serv
 		respon = response.generateError(status,server, "Internal Server Error");
 	if(status == 501)
 		respon = response.generateError(status,server, "Method not implemented");
+	if(status == 403)
+		respon = response.generateError(status, server, "403 Forbidden: Permission denied");
 	return(respon);
 }
 

@@ -16,6 +16,16 @@ GET  http://localhost:8080/tes.io
 ###
 GET  http://localhost:8070
 
+### error 403
+GET http://localhost:8080/cgi-bin/tester.py
+
+
+### error 404
+GET http://localhost:8080/cgi-bin/test.py
+
+### error 403
+GET http://localhost:8080/cgi-bin/test/
+
 ### test full cgi
 GET http://localhost:8080/cgi-bin/test_cgi.py
 

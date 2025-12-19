@@ -96,7 +96,7 @@ int Cgi::_extracScriptName(void)
     size_t ext_pos = uri.find(cgi_ext, cgi_prefix.size());
     if(ext_pos == std::string::npos)
     {
-        return(404);
+        
     }
 
     size_t script_end = ext_pos + cgi_ext.size();
@@ -105,25 +105,23 @@ int Cgi::_extracScriptName(void)
         char next_char = uri[script_end];
         if(next_char != '/' && next_char != '?')
         {
-                return(404);
+            _envVar["SCRIPT_NAME"] = uri;
+            return (200);
+        }        
+        _envVar["SCRIPT_NAME"] = uri.substr(0, script_end);
+        std::string remaining_path = uri.substr(script_end);
+        size_t query_pos = remaining_path.find('?');
+
+        if(query_pos != std::string::npos)
+        {
+            _envVar["PATH_INFO"] = remaining_path.substr(0, query_pos);
+            _envVar["QUERY_STRING"] = remaining_path.substr(query_pos + 1);
         }
         else
         {
-            _envVar["SCRIPT_NAME"] = uri.substr(0, script_end);
-            std::string remaining_path = uri.substr(script_end);
-            size_t query_pos = remaining_path.find('?');
-
-            if(query_pos != std::string::npos)
-            {
-                _envVar["PATH_INFO"] = remaining_path.substr(0, query_pos);
-                _envVar["QUERY_STRING"] = remaining_path.substr(query_pos + 1);
-            }
-            else
-            {
-                _envVar["PATH_INFO"] = remaining_path;
-                _envVar["QUERY_STRING"] = "";
-            }
-        }   
+            _envVar["PATH_INFO"] = remaining_path;
+            _envVar["QUERY_STRING"] = "";
+        }
     }
     else
     {
@@ -139,7 +137,9 @@ int Cgi::CgiHandler(CgiTask &cgijobs)
     int status = _allowMethod();
     if(status != 200)
         return(status);
-
+    status = _checkFilepath();
+    if(status !=200)
+        return(status);
     struct pollfd cgi_poll_item;
     t_cgi_job cgiTask;
     
@@ -415,4 +415,36 @@ methods Cgi::_convertStringToEnum(const std::string& method)
     if (method == "PUT")    return PUT;
     if (method == "PATCH")  return PATCH;
     return(UNKNOWN);
+}
+
+int Cgi::_checkFilepath(void)
+{
+    int status = 200;
+    const char *path = _getScriptPath();
+    struct stat st;
+    if (stat(path, &st) != 0)
+        status = 404;
+    else if (S_ISDIR(st.st_mode))
+        status = 403;
+    else if(!_checkValidExtension(path))
+        status = 404;
+    else if (access(path, R_OK | X_OK) != 0)
+        status = 403;
+    delete[] path;
+    return (status);
+}
+
+bool Cgi::_checkValidExtension(std::string path)
+{
+    std::string allowed_ext = _config.locations[0].cgi_extension.first;
+    size_t dot_pos = path.find_last_of('.');
+    if (dot_pos == std::string::npos || dot_pos == path.length() - 1) {
+        return false;
+    }
+    std::string file_ext = path.substr(dot_pos);
+    if (file_ext == allowed_ext) {
+        return true;
+    }
+    return false;
+
 }
