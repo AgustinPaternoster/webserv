@@ -86,6 +86,8 @@ void handle_cgi_read(std::vector<struct pollfd> &poll_fds, CgiTask &cgiJobs, siz
                 std::string respos = response.generateError(500, cgi_task.server, "CGI Script Error");
                 send(client_fd, respos.c_str(), respos.size(), 0);
             }
+
+			
             cleanupTask(poll_fds, cgiJobs,  current_fd, client_fd);
             return;
         }

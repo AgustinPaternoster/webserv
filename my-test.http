@@ -62,3 +62,8 @@ Content-Length: 261
 
 ### error
 GET http://localhost:8080/cgi-bin/cgi-error.py?error=loop
+
+error=crash
+
+### error
+GET http://localhost:8080/cgi-bin/cgi-error.py?error=crash

@@ -72,7 +72,7 @@ int	poll_events_ready(std::vector<struct pollfd> &poll_fds) {
 
 		int events;
 		
-		events = poll(poll_fds.data(), poll_fds.size(), -1);
+		events = poll(poll_fds.data(), poll_fds.size(), 1000);
 		if (events == -1) {
 			
 			if (errno == EINTR && g_signal == false) {
