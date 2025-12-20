@@ -411,4 +411,9 @@ void Config::_checkduplicatedServer(void)
                 throw std::invalid_argument(SERVER_DUPLICATED_ERROR);
         }
     }
+    for (size_t i = 0; i < _servers.size(); ++i) {
+        if (_servers[i].port.empty()) {
+            throw std::invalid_argument(SERVER_NO_PORT);
+        }
+    }
 }

@@ -32,6 +32,7 @@
 #define CONFIG_NO_SERVER_ERROR "Configuration file must define at least one server."
 #define SERVER_CONFIG_ERROR "There is a failure in the server setup."
 #define SERVER_DUPLICATED_ERROR "There is a duplicated server port."
+#define SERVER_NO_PORT "There is a server without port."
 //volatile int g_signal = true;
 
 #define  DEFAULTCONFIG "./default_config"
