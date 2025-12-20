@@ -68,7 +68,8 @@ void Config::_parseFile(void)
     while (std::string::npos != start)
     {
         pos = start + validDirectives.at(12).size();
-        _parserServerConfig(_extracDirective(_configFile, pos));
+        std::string tmp = _extracDirective(_configFile, pos);
+        _parserServerConfig(tmp);
         start = _configFile.find(validDirectives.at(12), pos);
     }
 }
@@ -88,7 +89,12 @@ void Config::_parserServerConfig(std::string server)
         if (pos >= server.size())
             break;
         end = server.find(32,pos);
+        if (std::string::npos == end)
+            throw std::invalid_argument(SERVER_CONFIG_ERROR);
         directive = server.substr(pos, end - pos);
+        size_t checkDirective = directive.find(';',0);
+        if (std::string::npos !=  checkDirective)
+            throw std::invalid_argument(SERVER_CONFIG_ERROR);
         pos = end;
         _fillServerStruct(pos,serverTmp,server,_getKeyfromValue(directive));
         pos++;
