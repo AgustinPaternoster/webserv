@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:26:45 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/20 13:24:56 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/12/20 13:38:35 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,9 @@ int	poll_events_ready(std::vector<struct pollfd> &poll_fds) {
 		if (events == -1) {
 			
 			if (errno == EINTR && g_signal == false) {
-				std::cerr << "\nSignal INTERRUPTION CALLED\n";
+				system("clear");
+				std::cerr << "\n\033[092mSignal Interruption called:\n" 
+					<< "\n...Thanks for using our server.\033[0m\n\n";
 				return (1);
 			}
 			else if (errno != EINTR) {
