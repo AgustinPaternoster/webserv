@@ -24,7 +24,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <ctime>
-
+#include <iomanip>
 
 // Errores
 #define ARG_ERROR_MSG "Provide either one argument with the configuration file path, or none to use the default configuration."
@@ -95,5 +95,7 @@ typedef struct
     t_server        server;
     time_t          start_time;
 } t_cgi_job;
+
+void	print_banner();
 
 #endif
