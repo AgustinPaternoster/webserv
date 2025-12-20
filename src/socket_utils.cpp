@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:26:45 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/15 17:26:29 by apaterno         ###   ########.fr       */
+/*   Updated: 2025/12/20 12:09:40 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ int	socket_creation(std::vector<Socket *> &sockets, std::vector<t_server> &serve
 			delete socket;
         	return (1);
     	}
-		std::cout << "Socket in PORT: " << socket->getport() << std::endl;
-		std::cout << "Socket fd: " << socket->getsocket_fd() << std::endl;
+		std::cout << "Socket in PORT: " << socket->getport();
+		std::cout << " | fd: " << socket->getsocket_fd() << std::endl;
 			sockets.push_back(socket);
 	}
 	return (0);

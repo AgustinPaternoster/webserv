@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:20:27 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/11/05 13:04:53 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/12/20 12:05:23 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,12 +167,11 @@ int	Socket::webserver_init(Config &config) {
 	add_sockets_poll(sockets, poll_fds);
 	std::signal(SIGINT, signal_handler);
 	
+	std::cout << "🕐 Waiting for connections..." << std::endl;
+	
 	while (g_signal) {
-		
-		std::cout << "🕐 Waiting for connections..." << std::endl;
-		
+			
 		int event_ready = poll_events_ready(poll_fds);
-		
 		if(event_ready == 1)
 			break ;
 		if(event_ready == 2)
