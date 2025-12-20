@@ -6,7 +6,7 @@
 /*   By: apaterno <apaterno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:26:45 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/20 12:09:40 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/12/20 12:51:44 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,9 @@ bool	is_listening_socket(int fd, const std::vector<Socket *>& sockets) {
 }
 
 int	socket_creation(std::vector<Socket *> &sockets, std::vector<t_server> &servers) {
-	
+		
+	system("clear");
+	std::cout << "\033[96m################################\n";
 	for (size_t i = 0; i < servers.size(); i++) {
 	
 		Socket	*socket = new Socket();
@@ -42,10 +44,11 @@ int	socket_creation(std::vector<Socket *> &sockets, std::vector<t_server> &serve
 			delete socket;
         	return (1);
     	}
-		std::cout << "Socket in PORT: " << socket->getport();
-		std::cout << " | fd: " << socket->getsocket_fd() << std::endl;
+		std::cout << "# " << "Socket in PORT: " << socket->getport()
+			<< " | fd: " << socket->getsocket_fd() << " #" << std::endl;
 			sockets.push_back(socket);
 	}
+	std::cout << "################################\033[0m\n\n";
 	return (0);
 }
 

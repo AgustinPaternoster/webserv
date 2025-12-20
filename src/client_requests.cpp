@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 15:55:44 by yrodrigu          #+#    #+#             */
-/*   Updated: 2025/12/20 12:16:22 by yrodrigu         ###   ########.fr       */
+/*   Updated: 2025/12/20 13:04:15 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,7 +207,7 @@ void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket
 			if (is_listening_socket(poll_fds[i].fd, sockets)) {
 				
 				int client_fd = sockets[i]->accepting();
-				std::cout << "\e[0;92mNew fd created: client fd = " << client_fd << "\e[0m" << std::endl;
+				std::cout << "\e[0;92mNew fd created: client fd = " << client_fd << "\033[0m" <<std::endl;
 				struct pollfd new_polls;
 				new_polls.fd = client_fd;
 				new_polls.events = POLLIN;
@@ -218,8 +218,8 @@ void	connect_to_clients(std::vector<struct pollfd> &poll_fds, std::vector<Socket
 				handle_cgi_read(poll_fds, cgijobs, i);
 			}
 			else {
-				std::cout << "\e[0;92mClient fd " << poll_fds[i].fd
-					<< ": Able to send data." << "\e[0m"  << std::endl;
+				std::cout << "\e[0;92mClient fd : " << poll_fds[i].fd 
+					<< "\033[0m" << " sending data..." << std::endl;	
 				int process_status = process_request(poll_fds, client_requests, i, config);
 				if (process_status)
 					continue ;
