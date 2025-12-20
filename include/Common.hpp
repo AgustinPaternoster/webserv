@@ -96,4 +96,6 @@ typedef struct
     time_t          start_time;
 } t_cgi_job;
 
+void	print_banner();
+
 #endif
