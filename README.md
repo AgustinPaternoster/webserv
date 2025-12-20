@@ -51,7 +51,7 @@ make
 Para iniciar el servidor, proporciona la ruta a un archivo de configuración .conf o [file]
 ./webserv [path/to/config_file]
 
-### 👥 Autores
+## 👥 Autores
 Este proyecto fue desarrollado en equipo por:
 * 	Agustin Paternoster [apaterno]
 * 	Yery Alexander Rodriguez Gonzalez [yrodrigu]
