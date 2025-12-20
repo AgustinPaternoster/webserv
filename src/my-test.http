@@ -3,6 +3,9 @@
 ###
 GET  http://localhost:8090
 
+###
+XXX  http://localhost:8090
+
 
 ### test redirection
 GET http://localhost:8080/allurl/
@@ -15,6 +18,9 @@ GET  http://localhost:8080/tes.io
 
 ###
 GET  http://localhost:8070
+
+###
+POST  http://localhost:8070
 
 ### error 404
 GET http://localhost:8080/cgi-bin/tester.py
@@ -39,7 +45,7 @@ DELETE  http://localhost:8080/cgi-bin/test_cgi.py
 TRACE   http://localhost:8080/cgi-bin/test_cgi.py
 
 ### Error metod not exist
-TRACE   http://localhost:8080
+RACE   http://localhost:8080
 
 
 ### Solicitud POST para enviar datos al script CGI

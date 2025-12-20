@@ -1,7 +1,7 @@
 NAME = webserv
 CC = c++
-#CFLAGS = -Wall -Werror -Wextra -std=c++98 -MMD -MP -fsanitize=address -g
-CFLAGS = -std=c++98 -MMD -MP -fsanitize=address -g
+CFLAGS = -Wall -Werror -Wextra -std=c++98 -MMD -MP -fsanitize=address -g
+#CFLAGS = -std=c++98 -MMD -MP -fsanitize=address -g
 SRC_PATH = ./src/
 SRC_FILES = main.cpp socket.cpp Config.cpp socket_utils.cpp client_requests.cpp HTTPHeaders.cpp HTTPRequest.cpp HTTPRequestParser.cpp\
 				HTTPResponse.cpp HTTPStatusCode.cpp HttpUtils.cpp Cgi.cpp CgiTasks.cpp

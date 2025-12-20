@@ -402,10 +402,10 @@ std::string Config::_getLocation(std::string uri)
 void Config::_checkduplicatedServer(void)
 {
     std::string port;
-    for(int i = 0; i < _servers.size() ; i++)
+    for(size_t i = 0; i < _servers.size() ; i++)
     {
         port = _servers[i].port;
-        for (int j = 0; j < i ; j++)
+        for (size_t j = 0; j < i ; j++)
         {
             if(_servers[j].port == port)
                 throw std::invalid_argument(SERVER_DUPLICATED_ERROR);

@@ -74,30 +74,30 @@ std::string	HttpStatusCode::getReason(int code)
 
 bool HttpStatusCode::isInformational(int code)
 {
-	return code >= 100 & code < 200;
+	return ((code >= 100) & (code < 200));
 }
 
 bool HttpStatusCode::isSuccess(int code)
 {
-	return code >= 200 & code < 300;
+	return ((code >= 200) & (code < 300));
 }
 
 bool HttpStatusCode::isRedirection(int code)
 {
-	return code >= 300 & code < 400;
+	return ((code >= 300) & (code < 400));
 }
 
 bool HttpStatusCode::isClientError(int code)
 {
-	return code >= 400 & code < 500;
+	return ((code >= 400) & (code < 500));
 }
 
 bool HttpStatusCode::isServerError(int code)
 {
-	return code >= 500 & code < 600;
+	return ((code >= 500) & (code < 600));
 }
 
 bool HttpStatusCode::isError(int code)
 {
-	return code >= 400 & code < 600;
+	return ((code >= 400) & (code < 600));
 }
