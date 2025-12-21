@@ -4,8 +4,6 @@
 # Segunda comprobacion -> Error 405 -> Method not implemented
 	curl -v -X PUT http://localhost:8080/methods/index.htm
 
-# Test redirect
-
 # Test outoindex=off
 	curl -v GET http://localhost:8080/upload
 
@@ -14,3 +12,21 @@
 
 # Test client_max_body_size < request.size()
 	curl -v -X POST -H "Expect:" --data-binary @bigfile http://localhost:8080/uploads/
+
+### TEST CGI NAVEGADOR ###
+
+# Test CGI directorio
+http://localhost:8080/cgi-bin/test/
+
+# Test archivo sin permisos
+http://localhost:8080/cgi-bin/test_np.py
+
+# Test error extension
+http://localhost:8080/cgi-bin/test.php
+
+
+# Test CGI GET
+http://localhost:8080/cgi-bin/test_cgi.py
+
+
+
