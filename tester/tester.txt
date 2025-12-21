@@ -21,12 +21,40 @@ http://localhost:8080/cgi-bin/test/
 # Test archivo sin permisos
 http://localhost:8080/cgi-bin/test_np.py
 
-# Test error extension
-http://localhost:8080/cgi-bin/test.php
-
 
 # Test CGI GET
 http://localhost:8080/cgi-bin/test_cgi.py
+
+# Test CGI Method not Allowed
+curl -v -X DELETE   http://localhost:8080/cgi-bin/test_cgi.py
+
+# Test CGI Method not implemented
+curl -v -X TRACE   http://localhost:8080/cgi-bin/test_cgi.py
+
+# Test CGI time out
+http://localhost:8080/cgi-bin/cgi-error.py?error=loop
+
+# Test CGI script error
+http://localhost:8080/cgi-bin/cgi-error.py?error=crash
+
+# Test CGI wrong headers
+http://localhost:8080/cgi-bin/cgi-error.py?error=bad_header
+
+# Test CGI POST
+curl -X POST http://localhost:8080/cgi-bin/test-post.py \
+     -H "Content-Type: application/json" \
+     -d '{
+    "accion": "procesar_pedido",
+    "id_usuario": 12345,
+    "productos": [
+        {
+            "nombre": "Laptop",
+            "cantidad": 1,
+            "precio": 999.99
+        }
+    ],
+    "nota_adicional": "Entrega urgente requerida."
+}'
 
 
 
