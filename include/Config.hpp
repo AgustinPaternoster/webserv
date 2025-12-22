@@ -39,6 +39,10 @@ class Config
         std::string _getLocation(std::string uri);
         t_location _findSpecificLocation(std::string location,  t_server &server);
         void _checkduplicatedServer(void);
+        int _checkDuplicatesDirectives(int dicrective, std::vector<std::string>& directives_found);
+        int _checkRightDirective(size_t pos, size_t wordLen);
+        int _checkdirective(std::string directive);
+
     };
 
 #endif

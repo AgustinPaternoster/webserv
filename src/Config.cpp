@@ -62,15 +62,21 @@ void Config::_openFile(const char* path)
 void Config::_parseFile(void)
 {
     size_t pos = 0;
-    std::size_t start = _configFile.find(validDirectives.at(12), pos);
-    if (std::string::npos == start)
-        throw std::invalid_argument(CONFIG_NO_SERVER_ERROR);
+    std::string tosearch = validDirectives.at(12);
+    std::size_t start = _configFile.find(tosearch, pos);
+    if (std::string::npos != start)
+    {
+        if(!_checkRightDirective(start, tosearch.length()))
+            throw std::invalid_argument(WRONG_DIRECTIVE);
+    }
     while (std::string::npos != start)
     {
         pos = start + validDirectives.at(12).size();
         std::string tmp = _extracDirective(_configFile, pos);
         _parserServerConfig(tmp);
         start = _configFile.find(validDirectives.at(12), pos);
+        if(!_checkRightDirective(start, tosearch.length()))
+            throw std::invalid_argument(WRONG_DIRECTIVE);
     }
 }
 
@@ -92,6 +98,8 @@ void Config::_parserServerConfig(std::string server)
         if (std::string::npos == end)
             throw std::invalid_argument(SERVER_CONFIG_ERROR);
         directive = server.substr(pos, end - pos);
+        // if(!_checkdirective(directive))
+        //     throw std::invalid_argument(WRONG_DIRECTIVE);
         size_t checkDirective = directive.find(';',0);
         if (std::string::npos !=  checkDirective)
             throw std::invalid_argument(SERVER_CONFIG_ERROR);
@@ -148,10 +156,13 @@ void Config::printPorts(void)
  {
     size_t end = 0;
     t_location tmp;
+    std::vector<std::string> directives;
+    
 
     switch (directive)
     {
     case 1:
+        //check duplicated
         end = server.find(';', pos);
         serverTmp.port =_trimText(server.substr(pos, end - pos));
         break;
@@ -176,7 +187,9 @@ void Config::printPorts(void)
         end = pos;
         break;
     default:
-        break;
+        /// cambio //     
+        throw std::invalid_argument(WRONG_DIRECTIVE);
+            break;
     }
     pos = end;
  }
@@ -423,3 +436,45 @@ void Config::_checkduplicatedServer(void)
         }
     }
 }
+
+// int Config::_checkDuplicatesDirectives(int key, std::vector<std::string>& directives_found)
+// {
+    
+//     std::string directive;
+//     std::map<int, std::string>::const_iterator it = validDirectives.find(key);
+//     if (it != validDirectives.end()) {
+//         // Retornamos el valor (el string)
+//         directive = it->second;
+//     }
+//     else
+//         throw std::invalid_argument(SERVER_CONFIG_ERROR);
+//     return (0);
+// }
+
+// cambio // 
+int Config::_checkRightDirective(size_t pos, size_t wordLen)
+ {
+    if (pos >= _configFile.length()) {
+        return true; 
+    }
+    bool prevOk = (pos == 0 || isspace(_configFile[pos - 1]));
+    size_t endPos = pos + wordLen;
+    bool nextOk = (endPos == _configFile.length() || 
+                   isspace(_configFile[endPos]) || 
+                   _configFile[endPos] == '{' || 
+                   _configFile[endPos] == ';');
+
+    return (prevOk && nextOk);
+ }
+
+// cambio //
+ int Config::_checkdirective(std::string directive)
+ {
+    std::map<int, std::string>::const_iterator it;
+    for (it = validDirectives.begin(); it != validDirectives.end(); ++it) {
+        if (it->second == directive) {
+            return true;
+        }
+    }
+    return false;
+ }

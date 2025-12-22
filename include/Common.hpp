@@ -33,6 +33,7 @@
 #define SERVER_CONFIG_ERROR "There is a failure in the server setup."
 #define SERVER_DUPLICATED_ERROR "There is a duplicated server port."
 #define SERVER_NO_PORT "There is a server without port."
+#define WRONG_DIRECTIVE "There is a worong directive"
 //volatile int g_signal = true;
 
 #define  DEFAULTCONFIG "./default_config"
