@@ -33,7 +33,9 @@
 #define SERVER_CONFIG_ERROR "There is a failure in the server setup."
 #define SERVER_DUPLICATED_ERROR "There is a duplicated server port."
 #define SERVER_NO_PORT "There is a server without port."
-#define WRONG_DIRECTIVE "There is a worong directive"
+#define WRONG_DIRECTIVE "There is a wrong directive"
+#define DUPLICATES_DIRECTIVE "There is a duplicated directive"
+#define DUPLICATES_LOCATION "There is a duplicated location"
 //volatile int g_signal = true;
 
 #define  DEFAULTCONFIG "./default_config"

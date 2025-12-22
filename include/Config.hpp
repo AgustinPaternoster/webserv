@@ -22,6 +22,9 @@ class Config
     private:
         std::vector<t_server>   _servers;
         std::string             _configFile;
+        std::vector<std::string> _useDirectives;
+        std::vector<std::string> _useDirectivesL;
+        std::vector<std::string> _useLocatins;
         
         void _openFile(const char* path);
         void _parseFile(void);
@@ -39,7 +42,9 @@ class Config
         std::string _getLocation(std::string uri);
         t_location _findSpecificLocation(std::string location,  t_server &server);
         void _checkduplicatedServer(void);
-        int _checkDuplicatesDirectives(int dicrective, std::vector<std::string>& directives_found);
+        void _checkDuplicatesDirectives(int dicrective);
+        void _checkDuplicatesDirectivesL(int dicrective);
+        void _checkDuplicateLocation(std::string path);
         int _checkRightDirective(size_t pos, size_t wordLen);
         int _checkdirective(std::string directive);
 

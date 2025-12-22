@@ -74,6 +74,7 @@ void Config::_parseFile(void)
         pos = start + validDirectives.at(12).size();
         std::string tmp = _extracDirective(_configFile, pos);
         _parserServerConfig(tmp);
+        _useLocatins.clear();
         start = _configFile.find(validDirectives.at(12), pos);
         if(!_checkRightDirective(start, tosearch.length()))
             throw std::invalid_argument(WRONG_DIRECTIVE);
@@ -98,8 +99,6 @@ void Config::_parserServerConfig(std::string server)
         if (std::string::npos == end)
             throw std::invalid_argument(SERVER_CONFIG_ERROR);
         directive = server.substr(pos, end - pos);
-        // if(!_checkdirective(directive))
-        //     throw std::invalid_argument(WRONG_DIRECTIVE);
         size_t checkDirective = directive.find(';',0);
         if (std::string::npos !=  checkDirective)
             throw std::invalid_argument(SERVER_CONFIG_ERROR);
@@ -108,6 +107,7 @@ void Config::_parserServerConfig(std::string server)
         pos++;
     }
     _servers.push_back(serverTmp);
+    _useDirectives.clear();
 }
 
 std::string Config::_extracDirective(std::string& src, size_t &pos)
@@ -156,25 +156,28 @@ void Config::printPorts(void)
  {
     size_t end = 0;
     t_location tmp;
-    std::vector<std::string> directives;
+
     
 
     switch (directive)
     {
     case 1:
-        //check duplicated
+        _checkDuplicatesDirectives(directive);
         end = server.find(';', pos);
         serverTmp.port =_trimText(server.substr(pos, end - pos));
         break;
     case 2:
+        _checkDuplicatesDirectives(directive);
         end = server.find(';', pos);    
         serverTmp.root = _trimText(server.substr(pos, end - pos));
         break;
     case 3:
+        _checkDuplicatesDirectives(directive);
         end = server.find(';', pos);
         serverTmp.index = _trimText(server.substr(pos, end - pos));
         break;
     case 4:
+        _checkDuplicatesDirectives(directive);
         end = server.find(';', pos);
         serverTmp.client_max_body_size = _trimText(server.substr(pos, end - pos));
         break;
@@ -183,11 +186,12 @@ void Config::printPorts(void)
         break;
     case 6:
         tmp = _parseLocationConfig(_extracDirective(server, pos));
+        _checkDuplicateLocation(tmp.path);
         serverTmp.locations.push_back(tmp);
+        _useDirectivesL.clear();
         end = pos;
         break;
-    default:
-        /// cambio //     
+    default:  
         throw std::invalid_argument(WRONG_DIRECTIVE);
             break;
     }
@@ -237,6 +241,7 @@ void Config::printPorts(void)
                 break;
         end = location.find(32, pos);
         directive = location.substr(pos, end - pos);
+        // XX
         pos = end;
         _fillLocationStruct(pos, locationTmp, location, _getKeyfromValue(directive));
     }
@@ -249,14 +254,17 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
     switch (directive)
     {
     case 2:
+        _checkDuplicatesDirectivesL(directive);
         end = location.find(';', pos);
         locTmp.root = _trimText(location.substr(pos, end - pos));
         break;
     case 3:
+        _checkDuplicatesDirectivesL(directive);
         end = location.find(';', pos);
         locTmp.index = _trimText(location.substr(pos, end - pos));
         break;
     case 4:
+        _checkDuplicatesDirectivesL(directive);
         end = location.find(';', pos);
         locTmp.client_max_body_size = _trimText(location.substr(pos, end - pos));
         break;
@@ -265,6 +273,7 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
         _extracMethods(_trimText(location.substr(pos, end - pos)), locTmp.methods);
         break;
     case 8:
+        _checkDuplicatesDirectivesL(directive);
         end = location.find(';', pos);
         locTmp.autoindex = _trimText(location.substr(pos, end - pos));
         break;
@@ -274,15 +283,18 @@ void Config::_fillLocationStruct(size_t& pos, t_location& locTmp, std::string lo
         locTmp.upload_store = _trimText(location.substr(pos, end - pos));
         break;
     case 10:
+        _checkDuplicatesDirectivesL(directive);
         end = location.find(';', pos);
         locTmp.actions = CGI;
         locTmp.cgi_extension =  _ExtracExten(_trimText(location.substr(pos, end - pos)));
         break;
     case 11:
+        _checkDuplicatesDirectivesL(directive);
         end = location.find(';', pos);
         locTmp.redirecction = _ExtracExten(_trimText(location.substr(pos, end - pos)));
         break;
     default:
+        throw std::invalid_argument(WRONG_DIRECTIVE);
         break;
     }
     pos = end;    
@@ -357,7 +369,7 @@ t_server  Config::locationRouter(std::string port , std::string uri)
         size_t config_len = location_path.size();
         if(req_location.length() >= config_len)
         {
-            std::string locTmp = req_location.substr(0, config_len); // testeo
+            std::string locTmp = req_location.substr(0, config_len);
             if(locTmp == location_path)
             {
                 if(config_len > longest_match_len)
@@ -437,20 +449,41 @@ void Config::_checkduplicatedServer(void)
     }
 }
 
-// int Config::_checkDuplicatesDirectives(int key, std::vector<std::string>& directives_found)
-// {
+void Config::_checkDuplicatesDirectives(int key)
+{
     
-//     std::string directive;
-//     std::map<int, std::string>::const_iterator it = validDirectives.find(key);
-//     if (it != validDirectives.end()) {
-//         // Retornamos el valor (el string)
-//         directive = it->second;
-//     }
-//     else
-//         throw std::invalid_argument(SERVER_CONFIG_ERROR);
-//     return (0);
-// }
+    std::string directive;
+    std::map<int, std::string>::const_iterator it = validDirectives.find(key);
+    if (it != validDirectives.end()) {
+        directive = it->second;
+    }
+    else
+        throw std::invalid_argument(DUPLICATES_DIRECTIVE);
+    for (size_t i = 0; i < _useDirectives.size(); ++i) {
+        if (_useDirectives[i] == directive) {
+            throw std::invalid_argument(DUPLICATES_DIRECTIVE);
+        }
+    }
+    _useDirectives.push_back(directive);
+}
 
+void Config::_checkDuplicatesDirectivesL(int key)
+{
+    
+    std::string directive;
+    std::map<int, std::string>::const_iterator it = validDirectives.find(key);
+    if (it != validDirectives.end()) {
+        directive = it->second;
+    }
+    else
+        throw std::invalid_argument(DUPLICATES_DIRECTIVE);
+    for (size_t i = 0; i < _useDirectivesL.size(); ++i) {
+        if (_useDirectivesL[i] == directive) {
+            throw std::invalid_argument(DUPLICATES_DIRECTIVE);
+        }
+    }
+    _useDirectivesL.push_back(directive);
+}
 // cambio // 
 int Config::_checkRightDirective(size_t pos, size_t wordLen)
  {
@@ -478,3 +511,14 @@ int Config::_checkRightDirective(size_t pos, size_t wordLen)
     }
     return false;
  }
+
+ void Config::_checkDuplicateLocation(std::string path)
+ {
+    
+    for (size_t i = 0; i < _useLocatins.size(); ++i) {
+        if (_useLocatins[i] == path) {
+            throw std::invalid_argument(DUPLICATES_LOCATION);
+        }
+    }
+    _useLocatins.push_back(path);
+}
