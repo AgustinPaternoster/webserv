@@ -27,9 +27,9 @@ $(NAME) : $(OBJS)
 
 clean :
 	rm -fr $(OBJ_PATH)
-	rm webserv
 
 fclean : clean
+	rm webserv
 
 
 re: fclean all
