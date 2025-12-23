@@ -33,4 +33,7 @@ fclean : clean
 
 
 re: fclean all
--include $(DEPS)
+
+#-include $(DEPS)
+
+.PHONY: clean fclean re all
