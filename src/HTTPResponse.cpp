@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/23 13:54:56 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/23 14:06:47 by yrodrigu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,6 +195,10 @@ HttpResponse& HttpResponse::setBodyFile(const std::string& file)
 
 	this->setBody(content);
     
+	std::stringstream ss;
+	ss << content.size();
+	getHeaders().set_http("Content-Length", ss.str());
+
     if (_statusCode == 0) { 
         _statusCode = 200;
         _reason = HttpStatusCode::getReason(200);
@@ -455,7 +459,7 @@ std::string HttpResponse::handle_delete(HttpRequest par, t_server server, int fl
 	if (!isFile(path) && !isDir(path))
 		return generateError(404, server, "404 Not found: File does not exist");
 	if (isDir(path)) //For security dont delete directories
-		return generateError(44030, server, "403 Forbidden: Directory access is disabled");
+		return generateError(403, server, "403 Forbidden: Directory access is disabled");
 	if (access(path.c_str(), W_OK) != 0)
 		return generateError(403, server, "403 Forbidden: Permission denied");
 	std::cout << "Deleting file: " << path << std::endl;
