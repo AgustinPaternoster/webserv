@@ -91,7 +91,7 @@ void Config::_parserServerConfig(std::string server)
         throw std::invalid_argument(SERVER_CONFIG_ERROR);
     while(pos < server.size())
     {
-        while(!isalpha(server[pos]) && pos < server.size())
+        while(!isalpha(server[pos]) && !isdigit(server[pos]) && pos < server.size())
             pos++;
         if (pos >= server.size())
             break;
