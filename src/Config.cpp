@@ -165,6 +165,7 @@ void Config::printPorts(void)
         _checkDuplicatesDirectives(directive);
         end = server.find(';', pos);
         serverTmp.port =_trimText(server.substr(pos, end - pos));
+        _isValidPort(serverTmp.port);
         break;
     case 2:
         _checkDuplicatesDirectives(directive);
@@ -241,7 +242,6 @@ void Config::printPorts(void)
                 break;
         end = location.find(32, pos);
         directive = location.substr(pos, end - pos);
-        // XX
         pos = end;
         _fillLocationStruct(pos, locationTmp, location, _getKeyfromValue(directive));
     }
@@ -521,4 +521,25 @@ int Config::_checkRightDirective(size_t pos, size_t wordLen)
         }
     }
     _useLocatins.push_back(path);
+}
+
+void Config::_isValidPort(const std::string& portStr)
+{
+    if (portStr.empty()) {
+        throw std::invalid_argument(WRONG_PORT);
+    }
+    for (size_t i = 0; i < portStr.length(); ++i) {
+        if (!isdigit(portStr[i])) {
+            throw std::invalid_argument(WRONG_PORT);
+        }
+    }
+
+    long portNum = std::atol(portStr.c_str());
+    if (portNum < 0 || portNum > 65535) {
+        throw std::invalid_argument(WRONG_PORT);
+    }
+    if (portStr.length() > 5 && portNum > 65535) {
+        throw std::invalid_argument(WRONG_PORT);
+    }
+
 }

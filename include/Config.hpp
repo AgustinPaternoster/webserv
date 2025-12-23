@@ -47,6 +47,7 @@ class Config
         void _checkDuplicateLocation(std::string path);
         int _checkRightDirective(size_t pos, size_t wordLen);
         int _checkdirective(std::string directive);
+        void _isValidPort(const std::string& portStr);
 
     };
 

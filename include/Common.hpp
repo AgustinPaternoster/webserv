@@ -36,6 +36,7 @@
 #define WRONG_DIRECTIVE "There is a wrong directive"
 #define DUPLICATES_DIRECTIVE "There is a duplicated directive"
 #define DUPLICATES_LOCATION "There is a duplicated location"
+#define WRONG_PORT "Port number is not correct"
 //volatile int g_signal = true;
 
 #define  DEFAULTCONFIG "./default_config"
