@@ -6,7 +6,7 @@
 /*   By: camurill <camurill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 12:48:31 by nikitadorof       #+#    #+#             */
-/*   Updated: 2025/12/19 19:40:49 by camurill         ###   ########.fr       */
+/*   Updated: 2025/12/23 13:54:56 by camurill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,35 +168,40 @@ HttpResponse& HttpResponse::setContent(const std::string& type)
 
 HttpResponse& HttpResponse::setBodyFile(const std::string& file)
 {
+    if (access(file.c_str(), F_OK) == -1)
+    {
+        _statusCode = 404;
+        _reason = HttpStatusCode::getReason(404);
+        getHeaders().set_http("Server", "Webserv/1.0");
+        setBody("File not found");
+        setContent("text/plain");
+        return *this;
+    }
 	std::string content = readFile(file);
-	if (!content.empty())
-	{
-		if (file.find(".html") != std::string::npos)
-			setContent("text/html");
-		else if (file.find(".json") != std::string::npos)
-			setContent("application/json");
-		else if (file.find(".css") != std::string::npos)
-			setContent("text/css");
-		else if (file.find(".js") != std::string::npos)
-			setContent("application/javascript");
-		else if (file.find(".png") != std::string::npos)
-			setContent("image/png");
-		else if (file.find(".jpg") != std::string::npos || file.find(".jpeg") != std::string::npos)
-			setContent("image/jpeg");
-		else
-			setContent("application/octet-stream");
-		this->setBody(content);
-		return *this;
-	}
+	if (file.find(".html") != std::string::npos)
+		setContent("text/html");
+	else if (file.find(".json") != std::string::npos)
+		setContent("application/json");
+	else if (file.find(".css") != std::string::npos)
+		setContent("text/css");
+	else if (file.find(".js") != std::string::npos)
+		setContent("application/javascript");
+	else if (file.find(".png") != std::string::npos)
+		setContent("image/png");
+	else if (file.find(".jpg") != std::string::npos || file.find(".jpeg") != std::string::npos)
+		setContent("image/jpeg");
 	else
-	{
-		_statusCode = 404;
-		_reason = HttpStatusCode::getReason(404);
-		getHeaders().set_http("Server", "Webserv/1.0");
-		setBody("File not found");
-		setContent("text/plain");
-		return *this;
-	}
+		setContent("application/octet-stream");
+
+	this->setBody(content);
+    
+    if (_statusCode == 0) { 
+        _statusCode = 200;
+        _reason = HttpStatusCode::getReason(200);
+        getHeaders().set_http("Server", "Webserv/1.0");
+    }
+    
+    return *this;
 }
 
 std::string	HttpResponse::build_redict(HttpRequest par, t_server server)
